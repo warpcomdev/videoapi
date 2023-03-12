@@ -13,21 +13,21 @@
 				format:   "date-time"
 				required: false
 				readOnly: true
-				filter: ["eq", "ne", "lt", "le", "gt", "ge"]
+				filter: ["lt", "le", "gt", "ge"]
 			}
 			modified_at: {
 				type:     "string"
 				format:   "date-time"
 				required: false
 				readOnly: true
-				filter: ["eq", "ne", "lt", "le", "gt", "ge"]
+				filter: ["lt", "le", "gt", "ge"]
 			}
 			timestamp: {
 				type:     "string"
 				format:   "date-time"
 				required: true
 				readOnly: false
-				filter: ["eq", "ne", "lt", "le", "gt", "ge"]
+				filter: ["lt", "le", "gt", "ge"]
 			}
 			camera: {
 				type:     "string"
@@ -69,6 +69,9 @@ paths: {for resource, data in #crud {
 				- `gt`: greater than
 				- `ge`: greater or equal
 				- `like`: SQL like
+
+				Operators `eq` and `ne` support the special value `NULL` to match
+				non-null values in the DB.
 				"""
 			#parameters: {for propname, propdata in data.properties if propdata.filter != _|_ {
 				for op in propdata.filter {

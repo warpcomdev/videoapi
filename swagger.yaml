@@ -20,6 +20,9 @@ paths:
         - `gt`: greater than
         - `ge`: greater or equal
         - `like`: SQL like
+
+        Operators `eq` and `ne` support the special value `NULL` to match
+        non-null values in the DB.
       parameters:
         - name: sort
           in: query
@@ -65,20 +68,6 @@ paths:
           description: Filter field `id` with the specified operator (`like`)
           schema:
             type: string
-        - name: q:created_at:eq
-          in: query
-          required: false
-          description: Filter field `created_at` with the specified operator (`eq`)
-          schema:
-            format: date-time
-            type: string
-        - name: q:created_at:ne
-          in: query
-          required: false
-          description: Filter field `created_at` with the specified operator (`ne`)
-          schema:
-            format: date-time
-            type: string
         - name: q:created_at:lt
           in: query
           required: false
@@ -107,20 +96,6 @@ paths:
           schema:
             format: date-time
             type: string
-        - name: q:modified_at:eq
-          in: query
-          required: false
-          description: Filter field `modified_at` with the specified operator (`eq`)
-          schema:
-            format: date-time
-            type: string
-        - name: q:modified_at:ne
-          in: query
-          required: false
-          description: Filter field `modified_at` with the specified operator (`ne`)
-          schema:
-            format: date-time
-            type: string
         - name: q:modified_at:lt
           in: query
           required: false
@@ -146,20 +121,6 @@ paths:
           in: query
           required: false
           description: Filter field `modified_at` with the specified operator (`ge`)
-          schema:
-            format: date-time
-            type: string
-        - name: q:timestamp:eq
-          in: query
-          required: false
-          description: Filter field `timestamp` with the specified operator (`eq`)
-          schema:
-            format: date-time
-            type: string
-        - name: q:timestamp:ne
-          in: query
-          required: false
-          description: Filter field `timestamp` with the specified operator (`ne`)
           schema:
             format: date-time
             type: string
