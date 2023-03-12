@@ -1,0 +1,18 @@
+version: "3"
+
+services:
+  oracle:
+    image: gvenzl/oracle-xe:18
+    # connectiong to the DB from inside the container:
+    # sqlplus videoapi/videoapi@localhost:1521/XEPDB1
+    environment:
+      ORACLE_PASSWORD: password
+      APP_USER: videoapi
+      APP_USER_PASSWORD: videoapi
+    ports:
+    - "1521:1521"
+    volumes:
+    - oracle:/opt/oracle/oradata
+
+volumes:
+  oracle:
