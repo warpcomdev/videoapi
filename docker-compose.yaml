@@ -5,6 +5,8 @@ services:
     image: gvenzl/oracle-xe:18
     # connectiong to the DB from inside the container:
     # sqlplus videoapi/videoapi@localhost:1521/XEPDB1
+    # notice the syntax for the videoapi server is slightly different:
+    # oracle://videoapi:videoapi@oracle:1521/XEPDB1
     environment:
       ORACLE_PASSWORD: password
       APP_USER: videoapi
@@ -13,6 +15,13 @@ services:
     - "1521:1521"
     volumes:
     - oracle:/opt/oracle/oradata
+
+  videoapi:
+    build: .
+    ports:
+    - "8080:8080"
+    command:
+    - oracle://videoapi:videoapi@oracle:1521/XEPDB1
 
 volumes:
   oracle:

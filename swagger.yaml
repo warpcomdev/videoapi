@@ -249,6 +249,248 @@ paths:
       responses:
         "204":
           description: no content returned if success
+  /api/picture:
+    get:
+      summary: Queries a list of Picture
+      description: |-
+        All query (q) parameters support several **operators**:
+
+        - `eq`: equals
+        - `ne`: not equals
+        - `lt`: less than
+        - `le`: less or equal
+        - `gt`: greater than
+        - `ge`: greater or equal
+        - `like`: SQL like
+
+        Operators `eq` and `ne` support the special value `NULL` to match
+        non-null values in the DB.
+      parameters:
+        - name: sort
+          in: query
+          required: false
+          description: List of columns to sort by
+          schema:
+            type: array
+            items:
+              type: string
+        - name: ascending
+          in: query
+          required: false
+          description: Sort ascending
+          schema:
+            type: boolean
+        - name: offset
+          in: query
+          required: false
+          description: Offset for pagination
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          required: false
+          description: Limit for pagination
+          schema:
+            type: integer
+        - name: q:id:eq
+          in: query
+          required: false
+          description: Filter field `id` with the specified operator (`eq`)
+          schema:
+            type: string
+        - name: q:id:ne
+          in: query
+          required: false
+          description: Filter field `id` with the specified operator (`ne`)
+          schema:
+            type: string
+        - name: q:id:like
+          in: query
+          required: false
+          description: Filter field `id` with the specified operator (`like`)
+          schema:
+            type: string
+        - name: q:created_at:lt
+          in: query
+          required: false
+          description: Filter field `created_at` with the specified operator (`lt`)
+          schema:
+            format: date-time
+            type: string
+        - name: q:created_at:le
+          in: query
+          required: false
+          description: Filter field `created_at` with the specified operator (`le`)
+          schema:
+            format: date-time
+            type: string
+        - name: q:created_at:gt
+          in: query
+          required: false
+          description: Filter field `created_at` with the specified operator (`gt`)
+          schema:
+            format: date-time
+            type: string
+        - name: q:created_at:ge
+          in: query
+          required: false
+          description: Filter field `created_at` with the specified operator (`ge`)
+          schema:
+            format: date-time
+            type: string
+        - name: q:modified_at:lt
+          in: query
+          required: false
+          description: Filter field `modified_at` with the specified operator (`lt`)
+          schema:
+            format: date-time
+            type: string
+        - name: q:modified_at:le
+          in: query
+          required: false
+          description: Filter field `modified_at` with the specified operator (`le`)
+          schema:
+            format: date-time
+            type: string
+        - name: q:modified_at:gt
+          in: query
+          required: false
+          description: Filter field `modified_at` with the specified operator (`gt`)
+          schema:
+            format: date-time
+            type: string
+        - name: q:modified_at:ge
+          in: query
+          required: false
+          description: Filter field `modified_at` with the specified operator (`ge`)
+          schema:
+            format: date-time
+            type: string
+        - name: q:timestamp:lt
+          in: query
+          required: false
+          description: Filter field `timestamp` with the specified operator (`lt`)
+          schema:
+            format: date-time
+            type: string
+        - name: q:timestamp:le
+          in: query
+          required: false
+          description: Filter field `timestamp` with the specified operator (`le`)
+          schema:
+            format: date-time
+            type: string
+        - name: q:timestamp:gt
+          in: query
+          required: false
+          description: Filter field `timestamp` with the specified operator (`gt`)
+          schema:
+            format: date-time
+            type: string
+        - name: q:timestamp:ge
+          in: query
+          required: false
+          description: Filter field `timestamp` with the specified operator (`ge`)
+          schema:
+            format: date-time
+            type: string
+        - name: q:camera:eq
+          in: query
+          required: false
+          description: Filter field `camera` with the specified operator (`eq`)
+          schema:
+            type: string
+        - name: q:camera:ne
+          in: query
+          required: false
+          description: Filter field `camera` with the specified operator (`ne`)
+          schema:
+            type: string
+        - name: q:camera:like
+          in: query
+          required: false
+          description: Filter field `camera` with the specified operator (`like`)
+          schema:
+            type: string
+        - name: q:tags:eq
+          in: query
+          required: false
+          description: Filter field `tags` with the specified operator (`eq`)
+          schema:
+            type: string
+        - name: q:tags:ne
+          in: query
+          required: false
+          description: Filter field `tags` with the specified operator (`ne`)
+          schema:
+            type: string
+        - name: q:tags:like
+          in: query
+          required: false
+          description: Filter field `tags` with the specified operator (`like`)
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of items
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListOfPicture'
+    post:
+      summary: Creates a new Picture
+      requestBody:
+        description: Information of the Picture
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Picture'
+      responses:
+        "200":
+          description: New resource created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceId'
+  /api/picture/{id}:
+    get:
+      summary: Queries a Picture by id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: resource content
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Picture'
+    put:
+      summary: Updates a Picture by id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: no content returned if success
+    delete:
+      summary: Deletes a Picture by id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: no content returned if success
 components:
   schemas:
     ResourceId:
@@ -266,6 +508,45 @@ components:
           items:
             $ref: '#/components/schemas/Video'
     Video:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: false
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        modified_at:
+          type: string
+          format: date-time
+          readOnly: true
+        timestamp:
+          type: string
+          format: date-time
+          readOnly: false
+        camera:
+          type: string
+          readOnly: false
+        tags:
+          type: array
+          items:
+            type: string
+          readOnly: false
+      required:
+        - id
+        - timestamp
+        - camera
+    ListOfPicture:
+      type: object
+      properties:
+        next:
+          type: string
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Picture'
+    Picture:
       type: object
       properties:
         id:

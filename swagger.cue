@@ -43,6 +43,51 @@
 			}
 		}
 	}
+
+	Picture: {
+		path: "picture"
+		properties: {
+			id: {
+				type:     "string"
+				required: true
+				readOnly: false
+				filter: ["eq", "ne", "like"]
+			}
+			created_at: {
+				type:     "string"
+				format:   "date-time"
+				required: false
+				readOnly: true
+				filter: ["lt", "le", "gt", "ge"]
+			}
+			modified_at: {
+				type:     "string"
+				format:   "date-time"
+				required: false
+				readOnly: true
+				filter: ["lt", "le", "gt", "ge"]
+			}
+			timestamp: {
+				type:     "string"
+				format:   "date-time"
+				required: true
+				readOnly: false
+				filter: ["lt", "le", "gt", "ge"]
+			}
+			camera: {
+				type:     "string"
+				required: true
+				readOnly: false
+				filter: ["eq", "ne", "like"]
+			}
+			tags: {
+				type:     "array"
+				required: false
+				readOnly: false
+				filter: ["eq", "ne", "like"]
+			}
+		}
+	}
 }
 
 openapi: "3.0.0"

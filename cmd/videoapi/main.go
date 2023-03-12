@@ -35,9 +35,16 @@ func main() {
 	connStr := os.ExpandEnv(os.Args[1])
 
 	db, err := sqlx.Connect("oracle", connStr)
-	if err != nil {
-		dieOnError("Can't create connection:", err)
+	for {
+		if err == nil {
+			break
+		}
+		log.Println("Can't create connection:", err)
+		log.Println("Sleeping for ten seconds")
+		time.Sleep(10 * time.Second)
+		db, err = sqlx.Connect("oracle", connStr)
 	}
+
 	db.SetMaxOpenConns(10)                  // his is a small scale server, 10 conns are enough
 	db.SetMaxIdleConns(10)                  // defaultMaxIdleConns = 2
 	db.SetConnMaxLifetime(30 * time.Minute) // 0, connections are reused forever.
