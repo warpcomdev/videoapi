@@ -4,7 +4,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/warpcomdev/videoapi/store"
+	"github.com/warpcomdev/videoapi/internal/store"
 )
 
 type Video struct {

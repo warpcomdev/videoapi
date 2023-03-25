@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/warpcomdev/videoapi/store"
+	"github.com/warpcomdev/videoapi/internal/store"
 )
 
 // Model is the base for all models.

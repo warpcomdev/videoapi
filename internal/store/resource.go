@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/warpcomdev/videoapi/crud"
+	"github.com/warpcomdev/videoapi/internal/crud"
 )
 
 // Model represents any database table with an ID

@@ -3,7 +3,7 @@ package models
 import (
 	"errors"
 
-	"github.com/warpcomdev/videoapi/store"
+	"github.com/warpcomdev/videoapi/internal/store"
 )
 
 type Camera struct {

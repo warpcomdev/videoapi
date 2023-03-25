@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/warpcomdev/videoapi/store"
+	"github.com/warpcomdev/videoapi/internal/store"
 )
 
 // Builds a "OFFSET x LIMIT x" clause the oracle way

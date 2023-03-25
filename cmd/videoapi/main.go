@@ -10,9 +10,9 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	_ "github.com/sijms/go-ora/v2"
-	"github.com/warpcomdev/videoapi/crud"
-	"github.com/warpcomdev/videoapi/models"
-	"github.com/warpcomdev/videoapi/store"
+	"github.com/warpcomdev/videoapi/internal/crud"
+	"github.com/warpcomdev/videoapi/internal/models"
+	"github.com/warpcomdev/videoapi/internal/store"
 )
 
 func dieOnError(msg string, err error) {

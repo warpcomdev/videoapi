@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/warpcomdev/videoapi/crud"
+	"github.com/warpcomdev/videoapi/internal/crud"
 )
 
 // DBType represents a database column type that can be filtered

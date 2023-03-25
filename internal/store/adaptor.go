@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"io"
 
-	"github.com/warpcomdev/videoapi/crud"
+	"github.com/warpcomdev/videoapi/internal/crud"
 )
 
 // adaptor matches store.Resource to crud.Resource
