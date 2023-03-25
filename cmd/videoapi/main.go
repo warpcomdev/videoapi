@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/jmoiron/sqlx"
@@ -15,6 +16,7 @@ import (
 	"github.com/warpcomdev/videoapi/internal/cors"
 	"github.com/warpcomdev/videoapi/internal/crud"
 	"github.com/warpcomdev/videoapi/internal/models"
+	"github.com/warpcomdev/videoapi/internal/policy"
 	"github.com/warpcomdev/videoapi/internal/store"
 )
 
@@ -41,6 +43,7 @@ func main() {
 		log.Fatal("JWT_KEY is not set")
 	}
 	superPassword := os.Getenv("SUPER_PASSWORD")
+	debug := strings.HasPrefix(strings.ToLower(os.Getenv("DEBUG")), "t")
 
 	db, err := sqlx.Connect("oracle", connStr)
 	for {
@@ -53,7 +56,7 @@ func main() {
 		db, err = sqlx.Connect("oracle", connStr)
 	}
 
-	db.SetMaxOpenConns(10)                  // his is a small scale server, 10 conns are enough
+	db.SetMaxOpenConns(10)                  // this is a small scale server, 10 conns are enough
 	db.SetMaxIdleConns(10)                  // defaultMaxIdleConns = 2
 	db.SetConnMaxLifetime(30 * time.Minute) // 0, connections are reused forever.
 
@@ -61,25 +64,29 @@ func main() {
 	if err := userDescriptor.CreateDb(context.Background(), db); err == nil {
 		log.Printf("created table %s\n", userDescriptor.TableName)
 	}
-	userResource := store.Adapt[models.User](
-		userDescriptor.TableName,
-		userDescriptor.FilterSet,
-		SqlxQuerier{DB: db},
-		SqlxExecutor{DB: db},
-		oracleLimiter,
-	)
+	userResource := policy.UserPolicy{
+		UserStore: store.New[models.User](
+			SqlxQuerier{DB: db},
+			SqlxExecutor{DB: db},
+			userDescriptor.TableName,
+			userDescriptor.FilterSet,
+			oracleLimiter,
+		),
+	}
 
 	videoDescriptor := models.VideoDescriptor()
 	if err := videoDescriptor.CreateDb(context.Background(), db); err == nil {
 		log.Printf("created table %s\n", videoDescriptor.TableName)
 	}
-	videoResource := store.Adapt[models.Video](
-		videoDescriptor.TableName,
-		videoDescriptor.FilterSet,
-		SqlxQuerier{DB: db},
-		SqlxExecutor{DB: db},
-		oracleLimiter,
-	)
+	videoResource := policy.VideoPolicy{
+		VideoStore: store.New[models.Video](
+			SqlxQuerier{DB: db},
+			SqlxExecutor{DB: db},
+			videoDescriptor.TableName,
+			videoDescriptor.FilterSet,
+			oracleLimiter,
+		),
+	}
 
 	mux := &http.ServeMux{}
 	server := http.Server{
@@ -95,14 +102,15 @@ func main() {
 	// Authorization endpoints
 	authOptions := make([]auth.AuthOption, 0, 8)
 	if superPassword != "" {
-		// only for debugging purposes
+		authOptions = append(authOptions, auth.WithSuperAdmin(superPassword))
+	}
+	if debug {
 		authOptions = append(authOptions,
-			auth.WithSuperAdmin(superPassword),
 			auth.WithSecureCookie(false),
 			auth.WithSameSiteCookie(false),
 		)
 	}
-	mux.Handle("/api/auth", cors.Allow(auth.Login(userResource.Resource, userResource.Querier, jwtKey, authOptions...)))
+	mux.Handle("/api/auth", cors.Allow(auth.Login(userResource, jwtKey, authOptions...)))
 	mux.Handle("/api/me", cors.Allow(auth.WithClaims(jwtKey, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		claims, err := auth.ClaimsFrom(r.Context())
 		if err != nil {
@@ -114,19 +122,16 @@ func main() {
 		json.NewEncoder(w).Encode(claims)
 	}))))
 
-	// User administration endpoints
-	userHandler := http.StripPrefix("/api/user", cors.Allow(auth.WithClaims(jwtKey, crud.Handler(UserRbacResource{
-		Resource: userResource,
-	}))))
-	mux.Handle("/api/user/", userHandler)
-	mux.Handle("/api/user", userHandler)
+	// Stack all the cors, auth and crud middleware on top of the resources
+	stackHandlers := func(prefix string, resource crud.Resource) {
+		handler := http.StripPrefix(prefix, cors.Allow(auth.WithClaims(jwtKey, crud.Handler(resource))))
+		mux.Handle(prefix+"/", handler)
+		mux.Handle(prefix, handler)
+	}
 
-	// video management endpoints
-	videoHandler := http.StripPrefix("/api/video", cors.Allow(auth.WithClaims(jwtKey, crud.Handler(RbacResource{
-		Resource: videoResource,
-	}))))
-	mux.Handle("/api/video/", videoHandler)
-	mux.Handle("/api/video", videoHandler)
+	// User administration endpoints
+	stackHandlers("/api/user", store.Adapt[models.User](userResource))
+	stackHandlers("/api/video", store.Adapt[models.Video](videoResource))
 
 	log.Printf("Listening at %s\n", server.Addr)
 	log.Fatal(server.ListenAndServe())

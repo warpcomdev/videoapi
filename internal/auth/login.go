@@ -79,7 +79,7 @@ func WithCookiePath(path string) AuthOption {
 }
 
 // Login returns a handler that authenticates a user
-func Login(store store.Resource[models.User, *models.User], querier store.Querier, jwtKey []byte, options ...AuthOption) http.Handler {
+func Login(store store.Resource[models.User], jwtKey []byte, options ...AuthOption) http.Handler {
 	config := loginConfig{
 		Secure:     true,
 		HttpOnly:   true,
@@ -124,7 +124,7 @@ func Login(store store.Resource[models.User, *models.User], querier store.Querie
 			}
 		} else {
 			var err error
-			match, err = store.GetById(r.Context(), querier, user.ID)
+			match, err = store.GetById(r.Context(), user.ID)
 			if err != nil {
 				http.Error(w, "internal server error", http.StatusInternalServerError)
 				return

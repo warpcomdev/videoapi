@@ -11,6 +11,7 @@ import (
 	"strings"
 )
 
+// Resource implements the CRUD operations
 type Resource interface {
 	// Get resource by id
 	GetById(context.Context, string) (io.ReadCloser, error)

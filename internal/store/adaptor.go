@@ -9,19 +9,28 @@ import (
 	"github.com/warpcomdev/videoapi/internal/crud"
 )
 
+// Resource implements the CRUD operations
+type Resource[T any] interface {
+	// Get resource by id
+	GetById(context.Context, string) (T, error)
+	// Get resource by filter
+	Get(ctx context.Context, filter []crud.Filter, sort []string, ascending bool, offset, limit int) ([]T, error)
+	// Post (create) new resource, return id
+	Post(ctx context.Context, data T) (string, error)
+	// Put (update) resource
+	Put(ctx context.Context, id string, data T) error
+	// Delete resource by id
+	Delete(context.Context, string) error
+}
+
 // Adaptor matches store.Resource to crud.Resource
-type Adaptor[T Model, P interface {
-	*T
-	EditableModel
-}] struct {
-	Resource Resource[T, P]
-	Querier  Querier
-	Executor Executor
+type Adaptor[T any] struct {
+	Resource Resource[T]
 }
 
 // Get resource by id
-func (vr Adaptor[T, P]) GetById(ctx context.Context, id string) (io.ReadCloser, error) {
-	v, err := vr.Resource.GetById(ctx, vr.Querier, id)
+func (vr Adaptor[T]) GetById(ctx context.Context, id string) (io.ReadCloser, error) {
+	v, err := vr.Resource.GetById(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -32,14 +41,14 @@ func (vr Adaptor[T, P]) GetById(ctx context.Context, id string) (io.ReadCloser, 
 	return io.NopCloser(bytes.NewReader(data)), nil
 }
 
-type getResult[T Model] struct {
+type getResult[T any] struct {
 	Data []T    `json:"data"`
 	Next string `json:"next"`
 }
 
 // Get resource list
-func (vr Adaptor[T, P]) Get(ctx context.Context, filter []crud.Filter, sort []string, ascending bool, offset, limit int) (io.ReadCloser, error) {
-	vs, err := vr.Resource.Get(ctx, vr.Querier, filter, sort, ascending, offset, limit)
+func (vr Adaptor[T]) Get(ctx context.Context, filter []crud.Filter, sort []string, ascending bool, offset, limit int) (io.ReadCloser, error) {
+	vs, err := vr.Resource.Get(ctx, filter, sort, ascending, offset, limit)
 	if err != nil {
 		return nil, err
 	}
@@ -65,13 +74,13 @@ type postResult struct {
 }
 
 // Post (create) new resource
-func (vr Adaptor[T, P]) Post(ctx context.Context, r io.Reader) (io.ReadCloser, error) {
+func (vr Adaptor[T]) Post(ctx context.Context, r io.Reader) (io.ReadCloser, error) {
 	var orig T
 	dec := json.NewDecoder(r)
 	if err := dec.Decode(&orig); err != nil {
 		return nil, err
 	}
-	id, err := vr.Resource.Post(ctx, vr.Executor, orig)
+	id, err := vr.Resource.Post(ctx, orig)
 	if err != nil {
 		return nil, err
 	}
@@ -84,31 +93,26 @@ func (vr Adaptor[T, P]) Post(ctx context.Context, r io.Reader) (io.ReadCloser, e
 }
 
 // Put (update) resource
-func (vr Adaptor[T, P]) Put(ctx context.Context, id string, r io.Reader) error {
+func (vr Adaptor[T]) Put(ctx context.Context, id string, r io.Reader) error {
 	var orig T
 	dec := json.NewDecoder(r)
 	if err := dec.Decode(&orig); err != nil {
 		return err
 	}
-	if err := vr.Resource.Put(ctx, vr.Executor, orig, id); err != nil {
+	if err := vr.Resource.Put(ctx, id, orig); err != nil {
 		return err
 	}
 	return nil
 }
 
 // Delete resource by id
-func (vr Adaptor[T, P]) Delete(ctx context.Context, id string) error {
-	return vr.Resource.Delete(ctx, vr.Executor, id)
+func (vr Adaptor[T]) Delete(ctx context.Context, id string) error {
+	return vr.Resource.Delete(ctx, id)
 }
 
 // Adapt builds a resource for the given model
-func Adapt[T Model, P interface {
-	*T
-	EditableModel
-}](tableName string, columns FilterSet, querier Querier, executor Executor, limiter Limiter) Adaptor[T, P] {
-	return Adaptor[T, P]{
-		Resource: New[T, P](tableName, columns, limiter),
-		Querier:  querier,
-		Executor: executor,
+func Adapt[T any](resource Resource[T]) Adaptor[T] {
+	return Adaptor[T]{
+		Resource: resource,
 	}
 }

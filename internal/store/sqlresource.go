@@ -20,11 +20,14 @@ type EditableModel interface {
 	PrepareUpdate(id string) ([]string, error)
 }
 
-// Resource manages database operations in a givem table
-type Resource[T Model, P interface {
+// SQLResource manages database operations in a givem table
+type SQLResource[T Model, P interface {
 	*T
 	EditableModel
 }] struct {
+	// Construction params
+	querier  Querier
+	executor Executor
 	// Properties of the Table
 	tableName string
 	columns   map[string]DbType
@@ -36,8 +39,10 @@ type Resource[T Model, P interface {
 func New[T Model, P interface {
 	*T
 	EditableModel
-}](tableName string, columns map[string]DbType, limiter Limiter) Resource[T, P] {
-	return Resource[T, P]{
+}](querier Querier, exec Executor, tableName string, columns map[string]DbType, limiter Limiter) SQLResource[T, P] {
+	return SQLResource[T, P]{
+		querier:   querier,
+		executor:  exec,
 		tableName: tableName,
 		columns:   columns,
 		limiter:   limiter,
@@ -45,13 +50,13 @@ func New[T Model, P interface {
 }
 
 // GetById searches the table for the given id
-func (r *Resource[T, P]) GetById(ctx context.Context, querier Querier, id string) (t T, err error) {
+func (r SQLResource[T, P]) GetById(ctx context.Context, id string) (t T, err error) {
 	var sb strings.Builder
 	sb.WriteString("SELECT * FROM ")
 	sb.WriteString(r.tableName)
 	sb.WriteString(" WHERE id=? ")
 	sb.WriteString(r.limiter(0, 1))
-	if err := querier.GetContext(ctx, &t, sb.String(), id); err != nil {
+	if err := r.querier.GetContext(ctx, &t, sb.String(), id); err != nil {
 		return t, QueryError{
 			Message: "failed to get resource",
 			Query:   sb.String(),
@@ -63,7 +68,7 @@ func (r *Resource[T, P]) GetById(ctx context.Context, querier Querier, id string
 }
 
 // Get filtered (and possibly paginated) resources
-func (r *Resource[T, P]) Get(ctx context.Context, querier Querier, filter []crud.Filter, sort []string, ascending bool, offset, limit int) ([]T, error) {
+func (r SQLResource[T, P]) Get(ctx context.Context, filter []crud.Filter, sort []string, ascending bool, offset, limit int) ([]T, error) {
 	var sb strings.Builder
 	pp := make([]interface{}, 0, 16)
 	sb.WriteString("SELECT * FROM ")
@@ -123,7 +128,7 @@ func (r *Resource[T, P]) Get(ctx context.Context, querier Querier, filter []crud
 	}
 	sb.WriteString(r.limiter(offset, limit))
 	var result []T
-	if err := querier.SelectContext(ctx, &result, sb.String(), pp...); err != nil {
+	if err := r.querier.SelectContext(ctx, &result, sb.String(), pp...); err != nil {
 		return nil, QueryError{
 			Message: "failed to filter resource",
 			Query:   sb.String(),
@@ -135,7 +140,7 @@ func (r *Resource[T, P]) Get(ctx context.Context, querier Querier, filter []crud
 }
 
 // Post creates a resource in the database
-func (r *Resource[T, P]) Post(ctx context.Context, exec Executor, t T) (string, error) {
+func (r SQLResource[T, P]) Post(ctx context.Context, t T) (string, error) {
 	cols, err := P(&t).PrepareCreate()
 	if err != nil {
 		return "", err
@@ -148,7 +153,7 @@ func (r *Resource[T, P]) Post(ctx context.Context, exec Executor, t T) (string, 
 	sb.WriteString(") VALUES (:")
 	sb.WriteString(strings.ToUpper(strings.Join(cols, ", :")))
 	sb.WriteString(")")
-	tx, err := exec.Begin(ctx)
+	tx, err := r.executor.Begin(ctx)
 	if err != nil {
 		return "", err
 	}
@@ -170,7 +175,7 @@ func (r *Resource[T, P]) Post(ctx context.Context, exec Executor, t T) (string, 
 }
 
 // Put updates a resource in the database
-func (r *Resource[T, P]) Put(ctx context.Context, exec Executor, t T, id string) error {
+func (r SQLResource[T, P]) Put(ctx context.Context, id string, t T) error {
 	if id == "" {
 		return errors.New("cannot update resource with empty id")
 	}
@@ -191,7 +196,7 @@ func (r *Resource[T, P]) Put(ctx context.Context, exec Executor, t T, id string)
 		sb.WriteString(strings.ToUpper(col))
 	}
 	sb.WriteString(" WHERE id=:ID")
-	tx, err := exec.Begin(ctx)
+	tx, err := r.executor.Begin(ctx)
 	if err != nil {
 		return err
 	}
@@ -217,7 +222,7 @@ type deleteReq struct {
 }
 
 // Delete a resource from the database
-func (r *Resource[T, P]) Delete(ctx context.Context, exec Executor, id string) error {
+func (r SQLResource[T, P]) Delete(ctx context.Context, id string) error {
 	if id == "" {
 		return errors.New("cannot remove resource with empty id")
 	}
@@ -225,7 +230,7 @@ func (r *Resource[T, P]) Delete(ctx context.Context, exec Executor, id string) e
 	sb.WriteString("DELETE FROM ")
 	sb.WriteString(r.tableName)
 	sb.WriteString(" WHERE id=:ID")
-	tx, err := exec.Begin(ctx)
+	tx, err := r.executor.Begin(ctx)
 	if err != nil {
 		return err
 	}

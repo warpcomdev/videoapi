@@ -19,9 +19,10 @@ services:
   videoapi:
     build: .
     environment:
-      JWT_KEY: secretJwtKey
+      JWT_KEY: "secretJwtKey"
       # Remove for production
-      SUPER_PASSWORD: superPassword
+      SUPER_PASSWORD: "superPassword"
+      DEBUG: "true"
     ports:
     - "8080:8080"
     command:
