@@ -25,6 +25,8 @@ func (err Error) HttpError() (int, string) {
 		return http.StatusBadRequest, "must provide resource id"
 	case ErrUnsupportedMethod:
 		return http.StatusMethodNotAllowed, "unsupported method"
+	case ErrUnauthorized:
+		return http.StatusUnauthorized, "unauthorized"
 	default:
 		return http.StatusInternalServerError, fmt.Sprintf("error code %d", err)
 	}
@@ -45,4 +47,5 @@ const (
 	ErrEmptyBody
 	ErrMissingResourceId
 	ErrUnsupportedMethod
+	ErrUnauthorized
 )
