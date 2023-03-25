@@ -19,23 +19,37 @@ var signingMethod = jwt.SigningMethodHS256
 
 type claimsKey int
 
-const claimsID claimsKey = 0
+const (
+	claimsID   claimsKey = 0
+	cookieName string    = "VIDEOAPI_SESSION"
+)
 
 // auth returns the role of the user in the request
 func auth(r *http.Request, jwtKey []byte) (models.Role, error) {
 	auth := r.Header.Get("Authorization")
+	if auth != "" {
+		// Authorization header has precedence over cookie
+		parts := strings.Split(auth, " ")
+		if len(parts) != 2 {
+			return models.ROLE_UNSET, ErrorInvalidAuthHeader
+		}
+		if strings.ToLower(parts[0]) != "bearer" {
+			return models.ROLE_UNSET, ErrorInvalidAuthHeader
+		}
+		auth = parts[1]
+	} else {
+		// Cookie is supported for posting uploads in a form
+		authCookie, err := r.Cookie(cookieName)
+		if err != nil {
+			return models.ROLE_UNSET, ErrorMisingAuthHeader
+		}
+		auth = authCookie.Value
+	}
 	if auth == "" {
 		return models.ROLE_UNSET, ErrorMisingAuthHeader
 	}
-	parts := strings.Split(auth, " ")
-	if len(parts) != 2 {
-		return models.ROLE_UNSET, ErrorInvalidAuthHeader
-	}
-	if strings.ToLower(parts[0]) != "bearer" {
-		return models.ROLE_UNSET, ErrorInvalidAuthHeader
-	}
 	var currClaims Claims
-	token, err := jwt.ParseWithClaims(parts[1], &currClaims, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.ParseWithClaims(auth, &currClaims, func(token *jwt.Token) (interface{}, error) {
 		// Don't forget to validate the alg is what you expect:
 		if token.Method != signingMethod {
 			return nil, ErrorUnexpectedSigningMethod

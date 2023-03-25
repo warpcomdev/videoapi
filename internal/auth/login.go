@@ -21,8 +21,75 @@ type loginReply struct {
 	Token string `json:"token"`
 }
 
+type loginConfig struct {
+	Secure     bool
+	HttpOnly   bool
+	SameSite   http.SameSite
+	SuperAdmin string
+	Expiration time.Duration
+	Path       string
+}
+
+type AuthOption func(*loginConfig)
+
+// WithSecureCookie changes the default secure cookie flag
+func WithSecureCookie(secure bool) AuthOption {
+	return func(config *loginConfig) {
+		config.Secure = secure
+	}
+}
+
+// WithHttpOnlyCookie changes the default httpOnly cookie flag
+func WithHttpOnlyCookie(httpOnly bool) AuthOption {
+	return func(config *loginConfig) {
+		config.HttpOnly = httpOnly
+	}
+}
+
+// WithSameSiteCookie changes the default sameSite cookie flag
+func WithSameSiteCookie(sameSite bool) AuthOption {
+	return func(config *loginConfig) {
+		if sameSite {
+			config.SameSite = http.SameSiteStrictMode
+		} else {
+			config.SameSite = http.SameSiteLaxMode
+		}
+	}
+}
+
+// WithSuperAdmin sets the super admin password
+func WithSuperAdmin(password string) AuthOption {
+	return func(config *loginConfig) {
+		config.SuperAdmin = password
+	}
+}
+
+// Changes the default session duration
+func WithDuration(duration time.Duration) AuthOption {
+	return func(config *loginConfig) {
+		config.Expiration = duration
+	}
+}
+
+// Changes the default cookie path
+func WithCookiePath(path string) AuthOption {
+	return func(config *loginConfig) {
+		config.Path = path
+	}
+}
+
 // Login returns a handler that authenticates a user
-func Login(store store.Resource[models.User, *models.User], querier store.Querier, jwtKey []byte, superAdmin string) http.Handler {
+func Login(store store.Resource[models.User, *models.User], querier store.Querier, jwtKey []byte, options ...AuthOption) http.Handler {
+	config := loginConfig{
+		Secure:     true,
+		HttpOnly:   true,
+		SameSite:   http.SameSiteStrictMode,
+		Expiration: 2 * time.Hour,
+		Path:       "/api",
+	}
+	for _, opt := range options {
+		opt(&config)
+	}
 	handler := func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
 			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
@@ -47,7 +114,7 @@ func Login(store store.Resource[models.User, *models.User], querier store.Querie
 			return
 		}
 		var match models.User
-		if superAdmin != "" && user.Name == "superAdmin" || user.Password == superAdmin {
+		if config.SuperAdmin != "" && user.Name == "superAdmin" || user.Password == config.SuperAdmin {
 			match = models.User{
 				Model: models.Model{
 					ID: "superAdmin",
@@ -72,12 +139,13 @@ func Login(store store.Resource[models.User, *models.User], querier store.Querie
 				return
 			}
 		}
+		expires := time.Now().Add(config.Expiration)
 		token := jwt.NewWithClaims(signingMethod, Claims{
 			RegisteredClaims: jwt.RegisteredClaims{
 				Issuer:    "videoapi",
 				Subject:   string(match.ID),
 				Audience:  []string{"videoapi"},
-				ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 1)),
+				ExpiresAt: jwt.NewNumericDate(expires),
 				IssuedAt:  jwt.NewNumericDate(time.Now()),
 				// Allow for a bit of clock skew
 				NotBefore: jwt.NewNumericDate(time.Now().Add(time.Second * -5)),
@@ -99,6 +167,17 @@ func Login(store store.Resource[models.User, *models.User], querier store.Querie
 			Token: tokenString,
 		}
 		w.Header().Set("Content-Type", "application/json")
+		cookie := &http.Cookie{
+			Domain:   r.Host,
+			Path:     config.Path,
+			Name:     cookieName,
+			Value:    tokenString,
+			Expires:  expires,
+			Secure:   config.Secure,
+			HttpOnly: config.HttpOnly,
+			SameSite: config.SameSite,
+		}
+		http.SetCookie(w, cookie)
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(reply)
 	}

@@ -20,7 +20,8 @@ services:
     build: .
     environment:
       JWT_KEY: secretJwtKey
-      SUPER_ADMIN: superPassword
+      # Remove for production
+      SUPER_PASSWORD: superPassword
     ports:
     - "8080:8080"
     command:

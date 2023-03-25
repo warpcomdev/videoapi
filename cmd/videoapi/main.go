@@ -40,7 +40,7 @@ func main() {
 	if len(jwtKey) == 0 {
 		log.Fatal("JWT_KEY is not set")
 	}
-	superAdmin := os.Getenv("SUPER_ADMIN")
+	superPassword := os.Getenv("SUPER_PASSWORD")
 
 	db, err := sqlx.Connect("oracle", connStr)
 	for {
@@ -93,7 +93,16 @@ func main() {
 	}
 
 	// Authorization endpoints
-	mux.Handle("/api/auth", cors.Allow(auth.Login(userResource.Resource, userResource.Querier, jwtKey, superAdmin)))
+	authOptions := make([]auth.AuthOption, 0, 8)
+	if superPassword != "" {
+		// only for debugging purposes
+		authOptions = append(authOptions,
+			auth.WithSuperAdmin(superPassword),
+			auth.WithSecureCookie(false),
+			auth.WithSameSiteCookie(false),
+		)
+	}
+	mux.Handle("/api/auth", cors.Allow(auth.Login(userResource.Resource, userResource.Querier, jwtKey, authOptions...)))
 	mux.Handle("/api/me", cors.Allow(auth.WithClaims(jwtKey, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		claims, err := auth.ClaimsFrom(r.Context())
 		if err != nil {
