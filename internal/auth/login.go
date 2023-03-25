@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -129,7 +130,7 @@ func Login(store store.Resource[models.User], jwtKey []byte, options ...AuthOpti
 				http.Error(w, "internal server error", http.StatusInternalServerError)
 				return
 			}
-			hash, err := base64.StdEncoding.DecodeString(match.Hash)
+			hash, err := base64.StdEncoding.DecodeString(match.Password)
 			if err != nil {
 				http.Error(w, "internal server error", http.StatusInternalServerError)
 				return
@@ -167,8 +168,12 @@ func Login(store store.Resource[models.User], jwtKey []byte, options ...AuthOpti
 			Token: tokenString,
 		}
 		w.Header().Set("Content-Type", "application/json")
+		domain := r.Host
+		if strings.Contains(domain, ":") {
+			domain = strings.Split(domain, ":")[0]
+		}
 		cookie := &http.Cookie{
-			Domain:   r.Host,
+			Domain:   domain,
 			Path:     config.Path,
 			Name:     cookieName,
 			Value:    tokenString,

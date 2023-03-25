@@ -4,12 +4,55 @@ info:
   description: API para la comunicación con el backend de video
   version: 0.1.0
 servers:
-  - url: http://api.example.com/v1
-    description: Servidor ejemplo
+  - url: /
+    description: current host
 paths:
-  /api/video:
+  /api/auth:
+    post:
+      summary: Logs in and returns the authentication token
+      security: []
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        description: Credentials
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                password:
+                  type: string
+      responses:
+        "200":
+          description: Authentication token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+                  role:
+                    type: string
+                  token:
+                    type: string
+          headers:
+            Set-Cookie:
+              description: Authentication cookie
+              schema:
+                type: string
+        "401":
+          description: Invalid credentials
+  /api/user:
     get:
-      summary: Queries a list of Video
+      summary: Queries a list of User
+      tags:
+        - User
       description: |-
         All query (q) parameters support several **operators**:
 
@@ -23,6 +66,237 @@ paths:
 
         Operators `eq` and `ne` support the special value `NULL` to match
         non-null values in the DB.
+      security:
+        - bearerAuth: []
+        - cookieaAuth: []
+      parameters:
+        - name: sort
+          in: query
+          required: false
+          description: List of columns to sort by
+          schema:
+            type: array
+            items:
+              type: string
+        - name: ascending
+          in: query
+          required: false
+          description: Sort ascending
+          schema:
+            type: boolean
+        - name: offset
+          in: query
+          required: false
+          description: Offset for pagination
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          required: false
+          description: Limit for pagination
+          schema:
+            type: integer
+        - name: q:id:eq
+          in: query
+          required: false
+          description: Filter field `id` with the specified operator (`eq`)
+          schema:
+            type: string
+        - name: q:id:ne
+          in: query
+          required: false
+          description: Filter field `id` with the specified operator (`ne`)
+          schema:
+            type: string
+        - name: q:id:like
+          in: query
+          required: false
+          description: Filter field `id` with the specified operator (`like`)
+          schema:
+            type: string
+        - name: q:created_at:lt
+          in: query
+          required: false
+          description: Filter field `created_at` with the specified operator (`lt`)
+          schema:
+            format: date-time
+            type: string
+        - name: q:created_at:le
+          in: query
+          required: false
+          description: Filter field `created_at` with the specified operator (`le`)
+          schema:
+            format: date-time
+            type: string
+        - name: q:created_at:gt
+          in: query
+          required: false
+          description: Filter field `created_at` with the specified operator (`gt`)
+          schema:
+            format: date-time
+            type: string
+        - name: q:created_at:ge
+          in: query
+          required: false
+          description: Filter field `created_at` with the specified operator (`ge`)
+          schema:
+            format: date-time
+            type: string
+        - name: q:modified_at:lt
+          in: query
+          required: false
+          description: Filter field `modified_at` with the specified operator (`lt`)
+          schema:
+            format: date-time
+            type: string
+        - name: q:modified_at:le
+          in: query
+          required: false
+          description: Filter field `modified_at` with the specified operator (`le`)
+          schema:
+            format: date-time
+            type: string
+        - name: q:modified_at:gt
+          in: query
+          required: false
+          description: Filter field `modified_at` with the specified operator (`gt`)
+          schema:
+            format: date-time
+            type: string
+        - name: q:modified_at:ge
+          in: query
+          required: false
+          description: Filter field `modified_at` with the specified operator (`ge`)
+          schema:
+            format: date-time
+            type: string
+        - name: q:name:eq
+          in: query
+          required: false
+          description: Filter field `name` with the specified operator (`eq`)
+          schema:
+            type: string
+        - name: q:name:ne
+          in: query
+          required: false
+          description: Filter field `name` with the specified operator (`ne`)
+          schema:
+            type: string
+        - name: q:name:like
+          in: query
+          required: false
+          description: Filter field `name` with the specified operator (`like`)
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of items
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListOfUser'
+    post:
+      summary: Creates a new User
+      tags:
+        - User
+      requestBody:
+        description: Information of the User
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      security:
+        - bearerAuth: []
+        - cookieaAuth: []
+      responses:
+        "200":
+          description: New resource created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceId'
+  /api/user/{id}:
+    get:
+      summary: Queries a User by id
+      tags:
+        - User
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+        - cookieaAuth: []
+      responses:
+        "200":
+          description: resource content
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+    put:
+      summary: Updates a User by id
+      tags:
+        - User
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Information of the User
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      security:
+        - bearerAuth: []
+        - cookieaAuth: []
+      responses:
+        "204":
+          description: no content returned if success
+    delete:
+      summary: Deletes a User by id
+      tags:
+        - User
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+        - cookieaAuth: []
+      responses:
+        "204":
+          description: no content returned if success
+  /api/video:
+    get:
+      summary: Queries a list of Video
+      tags:
+        - Video
+      description: |-
+        All query (q) parameters support several **operators**:
+
+        - `eq`: equals
+        - `ne`: not equals
+        - `lt`: less than
+        - `le`: less or equal
+        - `gt`: greater than
+        - `ge`: greater or equal
+        - `like`: SQL like
+
+        Operators `eq` and `ne` support the special value `NULL` to match
+        non-null values in the DB.
+      security:
+        - bearerAuth: []
+        - cookieaAuth: []
       parameters:
         - name: sort
           in: query
@@ -197,6 +471,8 @@ paths:
                 $ref: '#/components/schemas/ListOfVideo'
     post:
       summary: Creates a new Video
+      tags:
+        - Video
       requestBody:
         description: Information of the Video
         required: true
@@ -204,6 +480,9 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Video'
+      security:
+        - bearerAuth: []
+        - cookieaAuth: []
       responses:
         "200":
           description: New resource created
@@ -214,12 +493,17 @@ paths:
   /api/video/{id}:
     get:
       summary: Queries a Video by id
+      tags:
+        - Video
       parameters:
         - name: id
           in: path
           required: true
           schema:
             type: string
+      security:
+        - bearerAuth: []
+        - cookieaAuth: []
       responses:
         "200":
           description: resource content
@@ -229,29 +513,48 @@ paths:
                 $ref: '#/components/schemas/Video'
     put:
       summary: Updates a Video by id
+      tags:
+        - Video
       parameters:
         - name: id
           in: path
           required: true
           schema:
             type: string
+      requestBody:
+        description: Information of the Video
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Video'
+      security:
+        - bearerAuth: []
+        - cookieaAuth: []
       responses:
         "204":
           description: no content returned if success
     delete:
       summary: Deletes a Video by id
+      tags:
+        - Video
       parameters:
         - name: id
           in: path
           required: true
           schema:
             type: string
+      security:
+        - bearerAuth: []
+        - cookieaAuth: []
       responses:
         "204":
           description: no content returned if success
   /api/picture:
     get:
       summary: Queries a list of Picture
+      tags:
+        - Picture
       description: |-
         All query (q) parameters support several **operators**:
 
@@ -265,6 +568,9 @@ paths:
 
         Operators `eq` and `ne` support the special value `NULL` to match
         non-null values in the DB.
+      security:
+        - bearerAuth: []
+        - cookieaAuth: []
       parameters:
         - name: sort
           in: query
@@ -439,6 +745,8 @@ paths:
                 $ref: '#/components/schemas/ListOfPicture'
     post:
       summary: Creates a new Picture
+      tags:
+        - Picture
       requestBody:
         description: Information of the Picture
         required: true
@@ -446,6 +754,9 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Picture'
+      security:
+        - bearerAuth: []
+        - cookieaAuth: []
       responses:
         "200":
           description: New resource created
@@ -456,12 +767,17 @@ paths:
   /api/picture/{id}:
     get:
       summary: Queries a Picture by id
+      tags:
+        - Picture
       parameters:
         - name: id
           in: path
           required: true
           schema:
             type: string
+      security:
+        - bearerAuth: []
+        - cookieaAuth: []
       responses:
         "200":
           description: resource content
@@ -471,38 +787,100 @@ paths:
                 $ref: '#/components/schemas/Picture'
     put:
       summary: Updates a Picture by id
+      tags:
+        - Picture
       parameters:
         - name: id
           in: path
           required: true
           schema:
             type: string
+      requestBody:
+        description: Information of the Picture
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Picture'
+      security:
+        - bearerAuth: []
+        - cookieaAuth: []
       responses:
         "204":
           description: no content returned if success
     delete:
       summary: Deletes a Picture by id
+      tags:
+        - Picture
       parameters:
         - name: id
           in: path
           required: true
           schema:
             type: string
+      security:
+        - bearerAuth: []
+        - cookieaAuth: []
       responses:
         "204":
           description: no content returned if success
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: VIDEOAPI_SESSION
   schemas:
     ResourceId:
       type: object
       properties:
         id:
           type: string
+    ListOfUser:
+      type: object
+      properties:
+        next:
+          type: string
+          example: sort=asc&offset=10&limit=10
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: false
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        modified_at:
+          type: string
+          format: date-time
+          readOnly: true
+        name:
+          type: string
+          readOnly: false
+        role:
+          type: string
+          readOnly: false
+        password:
+          type: string
+          readOnly: false
+      required:
+        - id
     ListOfVideo:
       type: object
       properties:
         next:
           type: string
+          example: sort=asc&offset=10&limit=10
         data:
           type: array
           items:
@@ -542,6 +920,7 @@ components:
       properties:
         next:
           type: string
+          example: sort=asc&offset=10&limit=10
         data:
           type: array
           items:

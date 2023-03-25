@@ -18,6 +18,7 @@ import (
 	"github.com/warpcomdev/videoapi/internal/models"
 	"github.com/warpcomdev/videoapi/internal/policy"
 	"github.com/warpcomdev/videoapi/internal/store"
+	"github.com/warpcomdev/videoapi/internal/swagger"
 )
 
 func dieOnError(msg string, err error) {
@@ -58,7 +59,7 @@ func main() {
 
 	db.SetMaxOpenConns(10)                  // this is a small scale server, 10 conns are enough
 	db.SetMaxIdleConns(10)                  // defaultMaxIdleConns = 2
-	db.SetConnMaxLifetime(30 * time.Minute) // 0, connections are reused forever.
+	db.SetConnMaxLifetime(30 * time.Minute) // if 0, connections are reused forever.
 
 	userDescriptor := models.UserDescriptor()
 	if err := userDescriptor.CreateDb(context.Background(), db); err == nil {
@@ -132,6 +133,9 @@ func main() {
 	// User administration endpoints
 	stackHandlers("/api/user", store.Adapt[models.User](userResource))
 	stackHandlers("/api/video", store.Adapt[models.Video](videoResource))
+
+	// Add swagger UI server
+	mux.Handle("/swagger/", http.StripPrefix("/swagger/", http.HandlerFunc(swagger.ServeHTTP)))
 
 	log.Printf("Listening at %s\n", server.Addr)
 	log.Fatal(server.ListenAndServe())

@@ -21,8 +21,7 @@ type User struct {
 	Model
 	Name     string `json:"name" db:"NAME"`
 	Role     Role   `json:"role" db:"ROLE"`
-	Password string `json:"password"`
-	Hash     string `json:"-" db:"HASH"`
+	Password string `json:"password" db:"HASH"` // hashed before persisting
 }
 
 // PrepareCreate prepares a Video object for persistence
@@ -42,8 +41,7 @@ func (v *User) PrepareCreate() ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	v.Password = ""
-	v.Hash = base64.StdEncoding.EncodeToString(hash)
+	v.Password = base64.StdEncoding.EncodeToString(hash)
 	switch v.Role {
 	case ROLE_READ_ONLY:
 	case ROLE_READ_WRITE:
@@ -67,8 +65,7 @@ func (v *User) PrepareUpdate(id string) ([]string, error) {
 		if err != nil {
 			return nil, err
 		}
-		v.Password = ""
-		v.Hash = base64.StdEncoding.EncodeToString(hash)
+		v.Password = base64.StdEncoding.EncodeToString(hash)
 		cols = append(cols, "HASH")
 	}
 	if v.Name != "" {

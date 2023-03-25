@@ -25,7 +25,13 @@ func (up UserPolicy) GetById(ctx context.Context, id string) (zero models.User, 
 			return zero, crud.ErrUnauthorized
 		}
 	}
-	return up.UserStore.GetById(ctx, id)
+	// Hide hash from returned values
+	user, err := up.UserStore.GetById(ctx, id)
+	if err != nil {
+		return user, err
+	}
+	user.Password = ""
+	return user, nil
 }
 
 // Get denied except to ROLE_ADMIN
@@ -37,7 +43,16 @@ func (up UserPolicy) Get(ctx context.Context, filter []crud.Filter, sort []strin
 	if claims.Role != models.ROLE_ADMIN {
 		return nil, crud.ErrUnauthorized
 	}
-	return up.UserStore.Get(ctx, filter, sort, ascending, offset, limit)
+	// Hide hash from returned values
+	users, err := up.UserStore.Get(ctx, filter, sort, ascending, offset, limit)
+	if err != nil {
+		return nil, err
+	}
+	for idx, user := range users {
+		user.Password = ""
+		users[idx] = user
+	}
+	return users, nil
 }
 
 // Post only allowed to admin role

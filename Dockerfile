@@ -1,13 +1,18 @@
 FROM golang:1.20 AS build
 
 WORKDIR $GOPATH/src/mypackage/videoapi
-COPY . .
 
+# Only download updates if modules files have changed
 ENV CGO_ENABLED "0"
-RUN go mod tidy
+COPY go.mod .
+COPY go.sum .
+RUN go mod download -x
 
+# Copy rest of the code and compile
+COPY . .
 WORKDIR $GOPATH/src/mypackage/videoapi/cmd/videoapi
-RUN go build -o /go/bin/videoapi
+RUN --mount=type=cache,target=/root/.cache/go-build \
+    go build -o /go/bin/videoapi
 
 FROM scratch
 

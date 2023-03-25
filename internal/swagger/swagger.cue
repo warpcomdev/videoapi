@@ -1,4 +1,49 @@
 #crud: {
+
+	User: {
+		path: "user"
+		properties: {
+			id: {
+				type:     "string"
+				required: true
+				readOnly: false
+				filter: ["eq", "ne", "like"]
+			}
+			created_at: {
+				type:     "string"
+				format:   "date-time"
+				required: false
+				readOnly: true
+				filter: ["lt", "le", "gt", "ge"]
+			}
+			modified_at: {
+				type:     "string"
+				format:   "date-time"
+				required: false
+				readOnly: true
+				filter: ["lt", "le", "gt", "ge"]
+			}
+			name: {
+				type:     "string"
+				required: false
+				readOnly: false
+				filter: ["eq", "ne", "like"]
+			}
+			role: {
+				type:     "string"
+				required: false
+				readOnly: false
+				filter: []
+			}
+			password: {
+				type:     "string"
+				required: false
+				readOnly: false
+				filter: []
+			}
+		}
+	}
+
 	Video: {
 		path: "video"
 		properties: {
@@ -97,13 +142,97 @@ info: {
 	version:     "0.1.0"
 }
 servers: [{
-	url:         "http://api.example.com/v1"
-	description: "Servidor ejemplo"
+	url:         "/"
+	description: "current host"
 }]
+
+// Authentication endpoints
+paths: "/api/auth": post: {
+	summary: "Logs in and returns the authentication token"
+	security: []
+	tags: ["Auth"]
+	requestBody: {
+		required:    true
+		description: "Credentials"
+		content: {
+			"application/json": {
+				schema: {
+					type: "object"
+					properties: {
+						id: {
+							type: "string"
+						}
+						password: {
+							type: "string"
+						}
+					}
+				}
+			}
+		}
+	}
+	responses: {
+		"200": {
+			description: "Authentication token"
+			content: {
+				"application/json": {
+					schema: {
+						type: "object"
+						properties: {
+							id: {
+								type: "string"
+							}
+							name: {
+								type: "string"
+							}
+							role: {
+								type: "string"
+							}
+							token: {
+								type: "string"
+							}
+						}
+					}
+				}
+			}
+			headers: {
+				"Set-Cookie": {
+					description: "Authentication cookie"
+					schema: {
+						type: "string"
+					}
+				}
+			}
+		}
+		"401": {
+			description: "Invalid credentials"
+		}
+	}
+}
+
+components: securitySchemes: bearerAuth: {
+	type:         "http"
+	scheme:       "bearer"
+	bearerFormat: "JWT"
+}
+
+components: securitySchemes: cookieAuth: {
+	type: "apiKey"
+	"in": "cookie"
+	name: "VIDEOAPI_SESSION"
+}
+
+// Secured methods use both auth schemes
+#secured: security: [
+	{bearerAuth: []},
+	{cookieaAuth: []},
+]
+
+// CRUD endpoints
 paths: {for resource, data in #crud {
 	"/api/\(data.path)": {
 		get: {
 			summary: "Queries a list of \(resource)"
+			tags: [resource]
 			description: """
 				All query (q) parameters support several **operators**:
 
@@ -118,6 +247,7 @@ paths: {for resource, data in #crud {
 				Operators `eq` and `ne` support the special value `NULL` to match
 				non-null values in the DB.
 				"""
+			#secured
 			#parameters: {for propname, propdata in data.properties if propdata.filter != _|_ {
 				for op in propdata.filter {
 					("q:\(propname):\(op)"): {
@@ -190,6 +320,8 @@ paths: {for resource, data in #crud {
 		}
 		post: {
 			summary: "Creates a new \(resource)"
+			tags: [resource]
+			#secured
 			requestBody: {
 				description: "Information of the \(resource)"
 				required:    true
@@ -225,7 +357,9 @@ paths: {for resource, data in #crud {
 			}
 		}
 		get: {
-			summary:    "Queries a \(resource) by id"
+			summary: "Queries a \(resource) by id"
+			tags: [resource]
+			#secured
 			parameters: #param_id
 			responses: {
 				"200": {
@@ -240,17 +374,31 @@ paths: {for resource, data in #crud {
 			}
 		}
 		put: {
-			summary:    "Updates a \(resource) by id"
+			summary: "Updates a \(resource) by id"
+			tags: [resource]
+			#secured
 			parameters: #param_id
+			requestBody: {
+				description: "Information of the \(resource)"
+				required:    true
+				content: {
+					"application/json": {
+						schema: "$ref": "#/components/schemas/\(resource)"
+					}
+				}
+			}
 			responses:  #empty_response
 		}
 		delete: {
-			summary:    "Deletes a \(resource) by id"
+			summary: "Deletes a \(resource) by id"
+			tags: [resource]
+			#secured
 			parameters: #param_id
 			responses:  #empty_response
 		}
 	}
 }}
+
 components: schemas: ResourceId: {
 type: "object"
 properties: id: type: "string"
@@ -261,6 +409,7 @@ components: schemas: {for resource, data in #crud {
 	properties: {
 		next: {
 			type: "string"
+			example: "sort=asc&offset=10&limit=10"
 		}
 		data: {
 			type: "array"

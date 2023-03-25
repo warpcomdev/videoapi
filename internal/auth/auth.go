@@ -25,28 +25,28 @@ const (
 )
 
 // auth returns the role of the user in the request
-func auth(r *http.Request, jwtKey []byte) (models.Role, error) {
+func auth(r *http.Request, jwtKey []byte) (Claims, error) {
 	auth := r.Header.Get("Authorization")
 	if auth != "" {
 		// Authorization header has precedence over cookie
 		parts := strings.Split(auth, " ")
 		if len(parts) != 2 {
-			return models.ROLE_UNSET, ErrorInvalidAuthHeader
+			return Claims{}, ErrorInvalidAuthHeader
 		}
 		if strings.ToLower(parts[0]) != "bearer" {
-			return models.ROLE_UNSET, ErrorInvalidAuthHeader
+			return Claims{}, ErrorInvalidAuthHeader
 		}
 		auth = parts[1]
 	} else {
 		// Cookie is supported for posting uploads in a form
 		authCookie, err := r.Cookie(cookieName)
 		if err != nil {
-			return models.ROLE_UNSET, ErrorMisingAuthHeader
+			return Claims{}, ErrorMisingAuthHeader
 		}
 		auth = authCookie.Value
 	}
 	if auth == "" {
-		return models.ROLE_UNSET, ErrorMisingAuthHeader
+		return Claims{}, ErrorMisingAuthHeader
 	}
 	var currClaims Claims
 	token, err := jwt.ParseWithClaims(auth, &currClaims, func(token *jwt.Token) (interface{}, error) {
@@ -57,20 +57,20 @@ func auth(r *http.Request, jwtKey []byte) (models.Role, error) {
 		return jwtKey, nil
 	})
 	if err != nil {
-		return models.ROLE_UNSET, err
+		return Claims{}, err
 	}
 	if !token.Valid {
-		return models.ROLE_UNSET, ErrorInvalidToken
+		return Claims{}, ErrorInvalidToken
 	}
 	switch currClaims.Role {
 	case models.ROLE_ADMIN:
-		return models.ROLE_ADMIN, nil
+		return currClaims, nil
 	case models.ROLE_READ_WRITE:
-		return models.ROLE_READ_WRITE, nil
+		return currClaims, nil
 	case models.ROLE_READ_ONLY:
-		return models.ROLE_READ_ONLY, nil
+		return currClaims, nil
 	}
-	return models.ROLE_UNSET, nil
+	return Claims{}, nil
 }
 
 // ClaimsFrom returns the role of the user in the request
