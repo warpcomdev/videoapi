@@ -21,7 +21,7 @@ type claimsKey int
 
 const (
 	claimsID   claimsKey = 0
-	cookieName string    = "VIDEOAPI_SESSION"
+	CookieName string    = "VIDEOAPI_SESSION"
 )
 
 // auth returns the role of the user in the request
@@ -39,7 +39,7 @@ func auth(r *http.Request, jwtKey []byte) (Claims, error) {
 		auth = parts[1]
 	} else {
 		// Cookie is supported for posting uploads in a form
-		authCookie, err := r.Cookie(cookieName)
+		authCookie, err := r.Cookie(CookieName)
 		if err != nil {
 			return Claims{}, ErrorMisingAuthHeader
 		}

@@ -14,7 +14,8 @@ WORKDIR $GOPATH/src/mypackage/videoapi/cmd/videoapi
 RUN --mount=type=cache,target=/root/.cache/go-build \
     go build -o /go/bin/videoapi
 
-FROM scratch
+# Use something we can at least shell in, for debugging
+FROM busybox:latest
 
 COPY  --from=build /go/bin/videoapi /go/bin/videoapi
 ENTRYPOINT ["/go/bin/videoapi"]

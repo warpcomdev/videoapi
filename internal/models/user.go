@@ -1,6 +1,7 @@
 package models
 
 import (
+	"database/sql/driver"
 	"encoding/base64"
 	"errors"
 
@@ -22,6 +23,30 @@ type User struct {
 	Name     string `json:"name" db:"NAME"`
 	Role     Role   `json:"role" db:"ROLE"`
 	Password string `json:"password" db:"HASH"` // hashed before persisting
+}
+
+// Scan implements sql.Scanner
+func (r *Role) Scan(value any) error {
+	str, ok := value.(string)
+	if !ok {
+		return errors.New("invalid type for Role")
+	}
+	switch str {
+	case string(ROLE_READ_ONLY):
+		*r = ROLE_READ_ONLY
+	case string(ROLE_READ_WRITE):
+		*r = ROLE_READ_WRITE
+	case string(ROLE_ADMIN):
+		*r = ROLE_ADMIN
+	default:
+		return errors.New("invalid value for Role")
+	}
+	return nil
+}
+
+// Value implements driver.Valuer
+func (r Role) Value() (driver.Value, error) {
+	return string(r), nil
 }
 
 // PrepareCreate prepares a Video object for persistence

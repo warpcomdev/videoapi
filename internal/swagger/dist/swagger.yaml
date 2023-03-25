@@ -7,7 +7,7 @@ servers:
   - url: /
     description: current host
 paths:
-  /api/auth:
+  /api/login:
     post:
       summary: Logs in and returns the authentication token
       security: []
@@ -48,6 +48,41 @@ paths:
                 type: string
         "401":
           description: Invalid credentials
+  /api/logout:
+    get:
+      summary: Removes session cookie
+      tags:
+        - Auth
+      security:
+        - bearerAuth: []
+        - cookieaAuth: []
+      responses:
+        "204":
+          description: No data
+  /api/me:
+    get:
+      summary: Returns information about the logged-in user
+      tags:
+        - Auth
+      security:
+        - bearerAuth: []
+        - cookieaAuth: []
+      responses:
+        "200":
+          description: Authentication token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+                  role:
+                    type: string
+        "401":
+          description: Unauthorized
   /api/user:
     get:
       summary: Queries a list of User
@@ -195,6 +230,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ListOfUser'
+        "401":
+          description: Unauthorized
     post:
       summary: Creates a new User
       tags:
@@ -216,6 +253,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ResourceId'
+        "401":
+          description: Unauthorized
   /api/user/{id}:
     get:
       summary: Queries a User by id
@@ -237,6 +276,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
+        "401":
+          description: Unauthorized
     put:
       summary: Updates a User by id
       tags:
@@ -260,6 +301,8 @@ paths:
       responses:
         "204":
           description: no content returned if success
+        "401":
+          description: Unauthorized
     delete:
       summary: Deletes a User by id
       tags:
@@ -276,6 +319,8 @@ paths:
       responses:
         "204":
           description: no content returned if success
+        "401":
+          description: Unauthorized
   /api/video:
     get:
       summary: Queries a list of Video
@@ -469,6 +514,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ListOfVideo'
+        "401":
+          description: Unauthorized
     post:
       summary: Creates a new Video
       tags:
@@ -490,6 +537,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ResourceId'
+        "401":
+          description: Unauthorized
   /api/video/{id}:
     get:
       summary: Queries a Video by id
@@ -511,6 +560,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Video'
+        "401":
+          description: Unauthorized
     put:
       summary: Updates a Video by id
       tags:
@@ -534,6 +585,8 @@ paths:
       responses:
         "204":
           description: no content returned if success
+        "401":
+          description: Unauthorized
     delete:
       summary: Deletes a Video by id
       tags:
@@ -550,6 +603,8 @@ paths:
       responses:
         "204":
           description: no content returned if success
+        "401":
+          description: Unauthorized
   /api/picture:
     get:
       summary: Queries a list of Picture
@@ -743,6 +798,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ListOfPicture'
+        "401":
+          description: Unauthorized
     post:
       summary: Creates a new Picture
       tags:
@@ -764,6 +821,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ResourceId'
+        "401":
+          description: Unauthorized
   /api/picture/{id}:
     get:
       summary: Queries a Picture by id
@@ -785,6 +844,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Picture'
+        "401":
+          description: Unauthorized
     put:
       summary: Updates a Picture by id
       tags:
@@ -808,6 +869,8 @@ paths:
       responses:
         "204":
           description: no content returned if success
+        "401":
+          description: Unauthorized
     delete:
       summary: Deletes a Picture by id
       tags:
@@ -824,6 +887,8 @@ paths:
       responses:
         "204":
           description: no content returned if success
+        "401":
+          description: Unauthorized
 components:
   securitySchemes:
     bearerAuth:

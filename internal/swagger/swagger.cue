@@ -147,7 +147,7 @@ servers: [{
 }]
 
 // Authentication endpoints
-paths: "/api/auth": post: {
+paths: "/api/login": post: {
 	summary: "Logs in and returns the authentication token"
 	security: []
 	tags: ["Auth"]
@@ -205,6 +205,49 @@ paths: "/api/auth": post: {
 		}
 		"401": {
 			description: "Invalid credentials"
+		}
+	}
+}
+
+paths: "/api/logout": get: {
+	summary: "Removes session cookie"
+	#secured
+	tags: ["Auth"]
+	responses: {
+		"204": {
+			description: "No data"
+		}
+	}
+}
+
+paths: "/api/me": get: {
+	summary: "Returns information about the logged-in user"
+	#secured
+	tags: ["Auth"]
+	responses: {
+		"200": {
+			description: "Authentication token"
+			content: {
+				"application/json": {
+					schema: {
+						type: "object"
+						properties: {
+							id: {
+								type: "string"
+							}
+							name: {
+								type: "string"
+							}
+							role: {
+								type: "string"
+							}
+						}
+					}
+				}
+			}
+		}
+		"401": {
+			description: "Unauthorized"
 		}
 	}
 }
@@ -316,6 +359,9 @@ paths: {for resource, data in #crud {
 						}
 					}
 				}
+				"401": {
+					description: "Unauthorized"
+				}
 			}
 		}
 		post: {
@@ -341,6 +387,9 @@ paths: {for resource, data in #crud {
 						}
 					}
 				}
+				"401": {
+					description: "Unauthorized"
+				}
 			}
 		}
 	}
@@ -354,6 +403,9 @@ paths: {for resource, data in #crud {
 		#empty_response: {
 			"204": {
 				description: "no content returned if success"
+			}
+			"401": {
+				description: "Unauthorized"
 			}
 		}
 		get: {
@@ -371,6 +423,9 @@ paths: {for resource, data in #crud {
 						}
 					}
 				}
+				"401": {
+					description: "Unauthorized"
+				}
 			}
 		}
 		put: {
@@ -387,7 +442,7 @@ paths: {for resource, data in #crud {
 					}
 				}
 			}
-			responses:  #empty_response
+			responses: #empty_response
 		}
 		delete: {
 			summary: "Deletes a \(resource) by id"
@@ -408,7 +463,7 @@ components: schemas: {for resource, data in #crud {
 	type: "object"
 	properties: {
 		next: {
-			type: "string"
+			type:    "string"
 			example: "sort=asc&offset=10&limit=10"
 		}
 		data: {

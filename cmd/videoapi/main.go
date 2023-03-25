@@ -28,6 +28,14 @@ func dieOnError(msg string, err error) {
 	}
 }
 
+// response to /me enpoint
+type meResponse struct {
+	ID      string      `json:"id"`
+	Name    string      `json:"name"`
+	Role    models.Role `json:"role"`
+	Expires time.Time   `json:"expires"`
+}
+
 func main() {
 	if len(os.Args) < 2 {
 		fmt.Println("\nhello_ora")
@@ -65,26 +73,42 @@ func main() {
 	if err := userDescriptor.CreateDb(context.Background(), db); err == nil {
 		log.Printf("created table %s\n", userDescriptor.TableName)
 	}
-	userResource := policy.UserPolicy{
-		UserStore: store.New[models.User](
-			SqlxQuerier{DB: db},
-			SqlxExecutor{DB: db},
-			userDescriptor.TableName,
-			userDescriptor.FilterSet,
-			oracleLimiter,
-		),
+	// Need access to the unpoliced UserStore for login
+	userStore := store.New[models.User](
+		SqlxQuerier{DB: db},
+		SqlxExecutor{DB: db},
+		userDescriptor.TableName,
+		userDescriptor.FilterSet,
+		oracleLimiter,
+	)
+	policedUserStore := policy.UserPolicy{
+		UserStore: userStore,
 	}
 
 	videoDescriptor := models.VideoDescriptor()
 	if err := videoDescriptor.CreateDb(context.Background(), db); err == nil {
 		log.Printf("created table %s\n", videoDescriptor.TableName)
 	}
-	videoResource := policy.VideoPolicy{
+	policedVideoStore := policy.VideoPolicy{
 		VideoStore: store.New[models.Video](
 			SqlxQuerier{DB: db},
 			SqlxExecutor{DB: db},
 			videoDescriptor.TableName,
 			videoDescriptor.FilterSet,
+			oracleLimiter,
+		),
+	}
+
+	pictureDescriptor := models.PictureDescriptor()
+	if err := pictureDescriptor.CreateDb(context.Background(), db); err == nil {
+		log.Printf("created table %s\n", videoDescriptor.TableName)
+	}
+	policedPictureStore := policy.PicturePolicy{
+		PictureStore: store.New[models.Picture](
+			SqlxQuerier{DB: db},
+			SqlxExecutor{DB: db},
+			pictureDescriptor.TableName,
+			pictureDescriptor.FilterSet,
 			oracleLimiter,
 		),
 	}
@@ -111,7 +135,8 @@ func main() {
 			auth.WithSameSiteCookie(false),
 		)
 	}
-	mux.Handle("/api/auth", cors.Allow(auth.Login(userResource, jwtKey, authOptions...)))
+	mux.Handle("/api/login", cors.Allow(auth.Login(userStore, jwtKey, authOptions...)))
+	mux.Handle("/api/logout", cors.Allow(auth.Logout(authOptions...)))
 	mux.Handle("/api/me", cors.Allow(auth.WithClaims(jwtKey, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		claims, err := auth.ClaimsFrom(r.Context())
 		if err != nil {
@@ -120,7 +145,13 @@ func main() {
 		}
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(claims)
+		resp := meResponse{
+			ID:      claims.Subject,
+			Name:    claims.Name,
+			Role:    claims.Role,
+			Expires: claims.ExpiresAt.Time,
+		}
+		json.NewEncoder(w).Encode(resp)
 	}))))
 
 	// Stack all the cors, auth and crud middleware on top of the resources
@@ -131,8 +162,9 @@ func main() {
 	}
 
 	// User administration endpoints
-	stackHandlers("/api/user", store.Adapt[models.User](userResource))
-	stackHandlers("/api/video", store.Adapt[models.Video](videoResource))
+	stackHandlers("/api/user", store.Adapt[models.User](policedUserStore))
+	stackHandlers("/api/picture", store.Adapt[models.Picture](policedPictureStore))
+	stackHandlers("/api/video", store.Adapt[models.Video](policedVideoStore))
 
 	// Add swagger UI server
 	mux.Handle("/swagger/", http.StripPrefix("/swagger/", http.HandlerFunc(swagger.ServeHTTP)))

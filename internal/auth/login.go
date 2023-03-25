@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"io"
+	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -79,8 +80,7 @@ func WithCookiePath(path string) AuthOption {
 	}
 }
 
-// Login returns a handler that authenticates a user
-func Login(store store.Resource[models.User], jwtKey []byte, options ...AuthOption) http.Handler {
+func applyOptions(options ...AuthOption) loginConfig {
 	config := loginConfig{
 		Secure:     true,
 		HttpOnly:   true,
@@ -91,6 +91,29 @@ func Login(store store.Resource[models.User], jwtKey []byte, options ...AuthOpti
 	for _, opt := range options {
 		opt(&config)
 	}
+	return config
+}
+
+func (config loginConfig) Cookie(domain string, value string, expires time.Time) *http.Cookie {
+	if strings.Contains(domain, ":") {
+		domain = strings.Split(domain, ":")[0]
+	}
+	cookie := &http.Cookie{
+		Domain:   domain,
+		Path:     config.Path,
+		Name:     CookieName,
+		Value:    value,
+		Expires:  expires,
+		Secure:   config.Secure,
+		HttpOnly: config.HttpOnly,
+		SameSite: config.SameSite,
+	}
+	return cookie
+}
+
+// Login returns a handler that authenticates a user
+func Login(store store.Resource[models.User], jwtKey []byte, options ...AuthOption) http.Handler {
+	config := applyOptions(options...)
 	handler := func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
 			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
@@ -127,15 +150,18 @@ func Login(store store.Resource[models.User], jwtKey []byte, options ...AuthOpti
 			var err error
 			match, err = store.GetById(r.Context(), user.ID)
 			if err != nil {
-				http.Error(w, "internal server error", http.StatusInternalServerError)
+				log.Println("Auth failed: GetById failed with error: ", err.Error())
+				http.Error(w, "unauthorized", http.StatusUnauthorized)
 				return
 			}
 			hash, err := base64.StdEncoding.DecodeString(match.Password)
 			if err != nil {
-				http.Error(w, "internal server error", http.StatusInternalServerError)
+				log.Println("Auth failed: base64 decode failed with error: ", err.Error())
+				http.Error(w, "unauthorized", http.StatusUnauthorized)
 				return
 			}
 			if err := bcrypt.CompareHashAndPassword(hash, []byte(user.Password)); err != nil {
+				log.Println("Auth failed: bcrypt compare returned error: ", err.Error())
 				http.Error(w, "unauthorized", http.StatusUnauthorized)
 				return
 			}
@@ -158,33 +184,32 @@ func Login(store store.Resource[models.User], jwtKey []byte, options ...AuthOpti
 		// Sign and get the complete encoded token as a string using the secret
 		tokenString, err := token.SignedString(jwtKey)
 		if err != nil {
-			http.Error(w, "internal server error", http.StatusInternalServerError)
+			log.Println("Auth failed: failed to sign token with error: ", err.Error())
+			http.Error(w, "unauthorized", http.StatusUnauthorized)
 			return
 		}
+		w.Header().Set("Content-Type", "application/json")
 		reply := loginReply{
 			ID:    match.ID,
 			Name:  match.Name,
 			Role:  string(match.Role),
 			Token: tokenString,
 		}
-		w.Header().Set("Content-Type", "application/json")
-		domain := r.Host
-		if strings.Contains(domain, ":") {
-			domain = strings.Split(domain, ":")[0]
-		}
-		cookie := &http.Cookie{
-			Domain:   domain,
-			Path:     config.Path,
-			Name:     cookieName,
-			Value:    tokenString,
-			Expires:  expires,
-			Secure:   config.Secure,
-			HttpOnly: config.HttpOnly,
-			SameSite: config.SameSite,
-		}
-		http.SetCookie(w, cookie)
+		http.SetCookie(w, config.Cookie(r.Host, tokenString, expires))
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(reply)
+	}
+	return http.HandlerFunc(handler)
+}
+
+// Logout returns a handler that clears cookies
+func Logout(options ...AuthOption) http.Handler {
+	config := applyOptions(options...)
+	handler := func(w http.ResponseWriter, r *http.Request) {
+		cookie := config.Cookie(r.Host, "", time.Unix(0, 0))
+		cookie.MaxAge = -1
+		http.SetCookie(w, cookie)
+		w.WriteHeader(http.StatusNoContent)
 	}
 	return http.HandlerFunc(handler)
 }
