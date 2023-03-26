@@ -140,7 +140,7 @@
 				readOnly: false
 				filter: ["eq", "ne", "like"]
 			}
-			mediaURL: {
+			media_url: {
 				type:     "string"
 				required: false
 				readOnly: true
@@ -192,7 +192,7 @@
 				readOnly: false
 				filter: ["eq", "ne", "like"]
 			}
-			mediaURL: {
+			media_url: {
 				type:     "string"
 				required: false
 				readOnly: true

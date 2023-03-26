@@ -227,7 +227,7 @@ func (h MediaFrontend) commitTmpFile(ctx context.Context, id, idFolder, escapeId
 	// Update resource's `mediaURL` attrib with the new file
 	mediaURL := strings.Join([]string{idFolder, finalName}, "/")
 	params := map[string]string{
-		"mediaURL": mediaURL,
+		"media_url": mediaURL,
 	}
 	var data []byte
 	data, err = json.Marshal(params)

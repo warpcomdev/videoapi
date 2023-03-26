@@ -2164,7 +2164,7 @@ components:
           items:
             type: string
           readOnly: false
-        mediaURL:
+        media_url:
           type: string
           readOnly: true
       required:
@@ -2207,7 +2207,7 @@ components:
           items:
             type: string
           readOnly: false
-        mediaURL:
+        media_url:
           type: string
           readOnly: true
       required:

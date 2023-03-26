@@ -67,7 +67,7 @@ func VideoDescriptor() Descriptor {
 			"timestamp":   store.TimeDbType{},
 			"camera":      store.StringDbType{},
 			"tags":        store.JsonDbType{},
-			"mediaURL":    store.StringDbType{},
+			"media_url":   store.StringDbType{},
 		},
 		Create: `
 		(
@@ -93,7 +93,7 @@ func PictureDescriptor() Descriptor {
 			"timestamp":   store.TimeDbType{},
 			"camera":      store.StringDbType{},
 			"tags":        store.JsonDbType{},
-			"mediaURL":    store.StringDbType{},
+			"media_url":   store.StringDbType{},
 		},
 		Create: `
 		(
