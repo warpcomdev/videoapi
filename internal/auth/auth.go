@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/warpcomdev/videoapi/internal/crud"
 	"github.com/warpcomdev/videoapi/internal/models"
 )
 
@@ -31,28 +32,28 @@ func auth(r *http.Request, jwtKey []byte) (Claims, error) {
 		// Authorization header has precedence over cookie
 		parts := strings.Split(auth, " ")
 		if len(parts) != 2 {
-			return Claims{}, ErrorInvalidAuthHeader
+			return Claims{}, crud.ErrorInvalidAuthHeader
 		}
 		if strings.ToLower(parts[0]) != "bearer" {
-			return Claims{}, ErrorInvalidAuthHeader
+			return Claims{}, crud.ErrorInvalidAuthHeader
 		}
 		auth = parts[1]
 	} else {
 		// Cookie is supported for posting uploads in a form
 		authCookie, err := r.Cookie(CookieName)
 		if err != nil {
-			return Claims{}, ErrorMisingAuthHeader
+			return Claims{}, crud.ErrorMisingAuthHeader
 		}
 		auth = authCookie.Value
 	}
 	if auth == "" {
-		return Claims{}, ErrorMisingAuthHeader
+		return Claims{}, crud.ErrorMisingAuthHeader
 	}
 	var currClaims Claims
 	token, err := jwt.ParseWithClaims(auth, &currClaims, func(token *jwt.Token) (interface{}, error) {
 		// Don't forget to validate the alg is what you expect:
 		if token.Method != signingMethod {
-			return nil, ErrorUnexpectedSigningMethod
+			return nil, crud.ErrorUnexpectedSigningMethod
 		}
 		return jwtKey, nil
 	})
@@ -60,7 +61,7 @@ func auth(r *http.Request, jwtKey []byte) (Claims, error) {
 		return Claims{}, err
 	}
 	if !token.Valid {
-		return Claims{}, ErrorInvalidToken
+		return Claims{}, crud.ErrorInvalidToken
 	}
 	switch currClaims.Role {
 	case models.ROLE_ADMIN:
@@ -77,7 +78,7 @@ func auth(r *http.Request, jwtKey []byte) (Claims, error) {
 func ClaimsFrom(ctx context.Context) (Claims, error) {
 	claims, ok := ctx.Value(claimsID).(Claims)
 	if !ok {
-		return Claims{}, ErrorMissingRole
+		return Claims{}, crud.ErrorMissingRole
 	}
 	return claims, nil
 }

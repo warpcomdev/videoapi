@@ -33,6 +33,8 @@ func (up PicturePolicy) Post(ctx context.Context, data models.Picture) (string, 
 	if claims.Role != models.ROLE_ADMIN && claims.Role != models.ROLE_READ_WRITE {
 		return "", crud.ErrUnauthorized
 	}
+	// People cannot change the media URL, it will be automatically set by the system
+	data.MediaURL.Valid = false
 	return up.PictureStore.Post(ctx, data)
 }
 
@@ -45,6 +47,8 @@ func (up PicturePolicy) Put(ctx context.Context, id string, data models.Picture)
 	if claims.Role != models.ROLE_ADMIN && claims.Role != models.ROLE_READ_WRITE {
 		return crud.ErrUnauthorized
 	}
+	// People cannot change the media URL, it will be automatically set by the system
+	data.MediaURL.Valid = false
 	return up.PictureStore.Put(ctx, id, data)
 }
 

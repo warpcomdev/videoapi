@@ -1,7 +1,8 @@
 #crud: {
 
 	User: {
-		path: "user"
+		path:      "user"
+		mediaType: ""
 		properties: {
 			id: {
 				type:     "string"
@@ -45,7 +46,8 @@
 	}
 
 	Video: {
-		path: "video"
+		path:      "video"
+		mediaType: "video/4gpp, video/3gpp2, video/3gp2, video/mpeg, video/mp4, video/ogg, video/quicktime, video/webm"
 		properties: {
 			id: {
 				type:     "string"
@@ -85,12 +87,19 @@
 				required: false
 				readOnly: false
 				filter: ["eq", "ne", "like"]
+			}
+			mediaURL: {
+				type:     "string"
+				required: false
+				readOnly: true
+				filter: []
 			}
 		}
 	}
 
 	Picture: {
-		path: "picture"
+		path:      "picture"
+		mediaType: "image/jpeg, image/png"
 		properties: {
 			id: {
 				type:     "string"
@@ -130,6 +139,12 @@
 				required: false
 				readOnly: false
 				filter: ["eq", "ne", "like"]
+			}
+			mediaURL: {
+				type:     "string"
+				required: false
+				readOnly: true
+				filter: []
 			}
 		}
 	}
@@ -145,6 +160,25 @@ servers: [{
 	url:         "/"
 	description: "current host"
 }]
+
+#queryErrorReference: {
+	"application/json": schema: "$ref": "#/components/schemas/queryError"
+}
+
+#standardResponses: {
+	"401": {
+		description: "Unauthorized"
+	}
+	"400": {
+		description: "Invalid query"
+		content:     #queryErrorReference
+	}
+	"500": {
+		description: "Internal error"
+		content:     #queryErrorReference
+	}
+	...
+}
 
 // Authentication endpoints
 paths: "/api/login": post: {
@@ -203,8 +237,13 @@ paths: "/api/login": post: {
 				}
 			}
 		}
-		"401": {
-			description: "Invalid credentials"
+		"400": {
+			description: "Invalid query"
+			content:     #queryErrorReference
+		}
+		"500": {
+			description: "Internal error"
+			content:     #queryErrorReference
 		}
 	}
 }
@@ -217,6 +256,14 @@ paths: "/api/logout": get: {
 		"204": {
 			description: "No data"
 		}
+		"400": {
+			description: "Invalid query"
+			content:     #queryErrorReference
+		}
+		"500": {
+			description: "Internal error"
+			content:     #queryErrorReference
+		}
 	}
 }
 
@@ -224,6 +271,7 @@ paths: "/api/me": get: {
 	summary: "Returns information about the logged-in user"
 	#secured
 	tags: ["Auth"]
+	responses: #standardResponses
 	responses: {
 		"200": {
 			description: "Authentication token"
@@ -246,9 +294,6 @@ paths: "/api/me": get: {
 				}
 			}
 		}
-		"401": {
-			description: "Unauthorized"
-		}
 	}
 }
 
@@ -265,10 +310,13 @@ components: securitySchemes: cookieAuth: {
 }
 
 // Secured methods use both auth schemes
-#secured: security: [
-	{bearerAuth: []},
-	{cookieaAuth: []},
-]
+#secured: {
+	security: [
+		{bearerAuth: []},
+		{cookieaAuth: []},
+	]
+	...
+}
 
 // CRUD endpoints
 paths: {for resource, data in #crud {
@@ -349,6 +397,7 @@ paths: {for resource, data in #crud {
 				name: paramname
 				paramdata
 			}]
+			responses: #standardResponses
 			responses: {
 				"200": {
 					description: "List of items"
@@ -358,9 +407,6 @@ paths: {for resource, data in #crud {
 								"$ref": "#/components/schemas/ListOf\(resource)"
 						}
 					}
-				}
-				"401": {
-					description: "Unauthorized"
 				}
 			}
 		}
@@ -377,6 +423,7 @@ paths: {for resource, data in #crud {
 					}
 				}
 			}
+			responses: #standardResponses
 			responses: {
 				"200": {
 					description: "New resource created"
@@ -386,9 +433,6 @@ paths: {for resource, data in #crud {
 								"$ref": "#/components/schemas/ResourceId"
 						}
 					}
-				}
-				"401": {
-					description: "Unauthorized"
 				}
 			}
 		}
@@ -404,15 +448,14 @@ paths: {for resource, data in #crud {
 			"204": {
 				description: "no content returned if success"
 			}
-			"401": {
-				description: "Unauthorized"
-			}
+			#standardResponses
 		}
 		get: {
 			summary: "Queries a \(resource) by id"
 			tags: [resource]
 			#secured
 			parameters: #param_id
+			responses:  #standardResponses
 			responses: {
 				"200": {
 					description: "resource content"
@@ -423,8 +466,53 @@ paths: {for resource, data in #crud {
 						}
 					}
 				}
-				"401": {
-					description: "Unauthorized"
+			}
+		}
+		if data.mediaType != "" {
+			post: {
+				summary: "Uploads the file for the \(resource) by id"
+				tags: [resource]
+				#secured
+				parameters: [{
+					name:     "id"
+					"in":     "path"
+					required: true
+					schema: type: "string"
+				}, {
+					name:     "redirectOnSuccess"
+					"in":     "query"
+					required: false
+					schema: type: "string"
+					description: "If provided, redirect URL on success"
+				}, {
+					name:     "redirectOnError"
+					"in":     "query"
+					required: false
+					schema: type: "string"
+					description: "If provided, redirect URL on error. \"error\" will be appended to queryString"
+				}]
+				requestBody: content: "multipart/form-data": {
+					schema: {
+						type: "object"
+						properties: file: {
+							type:   "string"
+							format: "binary"
+						}
+					}
+					encoding: file: contentType: data.mediaType
+				}
+				responses: #standardResponses
+				responses: {
+					"204": {
+						description: "No data returned"
+					}
+					"301": {
+						description: "Redirect to the provided URLs on success or error"
+						headers: Location: {
+							description: "URL to redirect to"
+							schema: type: "string"
+						}
+					}
 				}
 			}
 		}
@@ -448,12 +536,32 @@ paths: {for resource, data in #crud {
 			summary: "Deletes a \(resource) by id"
 			tags: [resource]
 			#secured
-			parameters: #param_id
-			responses:  #empty_response
+			if data.mediaType == "" {
+				parameters: #param_id
+			}
+			if data.mediaType != "" {
+				parameters: [{
+					name:     "id"
+					"in":     "path"
+					required: true
+					schema: type: "string"
+				}, {
+					name:     "mediaOnly"
+					"in":     "query"
+					required: false
+					schema: type: "boolean"
+					description: "If true, only the media will be deleted"
+				}]
+			}
+			responses: #empty_response
 		}
 	}
 }}
 
+components: schemas: queryError: {
+type: "object"
+properties: error: type: "string"
+}
 components: schemas: ResourceId: {
 type: "object"
 properties: id: type: "string"

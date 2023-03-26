@@ -1,194 +1,108 @@
 package crud
 
 import (
-	"context"
+	"encoding/json"
 	"errors"
 	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
-	"strconv"
-	"strings"
+	"net/url"
 )
 
-// Resource implements the CRUD operations
-type Resource interface {
-	// Get resource by id
-	GetById(context.Context, string) (io.ReadCloser, error)
-	// Get resource by filter
-	Get(ctx context.Context, filter []Filter, sort []string, ascending bool, offset, limit int) (io.ReadCloser, error)
-	// Post (create) new resource
-	Post(context.Context, io.Reader) (io.ReadCloser, error)
-	// Put (update) resource
-	Put(context.Context, string, io.Reader) error
-	// Delete resource by id
-	Delete(context.Context, string) error
+// Frontend implements a CRUD frontend service
+type Frontend interface {
+	Get(r *http.Request) (io.ReadCloser, error)
+	Post(r *http.Request) (io.ReadCloser, error)
+	Put(r *http.Request) error
+	Delete(r *http.Request) error
 }
 
-// handler implements http.Handler
-type handler struct {
-	Resource Resource
-}
-
-// Handler for a given kind of Resource
-func Handler(r Resource) http.Handler {
-	return handler{
-		Resource: r,
+func NewHandler(crud Frontend) http.Handler {
+	handler := func(w http.ResponseWriter, r *http.Request) {
+		var (
+			result  io.ReadCloser
+			emptyOk bool
+			err     error
+		)
+		defer exhaust(r.Body)
+		switch r.Method {
+		case http.MethodGet:
+			result, err = crud.Get(r)
+		case http.MethodPost:
+			result, err = crud.Post(r)
+			emptyOk = true
+		case http.MethodPut:
+			err = crud.Put(r)
+			emptyOk = true
+		case http.MethodDelete:
+			err = crud.Delete(r)
+			emptyOk = true
+		default:
+			err = ErrUnsupportedMethod
+		}
+		query := r.URL.Query()
+		redirectOnError := query.Get("redirectOnError")
+		redirectOnSuccess := query.Get("redirectOnSuccess")
+		// If err != nil and redirectOnError is set, try to redirect to the error URL
+		// we append the error message as a query parameter
+		if err != nil {
+			if redirectOnError != "" {
+				errorURL, parseErr := url.Parse(redirectOnError)
+				if parseErr == nil {
+					errorURL.Query().Set("error", err.Error())
+					redirectOnError = errorURL.String()
+				}
+				http.Redirect(w, r, redirectOnError, http.StatusTemporaryRedirect)
+				return
+			}
+		} else {
+			if redirectOnSuccess != "" {
+				http.Redirect(w, r, redirectOnSuccess, http.StatusTemporaryRedirect)
+				return
+			}
+		}
+		// If no redirecting, just write the reply
+		jsonReply(result, err, w, emptyOk)
 	}
+	return http.HandlerFunc(handler)
 }
 
-func exhaust(r *http.Request) {
-	if r.Body != nil {
-		io.Copy(ioutil.Discard, r.Body)
-		r.Body.Close()
+type queryError struct {
+	Error string `json:"error"`
+}
+
+// JsonError writes an error to the response
+func JsonError(w http.ResponseWriter, err error) {
+	w.Header().Set("Content-Type", "application/json")
+	reply := queryError{Error: err.Error()}
+	var knownError Error
+	if errors.As(err, &knownError) {
+		code, msg := knownError.HttpError()
+		reply.Error = msg
+		w.WriteHeader(code)
+	} else {
+		w.WriteHeader(http.StatusInternalServerError)
 	}
+	json.NewEncoder(w).Encode(reply)
 }
 
-func jsonReply(resp io.ReadCloser, err error, w http.ResponseWriter, emptyOk bool) error {
+func jsonReply(resp io.ReadCloser, err error, w http.ResponseWriter, emptyOk bool) {
 	if err != nil {
-		return err
+		JsonError(w, err)
+		return
 	}
 	if resp == nil {
 		if emptyOk {
 			w.WriteHeader(http.StatusNoContent)
-			return nil
+			return
 		}
-		http.Error(w, ErrNotFound.Error(), http.StatusNotFound)
-		return nil
+		JsonError(w, ErrNotFound)
+		return
 	}
 	defer resp.Close()
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	if _, err := io.Copy(w, resp); err != nil {
 		log.Printf("Failed to deliver GET reply: %s", err.Error())
-	}
-	return nil
-}
-
-func (h handler) httpGet(w http.ResponseWriter, r *http.Request) error {
-	id := strings.Trim(r.URL.Path, "/")
-	if id != "" {
-		// Get single entry
-		// HACK
-		log.Printf("SEARCHING FOR VIDEO %s\n", id)
-		resp, err := h.Resource.GetById(r.Context(), id)
-		return jsonReply(resp, err, w, false)
-	}
-	// Get paginated entry
-	var (
-		filter    []Filter
-		sort      []string
-		ascending bool
-		offset    int
-		limit     int
-		err       error
-	)
-	params := r.URL.Query()
-	if asc := params.Get("asc"); asc != "" {
-		switch strings.ToLower(asc) {
-		case "t":
-			ascending = true
-		case "true":
-			ascending = true
-		case "y":
-			ascending = true
-		case "yes":
-			ascending = true
-		}
-	}
-	if off := params.Get("offset"); off != "" {
-		intOff, err := strconv.Atoi(off)
-		if err != nil {
-			return err
-		}
-		offset = intOff
-	}
-	if lim := params.Get("limit"); lim != "" {
-		intLim, err := strconv.Atoi(lim)
-		if err != nil {
-			return err
-		}
-		limit = intLim
-	}
-	if limit <= 0 || limit > 100 {
-		limit = 100
-	}
-	other := make(map[string][]string)
-	for k, v := range params {
-		if k == "sort" {
-			sort = merge(v)
-			for _, s := range sort {
-				if !isColumnName(s) {
-					return ErrInvalidColumn
-				}
-			}
-		}
-		if strings.HasPrefix(k, "q:") {
-			other[k] = v
-		}
-	}
-	filter, err = filtersFrom(other)
-	if err != nil {
-		return err
-	}
-	resp, err := h.Resource.Get(r.Context(), filter, sort, ascending, offset, limit)
-	return jsonReply(resp, err, w, false)
-}
-
-// Post handler
-func (h handler) httpPost(w http.ResponseWriter, r *http.Request) error {
-	if r.Body == nil {
-		return ErrEmptyBody
-	}
-	resp, err := h.Resource.Post(r.Context(), r.Body)
-	return jsonReply(resp, err, w, false)
-}
-
-// Put handler
-func (h handler) httpPut(w http.ResponseWriter, r *http.Request) error {
-	id := strings.Trim(r.URL.Path, "/")
-	if id == "" {
-		return ErrMissingResourceId
-	}
-	if r.Body == nil {
-		return ErrEmptyBody
-	}
-	err := h.Resource.Put(r.Context(), id, r.Body)
-	return jsonReply(nil, err, w, true)
-}
-
-// Delete handler
-func (h handler) httpDelete(w http.ResponseWriter, r *http.Request) error {
-	id := strings.Trim(r.URL.Path, "/")
-	if id == "" {
-		return ErrMissingResourceId
-	}
-	err := h.Resource.Delete(r.Context(), id)
-	return jsonReply(nil, err, w, true)
-}
-
-func (h handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	var err error
-	defer exhaust(r)
-	switch r.Method {
-	case http.MethodGet:
-		err = h.httpGet(w, r)
-	case http.MethodPost:
-		err = h.httpPost(w, r)
-	case http.MethodPut:
-		err = h.httpPut(w, r)
-	case http.MethodDelete:
-		err = h.httpDelete(w, r)
-	default:
-		err = ErrUnsupportedMethod
-	}
-	if err != nil {
-		var knownError Error
-		if errors.As(err, &knownError) {
-			code, msg := knownError.HttpError()
-			http.Error(w, msg, code)
-		} else {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-		}
 	}
 }

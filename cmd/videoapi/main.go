@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -28,14 +27,6 @@ func dieOnError(msg string, err error) {
 	}
 }
 
-// response to /me enpoint
-type meResponse struct {
-	ID      string      `json:"id"`
-	Name    string      `json:"name"`
-	Role    models.Role `json:"role"`
-	Expires time.Time   `json:"expires"`
-}
-
 func main() {
 	if len(os.Args) < 2 {
 		fmt.Println("\nhello_ora")
@@ -46,7 +37,13 @@ func main() {
 		fmt.Println()
 		os.Exit(1)
 	}
+
 	connStr := os.ExpandEnv(os.Args[1])
+	tmpFolder := os.Getenv("TMPDIR")
+	if tmpFolder == "" {
+		tmpFolder = "/tmp"
+	}
+	finalFolder := os.Getenv("FINALDIR")
 	jwtKey := []byte(os.Getenv("JWT_KEY"))
 	if len(jwtKey) == 0 {
 		log.Fatal("JWT_KEY is not set")
@@ -69,6 +66,8 @@ func main() {
 	db.SetMaxIdleConns(10)                  // defaultMaxIdleConns = 2
 	db.SetConnMaxLifetime(30 * time.Minute) // if 0, connections are reused forever.
 
+	// Create policed stores for every crud resource
+	// Users
 	userDescriptor := models.UserDescriptor()
 	if err := userDescriptor.CreateDb(context.Background(), db); err == nil {
 		log.Printf("created table %s\n", userDescriptor.TableName)
@@ -85,6 +84,7 @@ func main() {
 		UserStore: userStore,
 	}
 
+	// Videos
 	videoDescriptor := models.VideoDescriptor()
 	if err := videoDescriptor.CreateDb(context.Background(), db); err == nil {
 		log.Printf("created table %s\n", videoDescriptor.TableName)
@@ -99,6 +99,7 @@ func main() {
 		),
 	}
 
+	// Pictures
 	pictureDescriptor := models.PictureDescriptor()
 	if err := pictureDescriptor.CreateDb(context.Background(), db); err == nil {
 		log.Printf("created table %s\n", videoDescriptor.TableName)
@@ -137,34 +138,43 @@ func main() {
 	}
 	mux.Handle("/api/login", cors.Allow(auth.Login(userStore, jwtKey, authOptions...)))
 	mux.Handle("/api/logout", cors.Allow(auth.Logout(authOptions...)))
-	mux.Handle("/api/me", cors.Allow(auth.WithClaims(jwtKey, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		claims, err := auth.ClaimsFrom(r.Context())
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusUnauthorized)
-			return
-		}
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		resp := meResponse{
-			ID:      claims.Subject,
-			Name:    claims.Name,
-			Role:    claims.Role,
-			Expires: claims.ExpiresAt.Time,
-		}
-		json.NewEncoder(w).Encode(resp)
-	}))))
+	mux.Handle("/api/me", cors.Allow(auth.WithClaims(jwtKey, http.HandlerFunc(handleMe))))
 
 	// Stack all the cors, auth and crud middleware on top of the resources
-	stackHandlers := func(prefix string, resource crud.Resource) {
-		handler := http.StripPrefix(prefix, cors.Allow(auth.WithClaims(jwtKey, crud.Handler(resource))))
+	stackHandlers := func(prefix string, frontend crud.Frontend) {
+		handler := http.StripPrefix(prefix, cors.Allow(auth.WithClaims(jwtKey, crud.NewHandler(frontend))))
 		mux.Handle(prefix+"/", handler)
 		mux.Handle(prefix, handler)
 	}
 
 	// User administration endpoints
-	stackHandlers("/api/user", store.Adapt[models.User](policedUserStore))
-	stackHandlers("/api/picture", store.Adapt[models.Picture](policedPictureStore))
-	stackHandlers("/api/video", store.Adapt[models.Video](policedVideoStore))
+	stackHandlers("/api/user", crud.FromResource(store.Adapt[models.User](policedUserStore)))
+	// Video administration endpoints
+	stackHandlers("/api/video", crud.FromMedia(
+		store.Adapt[models.Video](policedVideoStore),
+		tmpFolder,
+		finalFolder,
+		map[string]string{
+			"video/4gpp":      ".4gpp",
+			"video/3gpp2":     ".3gpp2",
+			"video/3gp2":      ".3gp2",
+			"video/mpeg":      ".mpg",
+			"video/mp4":       ".mp4",
+			"video/ogg":       ".ogg",
+			"video/quicktime": ".quicktime",
+			"video/webm":      ".webm",
+		},
+	))
+	// Picture administration endpoints
+	stackHandlers("/api/picture", crud.FromMedia(
+		store.Adapt[models.Picture](policedPictureStore),
+		tmpFolder,
+		finalFolder,
+		map[string]string{
+			"image/jpeg": ".jpg",
+			"image/png":  ".png",
+		},
+	))
 
 	// Add swagger UI server
 	mux.Handle("/swagger/", http.StripPrefix("/swagger/", http.HandlerFunc(swagger.ServeHTTP)))

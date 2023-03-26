@@ -11,6 +11,7 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 
+	"github.com/warpcomdev/videoapi/internal/crud"
 	"github.com/warpcomdev/videoapi/internal/models"
 	"github.com/warpcomdev/videoapi/internal/store"
 	"golang.org/x/crypto/bcrypt"
@@ -116,15 +117,15 @@ func Login(store store.Resource[models.User], jwtKey []byte, options ...AuthOpti
 	config := applyOptions(options...)
 	handler := func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
-			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+			crud.JsonError(w, crud.ErrUnsupportedMethod)
 			return
 		}
 		if r.Header.Get("Content-Type") != "application/json" {
-			http.Error(w, "bad request", http.StatusBadRequest)
+			crud.JsonError(w, crud.ErrUnsupportedMediaType)
 			return
 		}
 		if r.Body == nil {
-			http.Error(w, "bad request", http.StatusBadRequest)
+			crud.JsonError(w, crud.ErrEmptyBody)
 			return
 		}
 		defer func() {
@@ -134,7 +135,7 @@ func Login(store store.Resource[models.User], jwtKey []byte, options ...AuthOpti
 		var user models.User
 		body := io.LimitReader(r.Body, 65536)
 		if err := json.NewDecoder(body).Decode(&user); err != nil {
-			http.Error(w, "bad request", http.StatusBadRequest)
+			crud.JsonError(w, crud.ErrInvalidJson)
 			return
 		}
 		var match models.User
@@ -151,18 +152,18 @@ func Login(store store.Resource[models.User], jwtKey []byte, options ...AuthOpti
 			match, err = store.GetById(r.Context(), user.ID)
 			if err != nil {
 				log.Println("Auth failed: GetById failed with error: ", err.Error())
-				http.Error(w, "unauthorized", http.StatusUnauthorized)
+				crud.JsonError(w, crud.ErrUnauthorized)
 				return
 			}
 			hash, err := base64.StdEncoding.DecodeString(match.Password)
 			if err != nil {
 				log.Println("Auth failed: base64 decode failed with error: ", err.Error())
-				http.Error(w, "unauthorized", http.StatusUnauthorized)
+				crud.JsonError(w, crud.ErrUnauthorized)
 				return
 			}
 			if err := bcrypt.CompareHashAndPassword(hash, []byte(user.Password)); err != nil {
 				log.Println("Auth failed: bcrypt compare returned error: ", err.Error())
-				http.Error(w, "unauthorized", http.StatusUnauthorized)
+				crud.JsonError(w, crud.ErrUnauthorized)
 				return
 			}
 		}
@@ -185,7 +186,7 @@ func Login(store store.Resource[models.User], jwtKey []byte, options ...AuthOpti
 		tokenString, err := token.SignedString(jwtKey)
 		if err != nil {
 			log.Println("Auth failed: failed to sign token with error: ", err.Error())
-			http.Error(w, "unauthorized", http.StatusUnauthorized)
+			crud.JsonError(w, crud.ErrUnauthorized)
 			return
 		}
 		w.Header().Set("Content-Type", "application/json")

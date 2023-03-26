@@ -33,6 +33,8 @@ func (up VideoPolicy) Post(ctx context.Context, data models.Video) (string, erro
 	if claims.Role != models.ROLE_ADMIN && claims.Role != models.ROLE_READ_WRITE {
 		return "", crud.ErrUnauthorized
 	}
+	// People cannot change the media URL, it will be automatically set by the system
+	data.MediaURL.Valid = false
 	return up.VideoStore.Post(ctx, data)
 }
 
@@ -45,6 +47,8 @@ func (up VideoPolicy) Put(ctx context.Context, id string, data models.Video) err
 	if claims.Role != models.ROLE_ADMIN && claims.Role != models.ROLE_READ_WRITE {
 		return crud.ErrUnauthorized
 	}
+	// People cannot change the media URL, it will be automatically set by the system
+	data.MediaURL.Valid = false
 	return up.VideoStore.Put(ctx, id, data)
 }
 

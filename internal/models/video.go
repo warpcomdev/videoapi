@@ -13,6 +13,7 @@ type Video struct {
 	Camera    string     `json:"camera" db:"CAMERA"`
 	Tags      JsonList   `json:"tags,omitempty" db:"TAGS"`
 	Path      NullString `json:"path,omitempty" db:"PATH"`
+	MediaURL  NullString `json:"media_url,omitempty" db:"MEDIA_URL"`
 }
 
 // PrepareCreate prepares a Video object for persistence
@@ -35,6 +36,9 @@ func (v *Video) PrepareCreate() ([]string, error) {
 	if v.Path.Valid && v.Path.String != "" {
 		cols = append(cols, "PATH")
 	}
+	if v.MediaURL.Valid && v.MediaURL.String != "" {
+		cols = append(cols, "MEDIA_URL")
+	}
 	return cols, nil
 }
 
@@ -53,6 +57,9 @@ func (v *Video) PrepareUpdate(id string) ([]string, error) {
 	}
 	if v.Path.Valid && v.Path.String != "" {
 		cols = append(cols, "PATH")
+	}
+	if v.MediaURL.Valid && v.MediaURL.String != "" {
+		cols = append(cols, "MEDIA_URL")
 	}
 	return cols, nil
 }

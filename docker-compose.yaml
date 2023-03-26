@@ -23,10 +23,15 @@ services:
       # Remove for production
       SUPER_PASSWORD: "superPassword"
       DEBUG: "true"
+      FINALDIR: "/opt/storage/final"
+      TMPDIR: "/opt/storage/tmp"
     ports:
     - "8080:8080"
     command:
     - "oracle://videoapi:videoapi@oracle:1521/XEPDB1?TRACE FILE=trace.log"
+    volumes:
+    - files:/opt/storage
 
 volumes:
   oracle:
+  files:
