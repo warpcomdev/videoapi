@@ -209,11 +209,14 @@ func (h MediaFrontend) commitTmpFile(ctx context.Context, id, idFolder, escapeId
 		}
 		renamed[match] = newName
 	}
+	// make sure the final folder exists
+	if err = os.MkdirAll(filepath.Join(h.finalFolder, idFolder), 0755); err != nil {
+		return err
+	}
 	// move to final location
 	finalName := fmt.Sprintf("%s.%s", escapeId, ext)
 	finalPath := filepath.Join(h.finalFolder, idFolder, finalName)
-	err = os.Rename(tmpPath, finalPath)
-	if err != nil {
+	if err = os.Rename(tmpPath, finalPath); err != nil {
 		return err
 	}
 	defer func() {
