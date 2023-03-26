@@ -19,15 +19,22 @@ import (
 
 type MediaFrontend struct {
 	nested      ResourceFrontend
+	unpoliced   Resource
 	tmpFolder   string
 	finalFolder string
 	mimeTypes   map[string]string
 }
 
 // FromMedia creates a new MediaFrontend
-func FromMedia(r Resource, tmpFolder, finalFolder string, mimeTypes map[string]string) MediaFrontend {
+func FromMedia(r Resource, unpoliced Resource, tmpFolder, finalFolder string, mimeTypes map[string]string) MediaFrontend {
+	for _, ext := range mimeTypes {
+		if !strings.HasPrefix(ext, ".") {
+			panic("mimetype extensions must begin with `.`")
+		}
+	}
 	return MediaFrontend{
 		nested:      FromResource(r),
+		unpoliced:   unpoliced,
 		tmpFolder:   tmpFolder,
 		finalFolder: finalFolder,
 		mimeTypes:   mimeTypes,
@@ -158,7 +165,7 @@ func (h MediaFrontend) Delete(r *http.Request) error {
 		// delete only media files
 		return h.removePrevFiles(idFolder, escapeId)
 	}
-	err := h.nested.resource.Delete(r.Context(), id)
+	err := h.unpoliced.Delete(r.Context(), id)
 	if err == nil {
 		// Remove prev files only if we deleted the resource
 		h.removePrevFiles(idFolder, escapeId)
@@ -213,8 +220,8 @@ func (h MediaFrontend) commitTmpFile(ctx context.Context, id, idFolder, escapeId
 	if err = os.MkdirAll(filepath.Join(h.finalFolder, idFolder), 0755); err != nil {
 		return err
 	}
-	// move to final location
-	finalName := fmt.Sprintf("%s.%s", escapeId, ext)
+	// move to final location. Notice: `ext` already includes the dot.
+	finalName := fmt.Sprintf("%s%s", escapeId, ext)
 	finalPath := filepath.Join(h.finalFolder, idFolder, finalName)
 	if err = os.Rename(tmpPath, finalPath); err != nil {
 		return err
@@ -234,7 +241,7 @@ func (h MediaFrontend) commitTmpFile(ctx context.Context, id, idFolder, escapeId
 	if err != nil {
 		return err
 	}
-	err = h.nested.resource.Put(ctx, id, bytes.NewReader(data))
+	err = h.unpoliced.Put(ctx, id, bytes.NewReader(data))
 	return err
 }
 

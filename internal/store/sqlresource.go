@@ -162,7 +162,8 @@ func (r SQLResource[T, P]) Post(ctx context.Context, t T) (string, error) {
 		return "", err
 	}
 	defer stmt.Close()
-	if err := stmt.Execute(ctx, args...); err != nil {
+	affected, err := stmt.Execute(ctx, args...)
+	if err != nil {
 		tx.Rollback()
 		return "", QueryError{
 			Message: "failed to create resource",
@@ -171,7 +172,15 @@ func (r SQLResource[T, P]) Post(ctx context.Context, t T) (string, error) {
 			Cause:   err,
 		}
 	}
-	return t.GetID(), tx.Commit()
+	newID := t.GetID()
+	err = tx.Commit()
+	if err != nil {
+		return "", err
+	}
+	if affected != 1 {
+		return "", fmt.Errorf("expected 1 row affected, got %d", affected)
+	}
+	return newID, nil
 }
 
 // Put updates a resource in the database
@@ -205,7 +214,8 @@ func (r SQLResource[T, P]) Put(ctx context.Context, id string, t T) error {
 		return err
 	}
 	defer stmt.Close()
-	if err := stmt.Execute(ctx, args...); err != nil {
+	affected, err := stmt.Execute(ctx, args...)
+	if err != nil {
 		tx.Rollback()
 		return QueryError{
 			Message: "failed to update resource",
@@ -214,7 +224,14 @@ func (r SQLResource[T, P]) Put(ctx context.Context, id string, t T) error {
 			Cause:   err,
 		}
 	}
-	return tx.Commit()
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+	if affected == 0 {
+		return errors.New("resource not found")
+	}
+	return nil
 }
 
 type deleteReq struct {
@@ -239,7 +256,7 @@ func (r SQLResource[T, P]) Delete(ctx context.Context, id string) error {
 		return err
 	}
 	defer stmt.Close()
-	if err := stmt.Execute(ctx, args...); err != nil {
+	if _, err := stmt.Execute(ctx, args...); err != nil {
 		tx.Rollback()
 		return QueryError{
 			Message: "failed to delete resource",

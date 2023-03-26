@@ -19,7 +19,7 @@ type Transaction interface {
 
 type Statement interface {
 	QueryString() string
-	Execute(ctx context.Context, params ...any) error
+	Execute(ctx context.Context, params ...any) (int, error)
 	Close() error
 }
 

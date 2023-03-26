@@ -117,14 +117,15 @@ func main() {
 	} else {
 		log.Printf("error creating table %s: %s", cameraDescriptor.TableName, err)
 	}
+	cameraStore := store.New[models.Camera](
+		SqlxQuerier{DB: db},
+		SqlxExecutor{DB: db},
+		cameraDescriptor.TableName,
+		cameraDescriptor.FilterSet,
+		oracleLimiter,
+	)
 	policedCameraStore := policy.CameraPolicy{
-		CameraStore: store.New[models.Camera](
-			SqlxQuerier{DB: db},
-			SqlxExecutor{DB: db},
-			cameraDescriptor.TableName,
-			cameraDescriptor.FilterSet,
-			oracleLimiter,
-		),
+		CameraStore: cameraStore,
 	}
 
 	// Videos
@@ -134,14 +135,15 @@ func main() {
 	} else {
 		log.Printf("error creating table %s: %s", videoDescriptor.TableName, err)
 	}
+	videoStore := store.New[models.Media](
+		SqlxQuerier{DB: db},
+		SqlxExecutor{DB: db},
+		videoDescriptor.TableName,
+		videoDescriptor.FilterSet,
+		oracleLimiter,
+	)
 	policedVideoStore := policy.MediaPolicy{
-		MediaStore: store.New[models.Media](
-			SqlxQuerier{DB: db},
-			SqlxExecutor{DB: db},
-			videoDescriptor.TableName,
-			videoDescriptor.FilterSet,
-			oracleLimiter,
-		),
+		MediaStore: videoStore,
 	}
 
 	// Pictures
@@ -151,14 +153,15 @@ func main() {
 	} else {
 		log.Printf("error creating table %s: %s", pictureDescriptor.TableName, err)
 	}
+	pictureStore := store.New[models.Media](
+		SqlxQuerier{DB: db},
+		SqlxExecutor{DB: db},
+		pictureDescriptor.TableName,
+		pictureDescriptor.FilterSet,
+		oracleLimiter,
+	)
 	policedPictureStore := policy.MediaPolicy{
-		MediaStore: store.New[models.Media](
-			SqlxQuerier{DB: db},
-			SqlxExecutor{DB: db},
-			pictureDescriptor.TableName,
-			pictureDescriptor.FilterSet,
-			oracleLimiter,
-		),
+		MediaStore: pictureStore,
 	}
 
 	// Alerts
@@ -168,14 +171,15 @@ func main() {
 	} else {
 		log.Printf("error creating table %s: %s", alertDescriptor.TableName, err)
 	}
+	alertStore := store.New[models.Alert](
+		SqlxQuerier{DB: db},
+		SqlxExecutor{DB: db},
+		alertDescriptor.TableName,
+		alertDescriptor.FilterSet,
+		oracleLimiter,
+	)
 	policedAlertStore := policy.AlertPolicy{
-		AlertStore: store.New[models.Alert](
-			SqlxQuerier{DB: db},
-			SqlxExecutor{DB: db},
-			alertDescriptor.TableName,
-			alertDescriptor.FilterSet,
-			oracleLimiter,
-		),
+		AlertStore: alertStore,
 	}
 
 	mux := &http.ServeMux{}
@@ -218,6 +222,7 @@ func main() {
 	// Video administration endpoints
 	stackHandlers("/api/video", crud.FromMedia(
 		store.Adapt[models.Media](policedVideoStore),
+		store.Adapt[models.Media](videoStore),
 		tmpFolder,
 		finalFolder,
 		map[string]string{
@@ -234,6 +239,7 @@ func main() {
 	// Picture administration endpoints
 	stackHandlers("/api/picture", crud.FromMedia(
 		store.Adapt[models.Media](policedPictureStore),
+		store.Adapt[models.Media](pictureStore),
 		tmpFolder,
 		finalFolder,
 		map[string]string{

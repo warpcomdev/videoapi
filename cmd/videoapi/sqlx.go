@@ -51,9 +51,13 @@ func (stmt SqlxStatement) Close() error {
 }
 
 // Execute implements Statement
-func (stmt SqlxStatement) Execute(ctx context.Context, params ...any) error {
-	_, err := stmt.Stmt.ExecContext(ctx, params...)
-	return err
+func (stmt SqlxStatement) Execute(ctx context.Context, params ...any) (int, error) {
+	result, err := stmt.Stmt.ExecContext(ctx, params...)
+	if err != nil {
+		return 0, err
+	}
+	n, err := result.RowsAffected()
+	return int(n), err
 }
 
 // Basic implementations of Transaction for sqlx
