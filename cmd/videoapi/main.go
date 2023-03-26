@@ -250,8 +250,9 @@ func main() {
 	// Alert administration endpoints
 	stackHandlers("/api/alert", crud.FromResource(store.Adapt[models.Alert](policedAlertStore)))
 
-	// Add swagger UI server
+	// Add swagger and media UI servers
 	mux.Handle("/swagger/", http.StripPrefix("/swagger/", http.HandlerFunc(swagger.ServeHTTP)))
+	mux.Handle("/media/", http.StripPrefix("/media/", http.FileServer(http.Dir(finalFolder))))
 
 	log.Printf("Listening at %s\n", server.Addr)
 	log.Fatal(server.ListenAndServe())
