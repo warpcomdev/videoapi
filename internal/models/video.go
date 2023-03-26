@@ -78,7 +78,7 @@ func VideoDescriptor() Descriptor {
 			CAMERA VARCHAR2(128),
 			TAGS VARCHAR2(256) NULL,
 			MEDIA_URL VARCHAR2(256) NULL,
-			CONSTRAINT ensure_json CHECK (tags IS JSON)
+			CONSTRAINT videos_ensure_json CHECK (tags IS JSON)
 		)`,
 	}
 }

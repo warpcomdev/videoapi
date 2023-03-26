@@ -87,6 +87,8 @@ func main() {
 	userDescriptor := models.UserDescriptor()
 	if err := userDescriptor.CreateDb(context.Background(), db); err == nil {
 		log.Printf("created table %s\n", userDescriptor.TableName)
+	} else {
+		log.Printf("error creating table %s: %s", userDescriptor.TableName, err)
 	}
 	// Need access to the unpoliced UserStore for login
 	userStore := store.New[models.User](
@@ -104,6 +106,8 @@ func main() {
 	cameraDescriptor := models.CameraDescriptor()
 	if err := cameraDescriptor.CreateDb(context.Background(), db); err == nil {
 		log.Printf("created table %s\n", cameraDescriptor.TableName)
+	} else {
+		log.Printf("error creating table %s: %s", cameraDescriptor.TableName, err)
 	}
 	policedCameraStore := policy.CameraPolicy{
 		CameraStore: store.New[models.Camera](
@@ -119,6 +123,8 @@ func main() {
 	videoDescriptor := models.VideoDescriptor()
 	if err := videoDescriptor.CreateDb(context.Background(), db); err == nil {
 		log.Printf("created table %s\n", videoDescriptor.TableName)
+	} else {
+		log.Printf("error creating table %s: %s", videoDescriptor.TableName, err)
 	}
 	policedVideoStore := policy.VideoPolicy{
 		VideoStore: store.New[models.Video](
@@ -133,7 +139,9 @@ func main() {
 	// Pictures
 	pictureDescriptor := models.PictureDescriptor()
 	if err := pictureDescriptor.CreateDb(context.Background(), db); err == nil {
-		log.Printf("created table %s\n", videoDescriptor.TableName)
+		log.Printf("created table %s\n", pictureDescriptor.TableName)
+	} else {
+		log.Printf("error creating table %s: %s", pictureDescriptor.TableName, err)
 	}
 	policedPictureStore := policy.PicturePolicy{
 		PictureStore: store.New[models.Picture](
@@ -149,6 +157,8 @@ func main() {
 	alertDescriptor := models.AlertDescriptor()
 	if err := alertDescriptor.CreateDb(context.Background(), db); err == nil {
 		log.Printf("created table %s\n", alertDescriptor.TableName)
+	} else {
+		log.Printf("error creating table %s: %s", alertDescriptor.TableName, err)
 	}
 	policedAlertStore := policy.AlertPolicy{
 		AlertStore: store.New[models.Alert](
