@@ -12,7 +12,6 @@ type Video struct {
 	Timestamp time.Time  `json:"timestamp" db:"TIMESTAMP"`
 	Camera    string     `json:"camera" db:"CAMERA"`
 	Tags      JsonList   `json:"tags,omitempty" db:"TAGS"`
-	Path      NullString `json:"path,omitempty" db:"PATH"`
 	MediaURL  NullString `json:"media_url,omitempty" db:"MEDIA_URL"`
 }
 
@@ -33,9 +32,6 @@ func (v *Video) PrepareCreate() ([]string, error) {
 	if v.Tags.Valid {
 		cols = append(cols, "TAGS")
 	}
-	if v.Path.Valid && v.Path.String != "" {
-		cols = append(cols, "PATH")
-	}
 	if v.MediaURL.Valid && v.MediaURL.String != "" {
 		cols = append(cols, "MEDIA_URL")
 	}
@@ -55,9 +51,6 @@ func (v *Video) PrepareUpdate(id string) ([]string, error) {
 	if v.Tags.Valid {
 		cols = append(cols, "TAGS")
 	}
-	if v.Path.Valid && v.Path.String != "" {
-		cols = append(cols, "PATH")
-	}
 	if v.MediaURL.Valid && v.MediaURL.String != "" {
 		cols = append(cols, "MEDIA_URL")
 	}
@@ -74,6 +67,7 @@ func VideoDescriptor() Descriptor {
 			"timestamp":   store.TimeDbType{},
 			"camera":      store.StringDbType{},
 			"tags":        store.JsonDbType{},
+			"mediaURL":    store.StringDbType{},
 		},
 		Create: `
 		(
@@ -83,7 +77,7 @@ func VideoDescriptor() Descriptor {
 			TIMESTAMP TIMESTAMP(6) WITH TIME ZONE,
 			CAMERA VARCHAR2(128),
 			TAGS VARCHAR2(256) NULL,
-			PATH VARCHAR2(256) NULL,
+			MEDIA_URL VARCHAR2(256) NULL,
 			CONSTRAINT ensure_json CHECK (tags IS JSON)
 		)`,
 	}

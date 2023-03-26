@@ -68,5 +68,15 @@ func CameraDescriptor() Descriptor {
 			"modified_at": store.TimeDbType{},
 			"name":        store.StringDbType{},
 		},
+		Create: `
+		(
+			ID VARCHAR2(128) NOT NULL PRIMARY KEY,
+			CREATED_AT TIMESTAMP(6) WITH TIME ZONE,
+			MODIFIED_AT TIMESTAMP(6) WITH TIME ZONE,
+			NAME VARCHAR2(128),
+			LATITUDE NUMBER(16, 10) NULL,
+			LONGITUDE NUMBER(16, 10) NULL,
+			LOCAL_PATH VARCHAR2(512) NULL
+		)`,
 	}
 }

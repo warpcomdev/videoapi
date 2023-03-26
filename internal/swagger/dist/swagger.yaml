@@ -415,6 +415,352 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/queryError'
+  /api/camera:
+    get:
+      summary: Queries a list of Camera
+      tags:
+        - Camera
+      description: |-
+        All query (q) parameters support several **operators**:
+
+        - `eq`: equals
+        - `ne`: not equals
+        - `lt`: less than
+        - `le`: less or equal
+        - `gt`: greater than
+        - `ge`: greater or equal
+        - `like`: SQL like
+
+        Operators `eq` and `ne` support the special value `NULL` to match
+        non-null values in the DB.
+      security:
+        - bearerAuth: []
+        - cookieaAuth: []
+      parameters:
+        - name: sort
+          in: query
+          required: false
+          description: List of columns to sort by
+          schema:
+            type: array
+            items:
+              type: string
+        - name: ascending
+          in: query
+          required: false
+          description: Sort ascending
+          schema:
+            type: boolean
+        - name: offset
+          in: query
+          required: false
+          description: Offset for pagination
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          required: false
+          description: Limit for pagination
+          schema:
+            type: integer
+        - name: q:id:eq
+          in: query
+          required: false
+          description: Filter field `id` with the specified operator (`eq`)
+          schema:
+            type: string
+        - name: q:id:ne
+          in: query
+          required: false
+          description: Filter field `id` with the specified operator (`ne`)
+          schema:
+            type: string
+        - name: q:id:like
+          in: query
+          required: false
+          description: Filter field `id` with the specified operator (`like`)
+          schema:
+            type: string
+        - name: q:created_at:lt
+          in: query
+          required: false
+          description: Filter field `created_at` with the specified operator (`lt`)
+          schema:
+            format: date-time
+            type: string
+        - name: q:created_at:le
+          in: query
+          required: false
+          description: Filter field `created_at` with the specified operator (`le`)
+          schema:
+            format: date-time
+            type: string
+        - name: q:created_at:gt
+          in: query
+          required: false
+          description: Filter field `created_at` with the specified operator (`gt`)
+          schema:
+            format: date-time
+            type: string
+        - name: q:created_at:ge
+          in: query
+          required: false
+          description: Filter field `created_at` with the specified operator (`ge`)
+          schema:
+            format: date-time
+            type: string
+        - name: q:modified_at:lt
+          in: query
+          required: false
+          description: Filter field `modified_at` with the specified operator (`lt`)
+          schema:
+            format: date-time
+            type: string
+        - name: q:modified_at:le
+          in: query
+          required: false
+          description: Filter field `modified_at` with the specified operator (`le`)
+          schema:
+            format: date-time
+            type: string
+        - name: q:modified_at:gt
+          in: query
+          required: false
+          description: Filter field `modified_at` with the specified operator (`gt`)
+          schema:
+            format: date-time
+            type: string
+        - name: q:modified_at:ge
+          in: query
+          required: false
+          description: Filter field `modified_at` with the specified operator (`ge`)
+          schema:
+            format: date-time
+            type: string
+        - name: q:name:eq
+          in: query
+          required: false
+          description: Filter field `name` with the specified operator (`eq`)
+          schema:
+            type: string
+        - name: q:name:ne
+          in: query
+          required: false
+          description: Filter field `name` with the specified operator (`ne`)
+          schema:
+            type: string
+        - name: q:name:like
+          in: query
+          required: false
+          description: Filter field `name` with the specified operator (`like`)
+          schema:
+            type: string
+        - name: q:latitude:lt
+          in: query
+          required: false
+          description: Filter field `latitude` with the specified operator (`lt`)
+          schema:
+            type: number
+        - name: q:latitude:le
+          in: query
+          required: false
+          description: Filter field `latitude` with the specified operator (`le`)
+          schema:
+            type: number
+        - name: q:latitude:gt
+          in: query
+          required: false
+          description: Filter field `latitude` with the specified operator (`gt`)
+          schema:
+            type: number
+        - name: q:latitude:ge
+          in: query
+          required: false
+          description: Filter field `latitude` with the specified operator (`ge`)
+          schema:
+            type: number
+        - name: q:longitude:lt
+          in: query
+          required: false
+          description: Filter field `longitude` with the specified operator (`lt`)
+          schema:
+            type: number
+        - name: q:longitude:le
+          in: query
+          required: false
+          description: Filter field `longitude` with the specified operator (`le`)
+          schema:
+            type: number
+        - name: q:longitude:gt
+          in: query
+          required: false
+          description: Filter field `longitude` with the specified operator (`gt`)
+          schema:
+            type: number
+        - name: q:longitude:ge
+          in: query
+          required: false
+          description: Filter field `longitude` with the specified operator (`ge`)
+          schema:
+            type: number
+      responses:
+        "401":
+          description: Unauthorized
+        "400":
+          description: Invalid query
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/queryError'
+        "200":
+          description: List of items
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListOfCamera'
+        "500":
+          description: Internal error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/queryError'
+    post:
+      summary: Creates a new Camera
+      tags:
+        - Camera
+      requestBody:
+        description: Information of the Camera
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Camera'
+      security:
+        - bearerAuth: []
+        - cookieaAuth: []
+      responses:
+        "401":
+          description: Unauthorized
+        "400":
+          description: Invalid query
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/queryError'
+        "200":
+          description: New resource created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceId'
+        "500":
+          description: Internal error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/queryError'
+  /api/camera/{id}:
+    get:
+      summary: Queries a Camera by id
+      tags:
+        - Camera
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+        - cookieaAuth: []
+      responses:
+        "401":
+          description: Unauthorized
+        "400":
+          description: Invalid query
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/queryError'
+        "200":
+          description: resource content
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Camera'
+        "500":
+          description: Internal error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/queryError'
+    put:
+      summary: Updates a Camera by id
+      tags:
+        - Camera
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Information of the Camera
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Camera'
+      security:
+        - bearerAuth: []
+        - cookieaAuth: []
+      responses:
+        "204":
+          description: no content returned if success
+        "401":
+          description: Unauthorized
+        "400":
+          description: Invalid query
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/queryError'
+        "500":
+          description: Internal error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/queryError'
+    delete:
+      summary: Deletes a Camera by id
+      tags:
+        - Camera
+      security:
+        - bearerAuth: []
+        - cookieaAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: no content returned if success
+        "401":
+          description: Unauthorized
+        "400":
+          description: Invalid query
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/queryError'
+        "500":
+          description: Internal error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/queryError'
   /api/video:
     get:
       summary: Queries a list of Video
@@ -777,6 +1123,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/queryError'
+        "301":
+          description: Redirect to the provided URLs on success or error
+          headers:
+            Location:
+              description: URL to redirect to
+              schema:
+                type: string
         "500":
           description: Internal error
           content:
@@ -1181,6 +1534,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/queryError'
+        "301":
+          description: Redirect to the provided URLs on success or error
+          headers:
+            Location:
+              description: URL to redirect to
+              schema:
+                type: string
         "500":
           description: Internal error
           content:
@@ -1206,6 +1566,452 @@ paths:
           schema:
             type: boolean
           description: If true, only the media will be deleted
+      responses:
+        "204":
+          description: no content returned if success
+        "401":
+          description: Unauthorized
+        "400":
+          description: Invalid query
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/queryError'
+        "500":
+          description: Internal error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/queryError'
+  /api/alert:
+    get:
+      summary: Queries a list of Alert
+      tags:
+        - Alert
+      description: |-
+        All query (q) parameters support several **operators**:
+
+        - `eq`: equals
+        - `ne`: not equals
+        - `lt`: less than
+        - `le`: less or equal
+        - `gt`: greater than
+        - `ge`: greater or equal
+        - `like`: SQL like
+
+        Operators `eq` and `ne` support the special value `NULL` to match
+        non-null values in the DB.
+      security:
+        - bearerAuth: []
+        - cookieaAuth: []
+      parameters:
+        - name: sort
+          in: query
+          required: false
+          description: List of columns to sort by
+          schema:
+            type: array
+            items:
+              type: string
+        - name: ascending
+          in: query
+          required: false
+          description: Sort ascending
+          schema:
+            type: boolean
+        - name: offset
+          in: query
+          required: false
+          description: Offset for pagination
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          required: false
+          description: Limit for pagination
+          schema:
+            type: integer
+        - name: q:id:eq
+          in: query
+          required: false
+          description: Filter field `id` with the specified operator (`eq`)
+          schema:
+            type: string
+        - name: q:id:ne
+          in: query
+          required: false
+          description: Filter field `id` with the specified operator (`ne`)
+          schema:
+            type: string
+        - name: q:id:like
+          in: query
+          required: false
+          description: Filter field `id` with the specified operator (`like`)
+          schema:
+            type: string
+        - name: q:created_at:lt
+          in: query
+          required: false
+          description: Filter field `created_at` with the specified operator (`lt`)
+          schema:
+            format: date-time
+            type: string
+        - name: q:created_at:le
+          in: query
+          required: false
+          description: Filter field `created_at` with the specified operator (`le`)
+          schema:
+            format: date-time
+            type: string
+        - name: q:created_at:gt
+          in: query
+          required: false
+          description: Filter field `created_at` with the specified operator (`gt`)
+          schema:
+            format: date-time
+            type: string
+        - name: q:created_at:ge
+          in: query
+          required: false
+          description: Filter field `created_at` with the specified operator (`ge`)
+          schema:
+            format: date-time
+            type: string
+        - name: q:modified_at:lt
+          in: query
+          required: false
+          description: Filter field `modified_at` with the specified operator (`lt`)
+          schema:
+            format: date-time
+            type: string
+        - name: q:modified_at:le
+          in: query
+          required: false
+          description: Filter field `modified_at` with the specified operator (`le`)
+          schema:
+            format: date-time
+            type: string
+        - name: q:modified_at:gt
+          in: query
+          required: false
+          description: Filter field `modified_at` with the specified operator (`gt`)
+          schema:
+            format: date-time
+            type: string
+        - name: q:modified_at:ge
+          in: query
+          required: false
+          description: Filter field `modified_at` with the specified operator (`ge`)
+          schema:
+            format: date-time
+            type: string
+        - name: q:timestamp:lt
+          in: query
+          required: false
+          description: Filter field `timestamp` with the specified operator (`lt`)
+          schema:
+            format: date-time
+            type: string
+        - name: q:timestamp:le
+          in: query
+          required: false
+          description: Filter field `timestamp` with the specified operator (`le`)
+          schema:
+            format: date-time
+            type: string
+        - name: q:timestamp:gt
+          in: query
+          required: false
+          description: Filter field `timestamp` with the specified operator (`gt`)
+          schema:
+            format: date-time
+            type: string
+        - name: q:timestamp:ge
+          in: query
+          required: false
+          description: Filter field `timestamp` with the specified operator (`ge`)
+          schema:
+            format: date-time
+            type: string
+        - name: q:camera:eq
+          in: query
+          required: false
+          description: Filter field `camera` with the specified operator (`eq`)
+          schema:
+            type: string
+        - name: q:camera:ne
+          in: query
+          required: false
+          description: Filter field `camera` with the specified operator (`ne`)
+          schema:
+            type: string
+        - name: q:camera:like
+          in: query
+          required: false
+          description: Filter field `camera` with the specified operator (`like`)
+          schema:
+            type: string
+        - name: q:severity:eq
+          in: query
+          required: false
+          description: Filter field `severity` with the specified operator (`eq`)
+          schema:
+            type: string
+        - name: q:severity:ne
+          in: query
+          required: false
+          description: Filter field `severity` with the specified operator (`ne`)
+          schema:
+            type: string
+        - name: q:severity:like
+          in: query
+          required: false
+          description: Filter field `severity` with the specified operator (`like`)
+          schema:
+            type: string
+        - name: q:message:eq
+          in: query
+          required: false
+          description: Filter field `message` with the specified operator (`eq`)
+          schema:
+            type: string
+        - name: q:message:ne
+          in: query
+          required: false
+          description: Filter field `message` with the specified operator (`ne`)
+          schema:
+            type: string
+        - name: q:message:like
+          in: query
+          required: false
+          description: Filter field `message` with the specified operator (`like`)
+          schema:
+            type: string
+        - name: q:acknowledged_at:lt
+          in: query
+          required: false
+          description: Filter field `acknowledged_at` with the specified operator (`lt`)
+          schema:
+            format: date-time
+            type: string
+        - name: q:acknowledged_at:le
+          in: query
+          required: false
+          description: Filter field `acknowledged_at` with the specified operator (`le`)
+          schema:
+            format: date-time
+            type: string
+        - name: q:acknowledged_at:gt
+          in: query
+          required: false
+          description: Filter field `acknowledged_at` with the specified operator (`gt`)
+          schema:
+            format: date-time
+            type: string
+        - name: q:acknowledged_at:ge
+          in: query
+          required: false
+          description: Filter field `acknowledged_at` with the specified operator (`ge`)
+          schema:
+            format: date-time
+            type: string
+        - name: q:acknowledged_at:eq
+          in: query
+          required: false
+          description: Filter field `acknowledged_at` with the specified operator (`eq`)
+          schema:
+            format: date-time
+            type: string
+        - name: q:acknowledged_at:ne
+          in: query
+          required: false
+          description: Filter field `acknowledged_at` with the specified operator (`ne`)
+          schema:
+            format: date-time
+            type: string
+        - name: q:resolved_at:lt
+          in: query
+          required: false
+          description: Filter field `resolved_at` with the specified operator (`lt`)
+          schema:
+            format: date-time
+            type: string
+        - name: q:resolved_at:le
+          in: query
+          required: false
+          description: Filter field `resolved_at` with the specified operator (`le`)
+          schema:
+            format: date-time
+            type: string
+        - name: q:resolved_at:gt
+          in: query
+          required: false
+          description: Filter field `resolved_at` with the specified operator (`gt`)
+          schema:
+            format: date-time
+            type: string
+        - name: q:resolved_at:ge
+          in: query
+          required: false
+          description: Filter field `resolved_at` with the specified operator (`ge`)
+          schema:
+            format: date-time
+            type: string
+        - name: q:resolved_at:eq
+          in: query
+          required: false
+          description: Filter field `resolved_at` with the specified operator (`eq`)
+          schema:
+            format: date-time
+            type: string
+        - name: q:resolved_at:ne
+          in: query
+          required: false
+          description: Filter field `resolved_at` with the specified operator (`ne`)
+          schema:
+            format: date-time
+            type: string
+      responses:
+        "401":
+          description: Unauthorized
+        "400":
+          description: Invalid query
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/queryError'
+        "200":
+          description: List of items
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListOfAlert'
+        "500":
+          description: Internal error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/queryError'
+    post:
+      summary: Creates a new Alert
+      tags:
+        - Alert
+      requestBody:
+        description: Information of the Alert
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Alert'
+      security:
+        - bearerAuth: []
+        - cookieaAuth: []
+      responses:
+        "401":
+          description: Unauthorized
+        "400":
+          description: Invalid query
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/queryError'
+        "200":
+          description: New resource created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceId'
+        "500":
+          description: Internal error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/queryError'
+  /api/alert/{id}:
+    get:
+      summary: Queries a Alert by id
+      tags:
+        - Alert
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+        - cookieaAuth: []
+      responses:
+        "401":
+          description: Unauthorized
+        "400":
+          description: Invalid query
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/queryError'
+        "200":
+          description: resource content
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Alert'
+        "500":
+          description: Internal error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/queryError'
+    put:
+      summary: Updates a Alert by id
+      tags:
+        - Alert
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Information of the Alert
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Alert'
+      security:
+        - bearerAuth: []
+        - cookieaAuth: []
+      responses:
+        "204":
+          description: no content returned if success
+        "401":
+          description: Unauthorized
+        "400":
+          description: Invalid query
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/queryError'
+        "500":
+          description: Internal error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/queryError'
+    delete:
+      summary: Deletes a Alert by id
+      tags:
+        - Alert
+      security:
+        - bearerAuth: []
+        - cookieaAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         "204":
           description: no content returned if success
@@ -1273,12 +2079,55 @@ components:
           readOnly: false
         role:
           type: string
+          enum:
+            - ADMIN
+            - READ_ONLY
+            - READ_WRITE
           readOnly: false
         password:
           type: string
           readOnly: false
       required:
         - id
+    ListOfCamera:
+      type: object
+      properties:
+        next:
+          type: string
+          example: sort=asc&offset=10&limit=10
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Camera'
+    Camera:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: false
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        modified_at:
+          type: string
+          format: date-time
+          readOnly: true
+        name:
+          type: string
+          readOnly: false
+        latitude:
+          type: number
+          readOnly: false
+        longitude:
+          type: number
+          readOnly: false
+        local_path:
+          type: string
+          readOnly: true
+      required:
+        - id
+        - name
     ListOfVideo:
       type: object
       properties:
@@ -1360,6 +2209,55 @@ components:
           readOnly: false
         mediaURL:
           type: string
+          readOnly: true
+      required:
+        - id
+        - timestamp
+        - camera
+    ListOfAlert:
+      type: object
+      properties:
+        next:
+          type: string
+          example: sort=asc&offset=10&limit=10
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Alert'
+    Alert:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: false
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        modified_at:
+          type: string
+          format: date-time
+          readOnly: true
+        timestamp:
+          type: string
+          format: date-time
+          readOnly: false
+        camera:
+          type: string
+          readOnly: false
+        severity:
+          type: string
+          readOnly: false
+        message:
+          type: string
+          readOnly: false
+        acknowledged_at:
+          type: string
+          format: date-time
+          readOnly: true
+        resolved_at:
+          type: string
+          format: date-time
           readOnly: true
       required:
         - id

@@ -9,6 +9,8 @@ import (
 	"strings"
 	"time"
 
+	"crypto/rand"
+
 	"github.com/jmoiron/sqlx"
 	_ "github.com/sijms/go-ora/v2"
 	"github.com/warpcomdev/videoapi/internal/auth"
@@ -38,18 +40,32 @@ func main() {
 		os.Exit(1)
 	}
 
-	connStr := os.ExpandEnv(os.Args[1])
+	// Readi directory folders
 	tmpFolder := os.Getenv("TMPDIR")
 	if tmpFolder == "" {
 		tmpFolder = "/tmp"
 	}
 	finalFolder := os.Getenv("FINALDIR")
+	if finalFolder == "" {
+		panic("FINALDIR must be set")
+	}
+
+	// JWT_KEY can be specified for debugging purposes,
+	// but it is recommended tolet it generate a random one.
 	jwtKey := []byte(os.Getenv("JWT_KEY"))
 	if len(jwtKey) == 0 {
-		log.Fatal("JWT_KEY is not set")
+		jwtKey = make([]byte, 32)
+		rand.Read(jwtKey)
 	}
+
+	// Couple of debugging aids:
+	// - superAdmin password
+	// - DEBUG flag to disable security in cookies
 	superPassword := os.Getenv("SUPER_PASSWORD")
 	debug := strings.HasPrefix(strings.ToLower(os.Getenv("DEBUG")), "t")
+
+	// Read connection strings
+	connStr := os.ExpandEnv(os.Args[1])
 
 	db, err := sqlx.Connect("oracle", connStr)
 	for {
@@ -84,6 +100,21 @@ func main() {
 		UserStore: userStore,
 	}
 
+	// Camera
+	cameraDescriptor := models.CameraDescriptor()
+	if err := cameraDescriptor.CreateDb(context.Background(), db); err == nil {
+		log.Printf("created table %s\n", cameraDescriptor.TableName)
+	}
+	policedCameraStore := policy.CameraPolicy{
+		CameraStore: store.New[models.Camera](
+			SqlxQuerier{DB: db},
+			SqlxExecutor{DB: db},
+			cameraDescriptor.TableName,
+			cameraDescriptor.FilterSet,
+			oracleLimiter,
+		),
+	}
+
 	// Videos
 	videoDescriptor := models.VideoDescriptor()
 	if err := videoDescriptor.CreateDb(context.Background(), db); err == nil {
@@ -110,6 +141,21 @@ func main() {
 			SqlxExecutor{DB: db},
 			pictureDescriptor.TableName,
 			pictureDescriptor.FilterSet,
+			oracleLimiter,
+		),
+	}
+
+	// Alerts
+	alertDescriptor := models.AlertDescriptor()
+	if err := alertDescriptor.CreateDb(context.Background(), db); err == nil {
+		log.Printf("created table %s\n", alertDescriptor.TableName)
+	}
+	policedAlertStore := policy.AlertPolicy{
+		AlertStore: store.New[models.Alert](
+			SqlxQuerier{DB: db},
+			SqlxExecutor{DB: db},
+			alertDescriptor.TableName,
+			alertDescriptor.FilterSet,
 			oracleLimiter,
 		),
 	}
@@ -149,6 +195,8 @@ func main() {
 
 	// User administration endpoints
 	stackHandlers("/api/user", crud.FromResource(store.Adapt[models.User](policedUserStore)))
+	// Camera administration endpoints
+	stackHandlers("/api/camera", crud.FromResource(store.Adapt[models.Camera](policedCameraStore)))
 	// Video administration endpoints
 	stackHandlers("/api/video", crud.FromMedia(
 		store.Adapt[models.Video](policedVideoStore),
@@ -175,6 +223,8 @@ func main() {
 			"image/png":  ".png",
 		},
 	))
+	// Alert administration endpoints
+	stackHandlers("/api/alert", crud.FromResource(store.Adapt[models.Alert](policedAlertStore)))
 
 	// Add swagger UI server
 	mux.Handle("/swagger/", http.StripPrefix("/swagger/", http.HandlerFunc(swagger.ServeHTTP)))

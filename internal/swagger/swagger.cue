@@ -35,11 +35,63 @@
 				required: false
 				readOnly: false
 				filter: []
+				enum: ["ADMIN", "READ_ONLY", "READ_WRITE"]
 			}
 			password: {
 				type:     "string"
 				required: false
 				readOnly: false
+				filter: []
+			}
+		}
+	}
+
+	Camera: {
+		path:      "camera"
+		mediaType: ""
+		properties: {
+			id: {
+				type:     "string"
+				required: true
+				readOnly: false
+				filter: ["eq", "ne", "like"]
+			}
+			created_at: {
+				type:     "string"
+				format:   "date-time"
+				required: false
+				readOnly: true
+				filter: ["lt", "le", "gt", "ge"]
+			}
+			modified_at: {
+				type:     "string"
+				format:   "date-time"
+				required: false
+				readOnly: true
+				filter: ["lt", "le", "gt", "ge"]
+			}
+			name: {
+				type:     "string"
+				required: true
+				readOnly: false
+				filter: ["eq", "ne", "like"]
+			}
+			latitude: {
+				type:     "number"
+				required: false
+				readOnly: false
+				filter: ["lt", "le", "gt", "ge"]
+			}
+			longitude: {
+				type:     "number"
+				required: false
+				readOnly: false
+				filter: ["lt", "le", "gt", "ge"]
+			}
+			local_path: {
+				type:     "string"
+				required: false
+				readOnly: true
 				filter: []
 			}
 		}
@@ -145,6 +197,72 @@
 				required: false
 				readOnly: true
 				filter: []
+			}
+		}
+	}
+
+	Alert: {
+		path:      "alert"
+		mediaType: ""
+		properties: {
+			id: {
+				type:     "string"
+				required: true
+				readOnly: false
+				filter: ["eq", "ne", "like"]
+			}
+			created_at: {
+				type:     "string"
+				format:   "date-time"
+				required: false
+				readOnly: true
+				filter: ["lt", "le", "gt", "ge"]
+			}
+			modified_at: {
+				type:     "string"
+				format:   "date-time"
+				required: false
+				readOnly: true
+				filter: ["lt", "le", "gt", "ge"]
+			}
+			timestamp: {
+				type:     "string"
+				format:   "date-time"
+				required: true
+				readOnly: false
+				filter: ["lt", "le", "gt", "ge"]
+			}
+			camera: {
+				type:     "string"
+				required: true
+				readOnly: false
+				filter: ["eq", "ne", "like"]
+			}
+			severity: {
+				type:     "string"
+				required: false
+				readOnly: false
+				filter: ["eq", "ne", "like"]
+			}
+			message: {
+				type:     "string"
+				required: false
+				readOnly: false
+				filter: ["eq", "ne", "like"]
+			}
+			acknowledged_at: {
+				type:     "string"
+				format:   "date-time"
+				required: false
+				readOnly: true
+				filter: ["lt", "le", "gt", "ge", "eq", "ne"]
+			}
+			resolved_at: {
+				type:     "string"
+				format:   "date-time"
+				required: false
+				readOnly: true
+				filter: ["lt", "le", "gt", "ge", "eq", "ne"]
 			}
 		}
 	}
@@ -589,6 +707,9 @@ components: schemas: {for resource, data in #crud {
 			type: propdata.type
 			if (type == "array") {
 				items: type: "string"
+			}
+			if propdata.enum != _|_ {
+				enum: propdata.enum
 			}
 			if propdata.format != _|_ {
 				format: propdata.format
