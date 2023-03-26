@@ -50,6 +50,14 @@ func main() {
 		panic("FINALDIR must be set")
 	}
 
+	// Make sure to create the folders
+	if err := os.MkdirAll(tmpFolder, 0755); err != nil {
+		panic(err)
+	}
+	if err := os.MkdirAll(finalFolder, 0755); err != nil {
+		panic(err)
+	}
+
 	// JWT_KEY can be specified for debugging purposes,
 	// but it is recommended tolet it generate a random one.
 	jwtKey := []byte(os.Getenv("JWT_KEY"))
