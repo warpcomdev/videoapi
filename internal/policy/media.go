@@ -9,23 +9,23 @@ import (
 	"github.com/warpcomdev/videoapi/internal/store"
 )
 
-// UswrPolicy implements store.Resource and enforces policy on user updates
-type VideoPolicy struct {
-	VideoStore store.Resource[models.Video]
+// MediaPolicy implements store.Resource and enforces policy on user updates
+type MediaPolicy struct {
+	MediaStore store.Resource[models.Media]
 }
 
 // GetById allowed to anyone
-func (up VideoPolicy) GetById(ctx context.Context, id string) (models.Video, error) {
-	return up.VideoStore.GetById(ctx, id)
+func (up MediaPolicy) GetById(ctx context.Context, id string) (models.Media, error) {
+	return up.MediaStore.GetById(ctx, id)
 }
 
 // Get allowed to anyone
-func (up VideoPolicy) Get(ctx context.Context, filter []crud.Filter, sort []string, ascending bool, offset, limit int) ([]models.Video, error) {
-	return up.VideoStore.Get(ctx, filter, sort, ascending, offset, limit)
+func (up MediaPolicy) Get(ctx context.Context, filter []crud.Filter, sort []string, ascending bool, offset, limit int) ([]models.Media, error) {
+	return up.MediaStore.Get(ctx, filter, sort, ascending, offset, limit)
 }
 
 // Post denied to READ_OMLY role
-func (up VideoPolicy) Post(ctx context.Context, data models.Video) (string, error) {
+func (up MediaPolicy) Post(ctx context.Context, data models.Media) (string, error) {
 	claims, err := auth.ClaimsFrom(ctx)
 	if err != nil {
 		return "", err
@@ -35,11 +35,11 @@ func (up VideoPolicy) Post(ctx context.Context, data models.Video) (string, erro
 	}
 	// People cannot change the media URL, it will be automatically set by the system
 	data.MediaURL.Valid = false
-	return up.VideoStore.Post(ctx, data)
+	return up.MediaStore.Post(ctx, data)
 }
 
 // Put denied to READ_ONLY role
-func (up VideoPolicy) Put(ctx context.Context, id string, data models.Video) error {
+func (up MediaPolicy) Put(ctx context.Context, id string, data models.Media) error {
 	claims, err := auth.ClaimsFrom(ctx)
 	if err != nil {
 		return err
@@ -49,11 +49,11 @@ func (up VideoPolicy) Put(ctx context.Context, id string, data models.Video) err
 	}
 	// People cannot change the media URL, it will be automatically set by the system
 	data.MediaURL.Valid = false
-	return up.VideoStore.Put(ctx, id, data)
+	return up.MediaStore.Put(ctx, id, data)
 }
 
 // Delete denied to READ_ONLY role
-func (up VideoPolicy) Delete(ctx context.Context, id string) error {
+func (up MediaPolicy) Delete(ctx context.Context, id string) error {
 	claims, err := auth.ClaimsFrom(ctx)
 	if err != nil {
 		return err
@@ -61,5 +61,5 @@ func (up VideoPolicy) Delete(ctx context.Context, id string) error {
 	if claims.Role != models.ROLE_ADMIN && claims.Role != models.ROLE_READ_WRITE {
 		return crud.ErrUnauthorized
 	}
-	return up.VideoStore.Delete(ctx, id)
+	return up.MediaStore.Delete(ctx, id)
 }

@@ -126,8 +126,8 @@ func main() {
 	} else {
 		log.Printf("error creating table %s: %s", videoDescriptor.TableName, err)
 	}
-	policedVideoStore := policy.VideoPolicy{
-		VideoStore: store.New[models.Video](
+	policedVideoStore := policy.MediaPolicy{
+		MediaStore: store.New[models.Media](
 			SqlxQuerier{DB: db},
 			SqlxExecutor{DB: db},
 			videoDescriptor.TableName,
@@ -143,8 +143,8 @@ func main() {
 	} else {
 		log.Printf("error creating table %s: %s", pictureDescriptor.TableName, err)
 	}
-	policedPictureStore := policy.PicturePolicy{
-		PictureStore: store.New[models.Picture](
+	policedPictureStore := policy.MediaPolicy{
+		MediaStore: store.New[models.Media](
 			SqlxQuerier{DB: db},
 			SqlxExecutor{DB: db},
 			pictureDescriptor.TableName,
@@ -209,7 +209,7 @@ func main() {
 	stackHandlers("/api/camera", crud.FromResource(store.Adapt[models.Camera](policedCameraStore)))
 	// Video administration endpoints
 	stackHandlers("/api/video", crud.FromMedia(
-		store.Adapt[models.Video](policedVideoStore),
+		store.Adapt[models.Media](policedVideoStore),
 		tmpFolder,
 		finalFolder,
 		map[string]string{
@@ -225,7 +225,7 @@ func main() {
 	))
 	// Picture administration endpoints
 	stackHandlers("/api/picture", crud.FromMedia(
-		store.Adapt[models.Picture](policedPictureStore),
+		store.Adapt[models.Media](policedPictureStore),
 		tmpFolder,
 		finalFolder,
 		map[string]string{
