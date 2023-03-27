@@ -6,6 +6,383 @@ info:
 servers:
   - url: /
     description: current host
+components:
+  schemas:
+    queryError:
+      type: object
+      properties:
+        error:
+          type: string
+    ResourceId:
+      type: object
+      properties:
+        id:
+          type: string
+    ListOfUser:
+      type: object
+      properties:
+        next:
+          type: string
+          example: sort=asc&offset=10&limit=10
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: false
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        modified_at:
+          type: string
+          format: date-time
+          readOnly: true
+        name:
+          type: string
+          readOnly: false
+        role:
+          type: string
+          enum:
+            - ADMIN
+            - READ_ONLY
+            - READ_WRITE
+          readOnly: false
+        password:
+          type: string
+          readOnly: false
+      required:
+        - id
+        - name
+        - role
+        - password
+    put_User:
+      type: object
+      properties:
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        modified_at:
+          type: string
+          format: date-time
+          readOnly: true
+        name:
+          type: string
+          readOnly: false
+        role:
+          type: string
+          enum:
+            - ADMIN
+            - READ_ONLY
+            - READ_WRITE
+          readOnly: false
+        password:
+          type: string
+          readOnly: false
+      required: false
+    ListOfCamera:
+      type: object
+      properties:
+        next:
+          type: string
+          example: sort=asc&offset=10&limit=10
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Camera'
+    Camera:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: false
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        modified_at:
+          type: string
+          format: date-time
+          readOnly: true
+        name:
+          type: string
+          readOnly: false
+        latitude:
+          type: number
+          readOnly: false
+        longitude:
+          type: number
+          readOnly: false
+        local_path:
+          type: string
+          readOnly: false
+      required:
+        - id
+        - name
+        - latitude
+        - longitude
+    put_Camera:
+      type: object
+      properties:
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        modified_at:
+          type: string
+          format: date-time
+          readOnly: true
+        name:
+          type: string
+          readOnly: false
+        latitude:
+          type: number
+          readOnly: false
+        longitude:
+          type: number
+          readOnly: false
+        local_path:
+          type: string
+          readOnly: false
+      required: false
+    ListOfVideo:
+      type: object
+      properties:
+        next:
+          type: string
+          example: sort=asc&offset=10&limit=10
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Video'
+    Video:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: false
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        modified_at:
+          type: string
+          format: date-time
+          readOnly: true
+        timestamp:
+          type: string
+          format: date-time
+          readOnly: false
+        camera:
+          type: string
+          readOnly: false
+        tags:
+          type: array
+          items:
+            type: string
+          readOnly: false
+        media_url:
+          type: string
+          readOnly: true
+      required:
+        - id
+        - timestamp
+        - camera
+    put_Video:
+      type: object
+      properties:
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        modified_at:
+          type: string
+          format: date-time
+          readOnly: true
+        timestamp:
+          type: string
+          format: date-time
+          readOnly: false
+        camera:
+          type: string
+          readOnly: false
+        tags:
+          type: array
+          items:
+            type: string
+          readOnly: false
+        media_url:
+          type: string
+          readOnly: true
+      required: false
+    ListOfPicture:
+      type: object
+      properties:
+        next:
+          type: string
+          example: sort=asc&offset=10&limit=10
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Picture'
+    Picture:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: false
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        modified_at:
+          type: string
+          format: date-time
+          readOnly: true
+        timestamp:
+          type: string
+          format: date-time
+          readOnly: false
+        camera:
+          type: string
+          readOnly: false
+        tags:
+          type: array
+          items:
+            type: string
+          readOnly: false
+        media_url:
+          type: string
+          readOnly: true
+      required:
+        - id
+        - timestamp
+        - camera
+    put_Picture:
+      type: object
+      properties:
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        modified_at:
+          type: string
+          format: date-time
+          readOnly: true
+        timestamp:
+          type: string
+          format: date-time
+          readOnly: false
+        camera:
+          type: string
+          readOnly: false
+        tags:
+          type: array
+          items:
+            type: string
+          readOnly: false
+        media_url:
+          type: string
+          readOnly: true
+      required: false
+    ListOfAlert:
+      type: object
+      properties:
+        next:
+          type: string
+          example: sort=asc&offset=10&limit=10
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Alert'
+    Alert:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: false
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        modified_at:
+          type: string
+          format: date-time
+          readOnly: true
+        timestamp:
+          type: string
+          format: date-time
+          readOnly: false
+        camera:
+          type: string
+          readOnly: false
+        severity:
+          type: string
+          readOnly: false
+        message:
+          type: string
+          readOnly: false
+        acknowledged_at:
+          type: string
+          format: date-time
+          readOnly: false
+        resolved_at:
+          type: string
+          format: date-time
+          readOnly: false
+      required:
+        - id
+        - timestamp
+        - camera
+        - severity
+        - message
+    put_Alert:
+      type: object
+      properties:
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        modified_at:
+          type: string
+          format: date-time
+          readOnly: true
+        timestamp:
+          type: string
+          format: date-time
+          readOnly: false
+        camera:
+          type: string
+          readOnly: false
+        severity:
+          type: string
+          readOnly: false
+        message:
+          type: string
+          readOnly: false
+        acknowledged_at:
+          type: string
+          format: date-time
+          readOnly: false
+        resolved_at:
+          type: string
+          format: date-time
+          readOnly: false
+      required: false
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: VIDEOAPI_SESSION
 paths:
   /api/login:
     post:
@@ -406,7 +783,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/User'
+              $ref: '#/components/schemas/put_User'
       security:
         - bearerAuth: []
         - cookieaAuth: []
@@ -752,7 +1129,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Camera'
+              $ref: '#/components/schemas/put_Camera'
       security:
         - bearerAuth: []
         - cookieaAuth: []
@@ -1108,7 +1485,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Video'
+              $ref: '#/components/schemas/put_Video'
       security:
         - bearerAuth: []
         - cookieaAuth: []
@@ -1540,7 +1917,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Picture'
+              $ref: '#/components/schemas/put_Picture'
       security:
         - bearerAuth: []
         - cookieaAuth: []
@@ -2062,7 +2439,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Alert'
+              $ref: '#/components/schemas/put_Alert'
       security:
         - bearerAuth: []
         - cookieaAuth: []
@@ -2113,237 +2490,3 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/queryError'
-components:
-  securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
-    cookieAuth:
-      type: apiKey
-      in: cookie
-      name: VIDEOAPI_SESSION
-  schemas:
-    queryError:
-      type: object
-      properties:
-        error:
-          type: string
-    ResourceId:
-      type: object
-      properties:
-        id:
-          type: string
-    ListOfUser:
-      type: object
-      properties:
-        next:
-          type: string
-          example: sort=asc&offset=10&limit=10
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/User'
-    User:
-      type: object
-      properties:
-        id:
-          type: string
-          readOnly: false
-        created_at:
-          type: string
-          format: date-time
-          readOnly: true
-        modified_at:
-          type: string
-          format: date-time
-          readOnly: true
-        name:
-          type: string
-          readOnly: false
-        role:
-          type: string
-          enum:
-            - ADMIN
-            - READ_ONLY
-            - READ_WRITE
-          readOnly: false
-        password:
-          type: string
-          readOnly: false
-      required:
-        - id
-    ListOfCamera:
-      type: object
-      properties:
-        next:
-          type: string
-          example: sort=asc&offset=10&limit=10
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/Camera'
-    Camera:
-      type: object
-      properties:
-        id:
-          type: string
-          readOnly: false
-        created_at:
-          type: string
-          format: date-time
-          readOnly: true
-        modified_at:
-          type: string
-          format: date-time
-          readOnly: true
-        name:
-          type: string
-          readOnly: false
-        latitude:
-          type: number
-          readOnly: false
-        longitude:
-          type: number
-          readOnly: false
-        local_path:
-          type: string
-          readOnly: false
-      required:
-        - id
-        - name
-    ListOfVideo:
-      type: object
-      properties:
-        next:
-          type: string
-          example: sort=asc&offset=10&limit=10
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/Video'
-    Video:
-      type: object
-      properties:
-        id:
-          type: string
-          readOnly: false
-        created_at:
-          type: string
-          format: date-time
-          readOnly: true
-        modified_at:
-          type: string
-          format: date-time
-          readOnly: true
-        timestamp:
-          type: string
-          format: date-time
-          readOnly: false
-        camera:
-          type: string
-          readOnly: false
-        tags:
-          type: array
-          items:
-            type: string
-          readOnly: false
-        media_url:
-          type: string
-          readOnly: true
-      required:
-        - id
-        - timestamp
-        - camera
-    ListOfPicture:
-      type: object
-      properties:
-        next:
-          type: string
-          example: sort=asc&offset=10&limit=10
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/Picture'
-    Picture:
-      type: object
-      properties:
-        id:
-          type: string
-          readOnly: false
-        created_at:
-          type: string
-          format: date-time
-          readOnly: true
-        modified_at:
-          type: string
-          format: date-time
-          readOnly: true
-        timestamp:
-          type: string
-          format: date-time
-          readOnly: false
-        camera:
-          type: string
-          readOnly: false
-        tags:
-          type: array
-          items:
-            type: string
-          readOnly: false
-        media_url:
-          type: string
-          readOnly: true
-      required:
-        - id
-        - timestamp
-        - camera
-    ListOfAlert:
-      type: object
-      properties:
-        next:
-          type: string
-          example: sort=asc&offset=10&limit=10
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/Alert'
-    Alert:
-      type: object
-      properties:
-        id:
-          type: string
-          readOnly: false
-        created_at:
-          type: string
-          format: date-time
-          readOnly: true
-        modified_at:
-          type: string
-          format: date-time
-          readOnly: true
-        timestamp:
-          type: string
-          format: date-time
-          readOnly: false
-        camera:
-          type: string
-          readOnly: false
-        severity:
-          type: string
-          readOnly: false
-        message:
-          type: string
-          readOnly: false
-        acknowledged_at:
-          type: string
-          format: date-time
-          readOnly: false
-        resolved_at:
-          type: string
-          format: date-time
-          readOnly: false
-      required:
-        - id
-        - timestamp
-        - camera

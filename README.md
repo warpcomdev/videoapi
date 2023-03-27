@@ -22,4 +22,9 @@ docker-compose build
 docker-compose up
 ```
 
+La API swagger está disponible en la ruta `/swagger`. Las credenciales de administrador por defecto de esta instancia de desarrollo son:
+
+- usuario: superAdmin
+- password: superPassword
+
 Dentro del fichero [docker-compose.yaml](docker-compose.yaml), hay un ejemplo de la cadena de conexión que puede usarse para conectar al servidor oracle con `sqlplus`, si fuese necesario.

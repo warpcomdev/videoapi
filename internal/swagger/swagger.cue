@@ -26,20 +26,20 @@
 			}
 			name: {
 				type:     "string"
-				required: false
+				required: true
 				readOnly: false
 				filter: ["eq", "ne", "like"]
 			}
 			role: {
 				type:     "string"
-				required: false
+				required: true
 				readOnly: false
 				filter: []
 				enum: ["ADMIN", "READ_ONLY", "READ_WRITE"]
 			}
 			password: {
 				type:     "string"
-				required: false
+				required: true
 				readOnly: false
 				filter: []
 			}
@@ -78,13 +78,13 @@
 			}
 			latitude: {
 				type:     "number"
-				required: false
+				required: true
 				readOnly: false
 				filter: ["lt", "le", "gt", "ge"]
 			}
 			longitude: {
 				type:     "number"
-				required: false
+				required: true
 				readOnly: false
 				filter: ["lt", "le", "gt", "ge"]
 			}
@@ -240,13 +240,13 @@
 			}
 			severity: {
 				type:     "string"
-				required: false
+				required: true
 				readOnly: false
 				filter: ["eq", "ne", "like"]
 			}
 			message: {
 				type:     "string"
-				required: false
+				required: true
 				readOnly: false
 				filter: ["eq", "ne", "like"]
 			}
@@ -279,6 +279,95 @@ servers: [{
 	description: "current host"
 }]
 
+// DataTypes
+// ---------
+components: schemas: queryError: {
+	type: "object"
+	properties: error: type: "string"
+}
+
+components: schemas: ResourceId: {
+	type: "object"
+	properties: id: type: "string"
+}
+
+components: schemas: {for resource, data in #crud {
+	"ListOf\(resource)": {
+		type: "object"
+		properties: {
+			next: {
+				type:    "string"
+				example: "sort=asc&offset=10&limit=10"
+			}
+			data: {
+				type: "array"
+				items: {
+					"$ref": "#/components/schemas/\(resource)"
+				}
+			}
+		}
+	}
+	"\(resource)": {
+		type: "object"
+		properties: {for propname, propdata in data.properties {
+			(propname): {
+				type: propdata.type
+				if (type == "array") {
+					items: type: "string"
+				}
+				if propdata.enum != _|_ {
+					enum: propdata.enum
+				}
+				if propdata.format != _|_ {
+					format: propdata.format
+				}
+				if propdata.readOnly != _|_ {
+					readOnly: propdata.readOnly
+				}
+			}
+		}}
+		required: [ for propname, propdata in data.properties
+			if propdata.required {propname}]
+	}
+	"put_\(resource)": {
+		type: "object"
+		properties: {for propname, propdata in data.properties if propname != "id" {
+			(propname): {
+				type: propdata.type
+				if (type == "array") {
+					items: type: "string"
+				}
+				if propdata.enum != _|_ {
+					enum: propdata.enum
+				}
+				if propdata.format != _|_ {
+					format: propdata.format
+				}
+				if propdata.readOnly != _|_ {
+					readOnly: propdata.readOnly
+				}
+			}
+		}}
+		required: false
+	}
+}}
+
+// Security schemas
+// ----------------
+components: securitySchemes: bearerAuth: {
+	type:         "http"
+	scheme:       "bearer"
+	bearerFormat: "JWT"
+}
+
+components: securitySchemes: cookieAuth: {
+	type: "apiKey"
+	"in": "cookie"
+	name: "VIDEOAPI_SESSION"
+}
+
+// Abbreviations
+// -------------
 #queryErrorReference: {
 	"application/json": schema: "$ref": "#/components/schemas/queryError"
 }
@@ -342,7 +431,16 @@ servers: [{
 	...
 }
 
+#secured: {
+	security: [
+		{bearerAuth: []},
+		{cookieaAuth: []},
+	]
+	...
+}
+
 // Authentication endpoints
+// ------------------------
 paths: "/api/login": {
 	post: {
 		summary: "Logs in and returns the authentication token"
@@ -427,27 +525,6 @@ paths: "/api/me": get: {
 			}
 		}
 	}
-}
-
-components: securitySchemes: bearerAuth: {
-	type:         "http"
-	scheme:       "bearer"
-	bearerFormat: "JWT"
-}
-
-components: securitySchemes: cookieAuth: {
-	type: "apiKey"
-	"in": "cookie"
-	name: "VIDEOAPI_SESSION"
-}
-
-// Secured methods use both auth schemes
-#secured: {
-	security: [
-		{bearerAuth: []},
-		{cookieaAuth: []},
-	]
-	...
 }
 
 // CRUD endpoints
@@ -683,7 +760,7 @@ paths: {for resource, data in #crud {
 				required:    true
 				content: {
 					"application/json": {
-						schema: "$ref": "#/components/schemas/\(resource)"
+						schema: "$ref": "#/components/schemas/put_\(resource)"
 					}
 				}
 			}
@@ -713,52 +790,4 @@ paths: {for resource, data in #crud {
 			responses: #empty_response
 		}
 	}
-}}
-
-components: schemas: queryError: {
-type: "object"
-properties: error: type: "string"
-}
-components: schemas: ResourceId: {
-type: "object"
-properties: id: type: "string"
-}
-components: schemas: {for resource, data in #crud {
-"ListOf\(resource)": {
-	type: "object"
-	properties: {
-		next: {
-			type:    "string"
-			example: "sort=asc&offset=10&limit=10"
-		}
-		data: {
-			type: "array"
-			items: {
-				"$ref": "#/components/schemas/\(resource)"
-			}
-		}
-	}
-}
-(resource): {
-	type: "object"
-	properties: {for propname, propdata in data.properties {
-		(propname): {
-			type: propdata.type
-			if (type == "array") {
-				items: type: "string"
-			}
-			if propdata.enum != _|_ {
-				enum: propdata.enum
-			}
-			if propdata.format != _|_ {
-				format: propdata.format
-			}
-			if propdata.readOnly != _|_ {
-				readOnly: propdata.readOnly
-			}
-		}
-	}}
-	required: [ for propname, propdata in data.properties
-		if propdata.required {propname}]
-}
 }}
