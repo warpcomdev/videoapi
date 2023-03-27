@@ -86,7 +86,7 @@ func applyOptions(options ...AuthOption) loginConfig {
 		Secure:     true,
 		HttpOnly:   true,
 		SameSite:   http.SameSiteStrictMode,
-		Expiration: 2 * time.Hour,
+		Expiration: 1 * time.Hour,
 		Path:       "/api",
 	}
 	for _, opt := range options {
@@ -95,6 +95,7 @@ func applyOptions(options ...AuthOption) loginConfig {
 	return config
 }
 
+// Creates session cookie
 func (config loginConfig) Cookie(domain string, value string, expires time.Time) *http.Cookie {
 	if strings.Contains(domain, ":") {
 		domain = strings.Split(domain, ":")[0]
@@ -112,76 +113,33 @@ func (config loginConfig) Cookie(domain string, value string, expires time.Time)
 	return cookie
 }
 
-// Login returns a handler that authenticates a user
+// Login returns a handler that authenticates a user (POST) or refreshes a token (GET)
 func Login(store store.Resource[models.User], jwtKey []byte, options ...AuthOption) http.Handler {
 	config := applyOptions(options...)
 	handler := func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != http.MethodPost {
-			crud.JsonError(w, crud.ErrUnsupportedMethod)
-			return
-		}
-		if r.Header.Get("Content-Type") != "application/json" {
-			crud.JsonError(w, crud.ErrUnsupportedMediaType)
-			return
-		}
-		if r.Body == nil {
-			crud.JsonError(w, crud.ErrEmptyBody)
-			return
-		}
 		defer func() {
-			io.Copy(io.Discard, r.Body)
-			r.Body.Close()
+			if r.Body != nil {
+				io.Copy(io.Discard, r.Body)
+				r.Body.Close()
+			}
 		}()
-		var user models.User
-		body := io.LimitReader(r.Body, 65536)
-		if err := json.NewDecoder(body).Decode(&user); err != nil {
-			crud.JsonError(w, crud.ErrInvalidJson)
+		var (
+			claims Claims
+			err    error
+		)
+		switch r.Method {
+		case http.MethodPost:
+			claims, err = login(r, store, config)
+		case http.MethodGet:
+			claims, err = renew(r, jwtKey, config)
+		default:
+			err = crud.ErrUnsupportedMethod
+		}
+		if err != nil {
+			crud.JsonError(w, err)
 			return
 		}
-		var match models.User
-		if config.SuperAdmin != "" && user.Name == "superAdmin" || user.Password == config.SuperAdmin {
-			match = models.User{
-				Model: models.Model{
-					ID: "superAdmin",
-				},
-				Name: "superAdmin",
-				Role: models.ROLE_ADMIN,
-			}
-		} else {
-			var err error
-			match, err = store.GetById(r.Context(), user.ID)
-			if err != nil {
-				log.Println("Auth failed: GetById failed with error: ", err.Error())
-				crud.JsonError(w, crud.ErrUnauthorized)
-				return
-			}
-			hash, err := base64.StdEncoding.DecodeString(match.Password)
-			if err != nil {
-				log.Println("Auth failed: base64 decode failed with error: ", err.Error())
-				crud.JsonError(w, crud.ErrUnauthorized)
-				return
-			}
-			if err := bcrypt.CompareHashAndPassword(hash, []byte(user.Password)); err != nil {
-				log.Println("Auth failed: bcrypt compare returned error: ", err.Error())
-				crud.JsonError(w, crud.ErrUnauthorized)
-				return
-			}
-		}
-		expires := time.Now().Add(config.Expiration)
-		token := jwt.NewWithClaims(signingMethod, Claims{
-			RegisteredClaims: jwt.RegisteredClaims{
-				Issuer:    "videoapi",
-				Subject:   string(match.ID),
-				Audience:  []string{"videoapi"},
-				ExpiresAt: jwt.NewNumericDate(expires),
-				IssuedAt:  jwt.NewNumericDate(time.Now()),
-				// Allow for a bit of clock skew
-				NotBefore: jwt.NewNumericDate(time.Now().Add(time.Second * -5)),
-			},
-			Name: match.Name,
-			Role: match.Role,
-		})
-
+		token := jwt.NewWithClaims(signingMethod, claims)
 		// Sign and get the complete encoded token as a string using the secret
 		tokenString, err := token.SignedString(jwtKey)
 		if err != nil {
@@ -191,16 +149,85 @@ func Login(store store.Resource[models.User], jwtKey []byte, options ...AuthOpti
 		}
 		w.Header().Set("Content-Type", "application/json")
 		reply := loginReply{
-			ID:    match.ID,
-			Name:  match.Name,
-			Role:  string(match.Role),
+			ID:    claims.Subject,
+			Name:  claims.Name,
+			Role:  string(claims.Role),
 			Token: tokenString,
 		}
-		http.SetCookie(w, config.Cookie(r.Host, tokenString, expires))
+		http.SetCookie(w, config.Cookie(r.Host, tokenString, claims.ExpiresAt.Time))
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(reply)
 	}
 	return http.HandlerFunc(handler)
+}
+
+// login validates user credentials
+func login(r *http.Request, store store.Resource[models.User], config loginConfig) (Claims, error) {
+	if r.Header.Get("Content-Type") != "application/json" {
+		return Claims{}, crud.ErrUnsupportedMediaType
+	}
+	if r.Body == nil {
+		return Claims{}, crud.ErrEmptyBody
+	}
+	var user models.User
+	body := io.LimitReader(r.Body, 65536)
+	if err := json.NewDecoder(body).Decode(&user); err != nil {
+		return Claims{}, crud.ErrInvalidJson
+	}
+	var match models.User
+	if config.SuperAdmin != "" && user.Name == "superAdmin" || user.Password == config.SuperAdmin {
+		match = models.User{
+			Model: models.Model{
+				ID: "superAdmin",
+			},
+			Name: "superAdmin",
+			Role: models.ROLE_ADMIN,
+		}
+	} else {
+		var err error
+		match, err = store.GetById(r.Context(), user.ID)
+		if err != nil {
+			log.Println("Auth failed: GetById failed with error: ", err.Error())
+			return Claims{}, crud.ErrUnauthorized
+		}
+		hash, err := base64.StdEncoding.DecodeString(match.Password)
+		if err != nil {
+			log.Println("Auth failed: base64 decode failed with error: ", err.Error())
+			return Claims{}, crud.ErrUnauthorized
+		}
+		if err := bcrypt.CompareHashAndPassword(hash, []byte(user.Password)); err != nil {
+			log.Println("Auth failed: bcrypt compare returned error: ", err.Error())
+			return Claims{}, crud.ErrUnauthorized
+		}
+	}
+	expires := time.Now().Add(config.Expiration)
+	claims := Claims{
+		RegisteredClaims: jwt.RegisteredClaims{
+			Issuer:    "videoapi",
+			Subject:   string(match.ID),
+			Audience:  []string{"videoapi"},
+			ExpiresAt: jwt.NewNumericDate(expires),
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+			// Allow for a bit of clock skew
+			NotBefore: jwt.NewNumericDate(time.Now().Add(time.Second * -5)),
+		},
+		Name: match.Name,
+		Role: match.Role,
+	}
+	return claims, nil
+}
+
+// renew the token for an user
+func renew(r *http.Request, jwtKey []byte, config loginConfig) (Claims, error) {
+	claims, err := auth(r, jwtKey)
+	if err != nil {
+		return Claims{}, err
+	}
+	expires := time.Now().Add(config.Expiration)
+	claims.ExpiresAt = jwt.NewNumericDate(expires)
+	claims.IssuedAt = jwt.NewNumericDate(time.Now())
+	claims.NotBefore = jwt.NewNumericDate(time.Now().Add(time.Second * -5))
+	return claims, nil
 }
 
 // Logout returns a handler that clears cookies

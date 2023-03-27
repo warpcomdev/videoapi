@@ -298,14 +298,9 @@ servers: [{
 	...
 }
 
-// Authentication endpoints
-paths: "/api/login": post: {
-	summary: "Logs in and returns the authentication token"
-	security: []
-	tags: ["Auth"]
-	requestBody: {
-		required:    true
-		description: "Credentials"
+#loginResponses: {
+	"200": {
+		description: "Authentication token"
 		content: {
 			"application/json": {
 				schema: {
@@ -314,17 +309,48 @@ paths: "/api/login": post: {
 						id: {
 							type: "string"
 						}
-						password: {
+						name: {
+							type: "string"
+						}
+						role: {
+							type: "string"
+						}
+						token: {
 							type: "string"
 						}
 					}
 				}
 			}
 		}
+		headers: {
+			"Set-Cookie": {
+				description: "Authentication cookie"
+				schema: {
+					type: "string"
+				}
+			}
+		}
 	}
-	responses: {
-		"200": {
-			description: "Authentication token"
+	"400": {
+		description: "Invalid query"
+		content:     #queryErrorReference
+	}
+	"500": {
+		description: "Internal error"
+		content:     #queryErrorReference
+	}
+	...
+}
+
+// Authentication endpoints
+paths: "/api/login": {
+	post: {
+		summary: "Logs in and returns the authentication token"
+		security: []
+		tags: ["Auth"]
+		requestBody: {
+			required:    true
+			description: "Credentials"
 			content: {
 				"application/json": {
 					schema: {
@@ -333,35 +359,23 @@ paths: "/api/login": post: {
 							id: {
 								type: "string"
 							}
-							name: {
-								type: "string"
-							}
-							role: {
-								type: "string"
-							}
-							token: {
+							password: {
 								type: "string"
 							}
 						}
 					}
 				}
 			}
-			headers: {
-				"Set-Cookie": {
-					description: "Authentication cookie"
-					schema: {
-						type: "string"
-					}
-				}
-			}
 		}
-		"400": {
-			description: "Invalid query"
-			content:     #queryErrorReference
-		}
-		"500": {
-			description: "Internal error"
-			content:     #queryErrorReference
+		responses: #loginResponses
+	}
+	get: {
+		summary: "Refresh the authentication token"
+		#secured
+		tags: ["Auth"]
+		responses: #loginResponses
+		responses: "401": {
+			description: "Unauthorized"
 		}
 	}
 }

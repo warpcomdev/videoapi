@@ -58,6 +58,48 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/queryError'
+    get:
+      summary: Refresh the authentication token
+      tags:
+        - Auth
+      security:
+        - bearerAuth: []
+        - cookieaAuth: []
+      responses:
+        "200":
+          description: Authentication token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+                  role:
+                    type: string
+                  token:
+                    type: string
+          headers:
+            Set-Cookie:
+              description: Authentication cookie
+              schema:
+                type: string
+        "400":
+          description: Invalid query
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/queryError'
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/queryError'
   /api/logout:
     get:
       summary: Removes session cookie
