@@ -63,14 +63,6 @@ components:
     put_User:
       type: object
       properties:
-        created_at:
-          type: string
-          format: date-time
-          readOnly: true
-        modified_at:
-          type: string
-          format: date-time
-          readOnly: true
         name:
           type: string
           readOnly: false
@@ -129,14 +121,6 @@ components:
     put_Camera:
       type: object
       properties:
-        created_at:
-          type: string
-          format: date-time
-          readOnly: true
-        modified_at:
-          type: string
-          format: date-time
-          readOnly: true
         name:
           type: string
           readOnly: false
@@ -196,14 +180,6 @@ components:
     put_Video:
       type: object
       properties:
-        created_at:
-          type: string
-          format: date-time
-          readOnly: true
-        modified_at:
-          type: string
-          format: date-time
-          readOnly: true
         timestamp:
           type: string
           format: date-time
@@ -216,9 +192,6 @@ components:
           items:
             type: string
           readOnly: false
-        media_url:
-          type: string
-          readOnly: true
       required: false
     ListOfPicture:
       type: object
@@ -266,14 +239,6 @@ components:
     put_Picture:
       type: object
       properties:
-        created_at:
-          type: string
-          format: date-time
-          readOnly: true
-        modified_at:
-          type: string
-          format: date-time
-          readOnly: true
         timestamp:
           type: string
           format: date-time
@@ -286,9 +251,6 @@ components:
           items:
             type: string
           readOnly: false
-        media_url:
-          type: string
-          readOnly: true
       required: false
     ListOfAlert:
       type: object
@@ -344,14 +306,6 @@ components:
     put_Alert:
       type: object
       properties:
-        created_at:
-          type: string
-          format: date-time
-          readOnly: true
-        modified_at:
-          type: string
-          format: date-time
-          readOnly: true
         timestamp:
           type: string
           format: date-time

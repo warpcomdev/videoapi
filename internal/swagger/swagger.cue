@@ -331,7 +331,7 @@ components: schemas: {for resource, data in #crud {
 	}
 	"put_\(resource)": {
 		type: "object"
-		properties: {for propname, propdata in data.properties if propname != "id" {
+		properties: {for propname, propdata in data.properties if propname != "id" && !propdata.readOnly {
 			(propname): {
 				type: propdata.type
 				if (type == "array") {
