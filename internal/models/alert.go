@@ -59,7 +59,7 @@ func (v *Alert) PrepareUpdate(id string) ([]string, error) {
 // VideoDescriptor describes the Video table (returns name and filterset)
 func AlertDescriptor() Descriptor {
 	return Descriptor{
-		TableName: "alerts",
+		TableName: "ALERTS",
 		FilterSet: store.FilterSet{
 			"created_at":      store.TimeDbType{},
 			"modified_at":     store.TimeDbType{},
@@ -78,7 +78,8 @@ func AlertDescriptor() Descriptor {
 			SEVERITY VARCHAR2(32) NOT NULL,
 			MESSAGE VARCHAR2(512) NOT NULL,
 			ACKNOWLEDGED_AT TIMESTAMP(6) WITH TIME ZONE NULL,
-			RESOLVED_AT TIMESTAMP(6) WITH TIME ZONE NULL
+			RESOLVED_AT TIMESTAMP(6) WITH TIME ZONE NULL,
+			CONSTRAINT FK_ALERT_CAMERA FOREIGN KEY (CAMERA) REFERENCES CAMERAS(ID)
 		)`,
 	}
 }

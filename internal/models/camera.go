@@ -62,7 +62,7 @@ func (v *Camera) PrepareUpdate(id string) ([]string, error) {
 // CameraDescriptor describes the Video table (returns name and filterset)
 func CameraDescriptor() Descriptor {
 	return Descriptor{
-		TableName: "camera",
+		TableName: "CAMERAS",
 		FilterSet: store.FilterSet{
 			"created_at":  store.TimeDbType{},
 			"modified_at": store.TimeDbType{},

@@ -51,6 +51,11 @@ func (h MediaFrontend) Get(r *http.Request) (io.ReadCloser, error) {
 	return h.nested.Get(r)
 }
 
+type mediaResponse struct {
+	ID       string `json:"id"`
+	MediaURL string `json:"media_url"`
+}
+
 // Post handler
 func (h MediaFrontend) Post(r *http.Request) (io.ReadCloser, error) {
 	if r.Body == nil {
@@ -132,7 +137,8 @@ func (h MediaFrontend) Post(r *http.Request) (io.ReadCloser, error) {
 	if tmpPath == "" {
 		return nil, ErrMultipartNoFile
 	}
-	if err := h.commitTmpFile(r.Context(), id, idFolder, escapeId, fileExt, tmpPath); err != nil {
+	mediaURL, err := h.commitTmpFile(r.Context(), id, idFolder, escapeId, fileExt, tmpPath)
+	if err != nil {
 		// Best effort: write a "meta" file for each upload, with the request parameters
 		metaFile := filepath.Join(idFolder, fmt.Sprintf("%s.meta", escapeId))
 		if meta, err := os.Create(metaFile); err == nil {
@@ -144,8 +150,16 @@ func (h MediaFrontend) Post(r *http.Request) (io.ReadCloser, error) {
 		}
 		return nil, err
 	}
-	tmpPath = "" // so that we don't try to remove the file
-	return nil, nil
+	// Return the id and media_url to whomever is interested
+	response := mediaResponse{
+		ID:       id,
+		MediaURL: mediaURL,
+	}
+	result, err := json.Marshal(response)
+	if err != nil {
+		return nil, err
+	}
+	return io.NopCloser(bytes.NewReader(result)), nil
 }
 
 // Put handler
@@ -183,16 +197,16 @@ func (h MediaFrontend) checkMimeType(contentType string) (string, error) {
 }
 
 // saveFile saves the input stream as a file
-func (h MediaFrontend) commitTmpFile(ctx context.Context, id, idFolder, escapeId, ext, tmpPath string) (err error) {
+func (h MediaFrontend) commitTmpFile(ctx context.Context, id, idFolder, escapeId, ext, tmpPath string) (mediaURL string, err error) {
 	// make storage folder
 	if err = os.MkdirAll(idFolder, 0755); err != nil {
-		return err
+		return "", err
 	}
 	// Find existing files
 	var matches []string
 	matches, err = h.prevFiles(idFolder, escapeId)
 	if err != nil {
-		return err
+		return "", err
 	}
 	// rename previous files
 	renamed := make(map[string]string)
@@ -212,19 +226,19 @@ func (h MediaFrontend) commitTmpFile(ctx context.Context, id, idFolder, escapeId
 	for _, match := range matches {
 		newName := match + ".old"
 		if err = os.Rename(match, match+".old"); err != nil {
-			return err
+			return "", err
 		}
 		renamed[match] = newName
 	}
 	// make sure the final folder exists
 	if err = os.MkdirAll(filepath.Join(h.finalFolder, idFolder), 0755); err != nil {
-		return err
+		return "", err
 	}
 	// move to final location. Notice: `ext` already includes the dot.
 	finalName := fmt.Sprintf("%s%s", escapeId, ext)
 	finalPath := filepath.Join(h.finalFolder, idFolder, finalName)
 	if err = os.Rename(tmpPath, finalPath); err != nil {
-		return err
+		return "", err
 	}
 	defer func() {
 		if err != nil {
@@ -232,17 +246,17 @@ func (h MediaFrontend) commitTmpFile(ctx context.Context, id, idFolder, escapeId
 		}
 	}()
 	// Update resource's `mediaURL` attrib with the new file
-	mediaURL := strings.Join([]string{idFolder, finalName}, "/")
+	mediaURL = strings.Join([]string{idFolder, finalName}, "/")
 	params := map[string]string{
 		"media_url": mediaURL,
 	}
 	var data []byte
 	data, err = json.Marshal(params)
 	if err != nil {
-		return err
+		return "", err
 	}
 	err = h.unpoliced.Put(ctx, id, bytes.NewReader(data))
-	return err
+	return mediaURL, err
 }
 
 // idFolder builds path from ID and extension

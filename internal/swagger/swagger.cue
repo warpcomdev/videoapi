@@ -621,8 +621,13 @@ paths: {for resource, data in #crud {
 				}
 				responses: #standardResponses
 				responses: {
-					"204": {
-						description: "No data returned"
+					"200": {
+						description: "Media URL for the file uploaded"
+						content: "application/json": schema: {
+							type: "object"
+							properties: id: type:        "string"
+							properties: media_url: type: "string"
+						}
 					}
 					"301": {
 						description: "Redirect to the provided URLs on success or error"

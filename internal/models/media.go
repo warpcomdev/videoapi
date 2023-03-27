@@ -60,7 +60,7 @@ func (v *Media) PrepareUpdate(id string) ([]string, error) {
 // VideoDescriptor describes the Video table (returns name and filterset)
 func VideoDescriptor() Descriptor {
 	return Descriptor{
-		TableName: "videos",
+		TableName: "VIDEOS",
 		FilterSet: store.FilterSet{
 			"created_at":  store.TimeDbType{},
 			"modified_at": store.TimeDbType{},
@@ -78,7 +78,8 @@ func VideoDescriptor() Descriptor {
 			CAMERA VARCHAR2(128) NOT NULL,
 			TAGS VARCHAR2(256) NULL,
 			MEDIA_URL VARCHAR2(256) NULL,
-			CONSTRAINT videos_ensure_json CHECK (tags IS JSON)
+			CONSTRAINT VIDEOS_ENSURE_JSON CHECK (TAGS IS JSON),
+			CONSTRAINT FK_VIDEO_CAMERA FOREIGN KEY (CAMERA) REFERENCES CAMERAS(ID)
 		)`,
 	}
 }
@@ -86,7 +87,7 @@ func VideoDescriptor() Descriptor {
 // PictureDescriptor describes the Picture table (returns name and filterset)
 func PictureDescriptor() Descriptor {
 	return Descriptor{
-		TableName: "pictures",
+		TableName: "PICTURES",
 		FilterSet: store.FilterSet{
 			"created_at":  store.TimeDbType{},
 			"modified_at": store.TimeDbType{},
@@ -104,7 +105,8 @@ func PictureDescriptor() Descriptor {
 			CAMERA VARCHAR2(128) NOT NULL,
 			TAGS VARCHAR2(256) NULL,
 			MEDIA_URL VARCHAR2(256) NULL,
-			CONSTRAINT pictures_ensure_json CHECK (tags IS JSON)
+			CONSTRAINT PICTURES_ENSURE_JSON CHECK (TAGS IS JSON),
+			CONSTRAINT FK_PICTURE_CAMERA FOREIGN KEY (CAMERA) REFERENCES CAMERAS(ID)
 		)`,
 	}
 }

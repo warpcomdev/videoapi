@@ -57,6 +57,20 @@ func NewHandler(crud Frontend) http.Handler {
 			}
 		} else {
 			if redirectOnSuccess != "" {
+				successURL, parseErr := url.Parse(redirectOnError)
+				if parseErr == nil {
+					// Try to pass all the parameters from the result as query parameters
+					var params map[string]interface{}
+					if err := json.NewDecoder(result).Decode(&params); err != nil {
+						query := successURL.Query()
+						for k, v := range params {
+							if val, ok := v.(string); ok {
+								query.Add(k, val)
+							}
+						}
+					}
+					redirectOnSuccess = successURL.String()
+				}
 				http.Redirect(w, r, redirectOnSuccess, http.StatusTemporaryRedirect)
 				return
 			}

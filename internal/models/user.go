@@ -105,7 +105,7 @@ func (v *User) PrepareUpdate(id string) ([]string, error) {
 // UserDescriptor describes the User table (returns name and filterset)
 func UserDescriptor() Descriptor {
 	return Descriptor{
-		TableName: "users",
+		TableName: "USERS",
 		FilterSet: store.FilterSet{
 			"name": store.StringDbType{},
 		},

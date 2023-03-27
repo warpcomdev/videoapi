@@ -1113,8 +1113,17 @@ paths:
         - bearerAuth: []
         - cookieaAuth: []
       responses:
-        "204":
-          description: No data returned
+        "200":
+          description: Media URL for the file uploaded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  media_url:
+                    type: string
         "401":
           description: Unauthorized
         "400":
@@ -1524,8 +1533,17 @@ paths:
         - bearerAuth: []
         - cookieaAuth: []
       responses:
-        "204":
-          description: No data returned
+        "200":
+          description: Media URL for the file uploaded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  media_url:
+                    type: string
         "401":
           description: Unauthorized
         "400":
