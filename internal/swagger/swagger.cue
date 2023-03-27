@@ -144,7 +144,7 @@
 				type:     "string"
 				required: false
 				readOnly: true
-				filter: []
+				filter: ["eq", "ne"]
 			}
 		}
 	}
@@ -196,7 +196,7 @@
 				type:     "string"
 				required: false
 				readOnly: true
-				filter: []
+				filter: ["eq", "ne"]
 			}
 		}
 	}
@@ -460,9 +460,29 @@ paths: {for resource, data in #crud {
 			#parameters: {for propname, propdata in data.properties if propdata.filter != _|_ {
 				for op in propdata.filter {
 					("q:\(propname):\(op)"): {
-						"in":        "query"
-						required:    false
-						description: "Filter field `\(propname)` with the specified operator (`\(op)`)"
+						"in":     "query"
+						required: false
+						if op == "eq" {
+							description: "Find items where field `\(propname)` is `equal` to this value (use `NULL` to match null values)"
+						}
+						if op == "ne" {
+							description: "Find items where field `\(propname)` is `not equal` to this value (use `NULL` to match null values)"
+						}
+						if op == "gt" {
+							description: "Find items where field `\(propname)` is `greater than` this value"
+						}
+						if op == "ge" {
+							description: "Find items where field `\(propname)` is `greater or equal` than this value"
+						}
+						if op == "lt" {
+							description: "Find items where field `\(propname)` is `less than` this value"
+						}
+						if op == "le" {
+							description: "Find items where field `\(propname)` is `less or equal` than this value"
+						}
+						if op == "like" {
+							description: "Find items where field `\(propname)` is `like` to this value"
+						}
 						schema: {
 							if propdata.format != _|_ {
 								format: propdata.format

@@ -93,9 +93,9 @@ func (r SQLResource[T, P]) Get(ctx context.Context, filter []crud.Filter, sort [
 				if v == "NULL" {
 					switch f.Operator {
 					case crud.OP_EQ:
-						cond = f.Field + "IS NULL"
+						cond = f.Field + " IS NULL"
 					case crud.OP_NE:
-						cond = f.Field + "IS NOT NULL"
+						cond = f.Field + " IS NOT NULL"
 					default:
 						return nil, fmt.Errorf("unsupported operador %s for value NULL", f.Operator)
 					}

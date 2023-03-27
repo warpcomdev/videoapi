@@ -168,93 +168,93 @@ paths:
         - name: q:id:eq
           in: query
           required: false
-          description: Filter field `id` with the specified operator (`eq`)
+          description: Find items where field `id` is `equal` to this value (use `NULL` to match null values)
           schema:
             type: string
         - name: q:id:ne
           in: query
           required: false
-          description: Filter field `id` with the specified operator (`ne`)
+          description: Find items where field `id` is `not equal` to this value (use `NULL` to match null values)
           schema:
             type: string
         - name: q:id:like
           in: query
           required: false
-          description: Filter field `id` with the specified operator (`like`)
+          description: Find items where field `id` is `like` to this value
           schema:
             type: string
         - name: q:created_at:lt
           in: query
           required: false
-          description: Filter field `created_at` with the specified operator (`lt`)
+          description: Find items where field `created_at` is `less than` this value
           schema:
             format: date-time
             type: string
         - name: q:created_at:le
           in: query
           required: false
-          description: Filter field `created_at` with the specified operator (`le`)
+          description: Find items where field `created_at` is `less or equal` than this value
           schema:
             format: date-time
             type: string
         - name: q:created_at:gt
           in: query
           required: false
-          description: Filter field `created_at` with the specified operator (`gt`)
+          description: Find items where field `created_at` is `greater than` this value
           schema:
             format: date-time
             type: string
         - name: q:created_at:ge
           in: query
           required: false
-          description: Filter field `created_at` with the specified operator (`ge`)
+          description: Find items where field `created_at` is `greater or equal` than this value
           schema:
             format: date-time
             type: string
         - name: q:modified_at:lt
           in: query
           required: false
-          description: Filter field `modified_at` with the specified operator (`lt`)
+          description: Find items where field `modified_at` is `less than` this value
           schema:
             format: date-time
             type: string
         - name: q:modified_at:le
           in: query
           required: false
-          description: Filter field `modified_at` with the specified operator (`le`)
+          description: Find items where field `modified_at` is `less or equal` than this value
           schema:
             format: date-time
             type: string
         - name: q:modified_at:gt
           in: query
           required: false
-          description: Filter field `modified_at` with the specified operator (`gt`)
+          description: Find items where field `modified_at` is `greater than` this value
           schema:
             format: date-time
             type: string
         - name: q:modified_at:ge
           in: query
           required: false
-          description: Filter field `modified_at` with the specified operator (`ge`)
+          description: Find items where field `modified_at` is `greater or equal` than this value
           schema:
             format: date-time
             type: string
         - name: q:name:eq
           in: query
           required: false
-          description: Filter field `name` with the specified operator (`eq`)
+          description: Find items where field `name` is `equal` to this value (use `NULL` to match null values)
           schema:
             type: string
         - name: q:name:ne
           in: query
           required: false
-          description: Filter field `name` with the specified operator (`ne`)
+          description: Find items where field `name` is `not equal` to this value (use `NULL` to match null values)
           schema:
             type: string
         - name: q:name:like
           in: query
           required: false
-          description: Filter field `name` with the specified operator (`like`)
+          description: Find items where field `name` is `like` to this value
           schema:
             type: string
       responses:
@@ -466,141 +466,141 @@ paths:
         - name: q:id:eq
           in: query
           required: false
-          description: Filter field `id` with the specified operator (`eq`)
+          description: Find items where field `id` is `equal` to this value (use `NULL` to match null values)
           schema:
             type: string
         - name: q:id:ne
           in: query
           required: false
-          description: Filter field `id` with the specified operator (`ne`)
+          description: Find items where field `id` is `not equal` to this value (use `NULL` to match null values)
           schema:
             type: string
         - name: q:id:like
           in: query
           required: false
-          description: Filter field `id` with the specified operator (`like`)
+          description: Find items where field `id` is `like` to this value
           schema:
             type: string
         - name: q:created_at:lt
           in: query
           required: false
-          description: Filter field `created_at` with the specified operator (`lt`)
+          description: Find items where field `created_at` is `less than` this value
           schema:
             format: date-time
             type: string
         - name: q:created_at:le
           in: query
           required: false
-          description: Filter field `created_at` with the specified operator (`le`)
+          description: Find items where field `created_at` is `less or equal` than this value
           schema:
             format: date-time
             type: string
         - name: q:created_at:gt
           in: query
           required: false
-          description: Filter field `created_at` with the specified operator (`gt`)
+          description: Find items where field `created_at` is `greater than` this value
           schema:
             format: date-time
             type: string
         - name: q:created_at:ge
           in: query
           required: false
-          description: Filter field `created_at` with the specified operator (`ge`)
+          description: Find items where field `created_at` is `greater or equal` than this value
           schema:
             format: date-time
             type: string
         - name: q:modified_at:lt
           in: query
           required: false
-          description: Filter field `modified_at` with the specified operator (`lt`)
+          description: Find items where field `modified_at` is `less than` this value
           schema:
             format: date-time
             type: string
         - name: q:modified_at:le
           in: query
           required: false
-          description: Filter field `modified_at` with the specified operator (`le`)
+          description: Find items where field `modified_at` is `less or equal` than this value
           schema:
             format: date-time
             type: string
         - name: q:modified_at:gt
           in: query
           required: false
-          description: Filter field `modified_at` with the specified operator (`gt`)
+          description: Find items where field `modified_at` is `greater than` this value
           schema:
             format: date-time
             type: string
         - name: q:modified_at:ge
           in: query
           required: false
-          description: Filter field `modified_at` with the specified operator (`ge`)
+          description: Find items where field `modified_at` is `greater or equal` than this value
           schema:
             format: date-time
             type: string
         - name: q:name:eq
           in: query
           required: false
-          description: Filter field `name` with the specified operator (`eq`)
+          description: Find items where field `name` is `equal` to this value (use `NULL` to match null values)
           schema:
             type: string
         - name: q:name:ne
           in: query
           required: false
-          description: Filter field `name` with the specified operator (`ne`)
+          description: Find items where field `name` is `not equal` to this value (use `NULL` to match null values)
           schema:
             type: string
         - name: q:name:like
           in: query
           required: false
-          description: Filter field `name` with the specified operator (`like`)
+          description: Find items where field `name` is `like` to this value
           schema:
             type: string
         - name: q:latitude:lt
           in: query
           required: false
-          description: Filter field `latitude` with the specified operator (`lt`)
+          description: Find items where field `latitude` is `less than` this value
           schema:
             type: number
         - name: q:latitude:le
           in: query
           required: false
-          description: Filter field `latitude` with the specified operator (`le`)
+          description: Find items where field `latitude` is `less or equal` than this value
           schema:
             type: number
         - name: q:latitude:gt
           in: query
           required: false
-          description: Filter field `latitude` with the specified operator (`gt`)
+          description: Find items where field `latitude` is `greater than` this value
           schema:
             type: number
         - name: q:latitude:ge
           in: query
           required: false
-          description: Filter field `latitude` with the specified operator (`ge`)
+          description: Find items where field `latitude` is `greater or equal` than this value
           schema:
             type: number
         - name: q:longitude:lt
           in: query
           required: false
-          description: Filter field `longitude` with the specified operator (`lt`)
+          description: Find items where field `longitude` is `less than` this value
           schema:
             type: number
         - name: q:longitude:le
           in: query
           required: false
-          description: Filter field `longitude` with the specified operator (`le`)
+          description: Find items where field `longitude` is `less or equal` than this value
           schema:
             type: number
         - name: q:longitude:gt
           in: query
           required: false
-          description: Filter field `longitude` with the specified operator (`gt`)
+          description: Find items where field `longitude` is `greater than` this value
           schema:
             type: number
         - name: q:longitude:ge
           in: query
           required: false
-          description: Filter field `longitude` with the specified operator (`ge`)
+          description: Find items where field `longitude` is `greater or equal` than this value
           schema:
             type: number
       responses:
@@ -812,139 +812,151 @@ paths:
         - name: q:id:eq
           in: query
           required: false
-          description: Filter field `id` with the specified operator (`eq`)
+          description: Find items where field `id` is `equal` to this value (use `NULL` to match null values)
           schema:
             type: string
         - name: q:id:ne
           in: query
           required: false
-          description: Filter field `id` with the specified operator (`ne`)
+          description: Find items where field `id` is `not equal` to this value (use `NULL` to match null values)
           schema:
             type: string
         - name: q:id:like
           in: query
           required: false
-          description: Filter field `id` with the specified operator (`like`)
+          description: Find items where field `id` is `like` to this value
           schema:
             type: string
         - name: q:created_at:lt
           in: query
           required: false
-          description: Filter field `created_at` with the specified operator (`lt`)
+          description: Find items where field `created_at` is `less than` this value
           schema:
             format: date-time
             type: string
         - name: q:created_at:le
           in: query
           required: false
-          description: Filter field `created_at` with the specified operator (`le`)
+          description: Find items where field `created_at` is `less or equal` than this value
           schema:
             format: date-time
             type: string
         - name: q:created_at:gt
           in: query
           required: false
-          description: Filter field `created_at` with the specified operator (`gt`)
+          description: Find items where field `created_at` is `greater than` this value
           schema:
             format: date-time
             type: string
         - name: q:created_at:ge
           in: query
           required: false
-          description: Filter field `created_at` with the specified operator (`ge`)
+          description: Find items where field `created_at` is `greater or equal` than this value
           schema:
             format: date-time
             type: string
         - name: q:modified_at:lt
           in: query
           required: false
-          description: Filter field `modified_at` with the specified operator (`lt`)
+          description: Find items where field `modified_at` is `less than` this value
           schema:
             format: date-time
             type: string
         - name: q:modified_at:le
           in: query
           required: false
-          description: Filter field `modified_at` with the specified operator (`le`)
+          description: Find items where field `modified_at` is `less or equal` than this value
           schema:
             format: date-time
             type: string
         - name: q:modified_at:gt
           in: query
           required: false
-          description: Filter field `modified_at` with the specified operator (`gt`)
+          description: Find items where field `modified_at` is `greater than` this value
           schema:
             format: date-time
             type: string
         - name: q:modified_at:ge
           in: query
           required: false
-          description: Filter field `modified_at` with the specified operator (`ge`)
+          description: Find items where field `modified_at` is `greater or equal` than this value
           schema:
             format: date-time
             type: string
         - name: q:timestamp:lt
           in: query
           required: false
-          description: Filter field `timestamp` with the specified operator (`lt`)
+          description: Find items where field `timestamp` is `less than` this value
           schema:
             format: date-time
             type: string
         - name: q:timestamp:le
           in: query
           required: false
-          description: Filter field `timestamp` with the specified operator (`le`)
+          description: Find items where field `timestamp` is `less or equal` than this value
           schema:
             format: date-time
             type: string
         - name: q:timestamp:gt
           in: query
           required: false
-          description: Filter field `timestamp` with the specified operator (`gt`)
+          description: Find items where field `timestamp` is `greater than` this value
           schema:
             format: date-time
             type: string
         - name: q:timestamp:ge
           in: query
           required: false
-          description: Filter field `timestamp` with the specified operator (`ge`)
+          description: Find items where field `timestamp` is `greater or equal` than this value
           schema:
             format: date-time
             type: string
         - name: q:camera:eq
           in: query
           required: false
-          description: Filter field `camera` with the specified operator (`eq`)
+          description: Find items where field `camera` is `equal` to this value (use `NULL` to match null values)
           schema:
             type: string
         - name: q:camera:ne
           in: query
           required: false
-          description: Filter field `camera` with the specified operator (`ne`)
+          description: Find items where field `camera` is `not equal` to this value (use `NULL` to match null values)
           schema:
             type: string
         - name: q:camera:like
           in: query
           required: false
-          description: Filter field `camera` with the specified operator (`like`)
+          description: Find items where field `camera` is `like` to this value
           schema:
             type: string
         - name: q:tags:eq
           in: query
           required: false
-          description: Filter field `tags` with the specified operator (`eq`)
+          description: Find items where field `tags` is `equal` to this value (use `NULL` to match null values)
           schema:
             type: string
         - name: q:tags:ne
           in: query
           required: false
-          description: Filter field `tags` with the specified operator (`ne`)
+          description: Find items where field `tags` is `not equal` to this value (use `NULL` to match null values)
           schema:
             type: string
         - name: q:tags:like
           in: query
           required: false
-          description: Filter field `tags` with the specified operator (`like`)
+          description: Find items where field `tags` is `like` to this value
+          schema:
+            type: string
+        - name: q:media_url:eq
+          in: query
+          required: false
+          description: Find items where field `media_url` is `equal` to this value (use `NULL` to match null values)
+          schema:
+            type: string
+        - name: q:media_url:ne
+          in: query
+          required: false
+          description: Find items where field `media_url` is `not equal` to this value (use `NULL` to match null values)
           schema:
             type: string
       responses:
@@ -1232,139 +1244,151 @@ paths:
         - name: q:id:eq
           in: query
           required: false
-          description: Filter field `id` with the specified operator (`eq`)
+          description: Find items where field `id` is `equal` to this value (use `NULL` to match null values)
           schema:
             type: string
         - name: q:id:ne
           in: query
           required: false
-          description: Filter field `id` with the specified operator (`ne`)
+          description: Find items where field `id` is `not equal` to this value (use `NULL` to match null values)
           schema:
             type: string
         - name: q:id:like
           in: query
           required: false
-          description: Filter field `id` with the specified operator (`like`)
+          description: Find items where field `id` is `like` to this value
           schema:
             type: string
         - name: q:created_at:lt
           in: query
           required: false
-          description: Filter field `created_at` with the specified operator (`lt`)
+          description: Find items where field `created_at` is `less than` this value
           schema:
             format: date-time
             type: string
         - name: q:created_at:le
           in: query
           required: false
-          description: Filter field `created_at` with the specified operator (`le`)
+          description: Find items where field `created_at` is `less or equal` than this value
           schema:
             format: date-time
             type: string
         - name: q:created_at:gt
           in: query
           required: false
-          description: Filter field `created_at` with the specified operator (`gt`)
+          description: Find items where field `created_at` is `greater than` this value
           schema:
             format: date-time
             type: string
         - name: q:created_at:ge
           in: query
           required: false
-          description: Filter field `created_at` with the specified operator (`ge`)
+          description: Find items where field `created_at` is `greater or equal` than this value
           schema:
             format: date-time
             type: string
         - name: q:modified_at:lt
           in: query
           required: false
-          description: Filter field `modified_at` with the specified operator (`lt`)
+          description: Find items where field `modified_at` is `less than` this value
           schema:
             format: date-time
             type: string
         - name: q:modified_at:le
           in: query
           required: false
-          description: Filter field `modified_at` with the specified operator (`le`)
+          description: Find items where field `modified_at` is `less or equal` than this value
           schema:
             format: date-time
             type: string
         - name: q:modified_at:gt
           in: query
           required: false
-          description: Filter field `modified_at` with the specified operator (`gt`)
+          description: Find items where field `modified_at` is `greater than` this value
           schema:
             format: date-time
             type: string
         - name: q:modified_at:ge
           in: query
           required: false
-          description: Filter field `modified_at` with the specified operator (`ge`)
+          description: Find items where field `modified_at` is `greater or equal` than this value
           schema:
             format: date-time
             type: string
         - name: q:timestamp:lt
           in: query
           required: false
-          description: Filter field `timestamp` with the specified operator (`lt`)
+          description: Find items where field `timestamp` is `less than` this value
           schema:
             format: date-time
             type: string
         - name: q:timestamp:le
           in: query
           required: false
-          description: Filter field `timestamp` with the specified operator (`le`)
+          description: Find items where field `timestamp` is `less or equal` than this value
           schema:
             format: date-time
             type: string
         - name: q:timestamp:gt
           in: query
           required: false
-          description: Filter field `timestamp` with the specified operator (`gt`)
+          description: Find items where field `timestamp` is `greater than` this value
           schema:
             format: date-time
             type: string
         - name: q:timestamp:ge
           in: query
           required: false
-          description: Filter field `timestamp` with the specified operator (`ge`)
+          description: Find items where field `timestamp` is `greater or equal` than this value
           schema:
             format: date-time
             type: string
         - name: q:camera:eq
           in: query
           required: false
-          description: Filter field `camera` with the specified operator (`eq`)
+          description: Find items where field `camera` is `equal` to this value (use `NULL` to match null values)
           schema:
             type: string
         - name: q:camera:ne
           in: query
           required: false
-          description: Filter field `camera` with the specified operator (`ne`)
+          description: Find items where field `camera` is `not equal` to this value (use `NULL` to match null values)
           schema:
             type: string
         - name: q:camera:like
           in: query
           required: false
-          description: Filter field `camera` with the specified operator (`like`)
+          description: Find items where field `camera` is `like` to this value
           schema:
             type: string
         - name: q:tags:eq
           in: query
           required: false
-          description: Filter field `tags` with the specified operator (`eq`)
+          description: Find items where field `tags` is `equal` to this value (use `NULL` to match null values)
           schema:
             type: string
         - name: q:tags:ne
           in: query
           required: false
-          description: Filter field `tags` with the specified operator (`ne`)
+          description: Find items where field `tags` is `not equal` to this value (use `NULL` to match null values)
           schema:
             type: string
         - name: q:tags:like
           in: query
           required: false
-          description: Filter field `tags` with the specified operator (`like`)
+          description: Find items where field `tags` is `like` to this value
+          schema:
+            type: string
+        - name: q:media_url:eq
+          in: query
+          required: false
+          description: Find items where field `media_url` is `equal` to this value (use `NULL` to match null values)
+          schema:
+            type: string
+        - name: q:media_url:ne
+          in: query
+          required: false
+          description: Find items where field `media_url` is `not equal` to this value (use `NULL` to match null values)
           schema:
             type: string
       responses:
@@ -1652,240 +1676,240 @@ paths:
         - name: q:id:eq
           in: query
           required: false
-          description: Filter field `id` with the specified operator (`eq`)
+          description: Find items where field `id` is `equal` to this value (use `NULL` to match null values)
           schema:
             type: string
         - name: q:id:ne
           in: query
           required: false
-          description: Filter field `id` with the specified operator (`ne`)
+          description: Find items where field `id` is `not equal` to this value (use `NULL` to match null values)
           schema:
             type: string
         - name: q:id:like
           in: query
           required: false
-          description: Filter field `id` with the specified operator (`like`)
+          description: Find items where field `id` is `like` to this value
           schema:
             type: string
         - name: q:created_at:lt
           in: query
           required: false
-          description: Filter field `created_at` with the specified operator (`lt`)
+          description: Find items where field `created_at` is `less than` this value
           schema:
             format: date-time
             type: string
         - name: q:created_at:le
           in: query
           required: false
-          description: Filter field `created_at` with the specified operator (`le`)
+          description: Find items where field `created_at` is `less or equal` than this value
           schema:
             format: date-time
             type: string
         - name: q:created_at:gt
           in: query
           required: false
-          description: Filter field `created_at` with the specified operator (`gt`)
+          description: Find items where field `created_at` is `greater than` this value
           schema:
             format: date-time
             type: string
         - name: q:created_at:ge
           in: query
           required: false
-          description: Filter field `created_at` with the specified operator (`ge`)
+          description: Find items where field `created_at` is `greater or equal` than this value
           schema:
             format: date-time
             type: string
         - name: q:modified_at:lt
           in: query
           required: false
-          description: Filter field `modified_at` with the specified operator (`lt`)
+          description: Find items where field `modified_at` is `less than` this value
           schema:
             format: date-time
             type: string
         - name: q:modified_at:le
           in: query
           required: false
-          description: Filter field `modified_at` with the specified operator (`le`)
+          description: Find items where field `modified_at` is `less or equal` than this value
           schema:
             format: date-time
             type: string
         - name: q:modified_at:gt
           in: query
           required: false
-          description: Filter field `modified_at` with the specified operator (`gt`)
+          description: Find items where field `modified_at` is `greater than` this value
           schema:
             format: date-time
             type: string
         - name: q:modified_at:ge
           in: query
           required: false
-          description: Filter field `modified_at` with the specified operator (`ge`)
+          description: Find items where field `modified_at` is `greater or equal` than this value
           schema:
             format: date-time
             type: string
         - name: q:timestamp:lt
           in: query
           required: false
-          description: Filter field `timestamp` with the specified operator (`lt`)
+          description: Find items where field `timestamp` is `less than` this value
           schema:
             format: date-time
             type: string
         - name: q:timestamp:le
           in: query
           required: false
-          description: Filter field `timestamp` with the specified operator (`le`)
+          description: Find items where field `timestamp` is `less or equal` than this value
           schema:
             format: date-time
             type: string
         - name: q:timestamp:gt
           in: query
           required: false
-          description: Filter field `timestamp` with the specified operator (`gt`)
+          description: Find items where field `timestamp` is `greater than` this value
           schema:
             format: date-time
             type: string
         - name: q:timestamp:ge
           in: query
           required: false
-          description: Filter field `timestamp` with the specified operator (`ge`)
+          description: Find items where field `timestamp` is `greater or equal` than this value
           schema:
             format: date-time
             type: string
         - name: q:camera:eq
           in: query
           required: false
-          description: Filter field `camera` with the specified operator (`eq`)
+          description: Find items where field `camera` is `equal` to this value (use `NULL` to match null values)
           schema:
             type: string
         - name: q:camera:ne
           in: query
           required: false
-          description: Filter field `camera` with the specified operator (`ne`)
+          description: Find items where field `camera` is `not equal` to this value (use `NULL` to match null values)
           schema:
             type: string
         - name: q:camera:like
           in: query
           required: false
-          description: Filter field `camera` with the specified operator (`like`)
+          description: Find items where field `camera` is `like` to this value
           schema:
             type: string
         - name: q:severity:eq
           in: query
           required: false
-          description: Filter field `severity` with the specified operator (`eq`)
+          description: Find items where field `severity` is `equal` to this value (use `NULL` to match null values)
           schema:
             type: string
         - name: q:severity:ne
           in: query
           required: false
-          description: Filter field `severity` with the specified operator (`ne`)
+          description: Find items where field `severity` is `not equal` to this value (use `NULL` to match null values)
           schema:
             type: string
         - name: q:severity:like
           in: query
           required: false
-          description: Filter field `severity` with the specified operator (`like`)
+          description: Find items where field `severity` is `like` to this value
           schema:
             type: string
         - name: q:message:eq
           in: query
           required: false
-          description: Filter field `message` with the specified operator (`eq`)
+          description: Find items where field `message` is `equal` to this value (use `NULL` to match null values)
           schema:
             type: string
         - name: q:message:ne
           in: query
           required: false
-          description: Filter field `message` with the specified operator (`ne`)
+          description: Find items where field `message` is `not equal` to this value (use `NULL` to match null values)
           schema:
             type: string
         - name: q:message:like
           in: query
           required: false
-          description: Filter field `message` with the specified operator (`like`)
+          description: Find items where field `message` is `like` to this value
           schema:
             type: string
         - name: q:acknowledged_at:lt
           in: query
           required: false
-          description: Filter field `acknowledged_at` with the specified operator (`lt`)
+          description: Find items where field `acknowledged_at` is `less than` this value
           schema:
             format: date-time
             type: string
         - name: q:acknowledged_at:le
           in: query
           required: false
-          description: Filter field `acknowledged_at` with the specified operator (`le`)
+          description: Find items where field `acknowledged_at` is `less or equal` than this value
           schema:
             format: date-time
             type: string
         - name: q:acknowledged_at:gt
           in: query
           required: false
-          description: Filter field `acknowledged_at` with the specified operator (`gt`)
+          description: Find items where field `acknowledged_at` is `greater than` this value
           schema:
             format: date-time
             type: string
         - name: q:acknowledged_at:ge
           in: query
           required: false
-          description: Filter field `acknowledged_at` with the specified operator (`ge`)
+          description: Find items where field `acknowledged_at` is `greater or equal` than this value
           schema:
             format: date-time
             type: string
         - name: q:acknowledged_at:eq
           in: query
           required: false
-          description: Filter field `acknowledged_at` with the specified operator (`eq`)
+          description: Find items where field `acknowledged_at` is `equal` to this value (use `NULL` to match null values)
           schema:
             format: date-time
             type: string
         - name: q:acknowledged_at:ne
           in: query
           required: false
-          description: Filter field `acknowledged_at` with the specified operator (`ne`)
+          description: Find items where field `acknowledged_at` is `not equal` to this value (use `NULL` to match null values)
           schema:
             format: date-time
             type: string
         - name: q:resolved_at:lt
           in: query
           required: false
-          description: Filter field `resolved_at` with the specified operator (`lt`)
+          description: Find items where field `resolved_at` is `less than` this value
           schema:
             format: date-time
             type: string
         - name: q:resolved_at:le
           in: query
           required: false
-          description: Filter field `resolved_at` with the specified operator (`le`)
+          description: Find items where field `resolved_at` is `less or equal` than this value
           schema:
             format: date-time
             type: string
         - name: q:resolved_at:gt
           in: query
           required: false
-          description: Filter field `resolved_at` with the specified operator (`gt`)
+          description: Find items where field `resolved_at` is `greater than` this value
           schema:
             format: date-time
             type: string
         - name: q:resolved_at:ge
           in: query
           required: false
-          description: Filter field `resolved_at` with the specified operator (`ge`)
+          description: Find items where field `resolved_at` is `greater or equal` than this value
           schema:
             format: date-time
             type: string
         - name: q:resolved_at:eq
           in: query
           required: false
-          description: Filter field `resolved_at` with the specified operator (`eq`)
+          description: Find items where field `resolved_at` is `equal` to this value (use `NULL` to match null values)
           schema:
             format: date-time
             type: string
         - name: q:resolved_at:ne
           in: query
           required: false
-          description: Filter field `resolved_at` with the specified operator (`ne`)
+          description: Find items where field `resolved_at` is `not equal` to this value (use `NULL` to match null values)
           schema:
             format: date-time
             type: string
