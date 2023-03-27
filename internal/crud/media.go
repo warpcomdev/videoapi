@@ -139,17 +139,17 @@ func (h MediaFrontend) Post(r *http.Request) (io.ReadCloser, error) {
 	}
 	mediaURL, err := h.commitTmpFile(r.Context(), id, idFolder, escapeId, fileExt, tmpPath)
 	if err != nil {
-		// Best effort: write a "meta" file for each upload, with the request parameters
-		requestParams["media_url"] = mediaURL
-		metaFile := h.metaFile(idFolder, escapeId)
-		if meta, err := os.Create(metaFile); err == nil {
-			enc := json.NewEncoder(meta)
-			enc.SetEscapeHTML(false)
-			enc.SetIndent("", "  ")
-			enc.Encode(requestParams)
-			meta.Close()
-		}
 		return nil, err
+	}
+	// Best effort: write a "meta" file for each upload, with the request parameters
+	requestParams["media_url"] = mediaURL
+	metaFile := h.metaFile(idFolder, escapeId)
+	if meta, err := os.Create(metaFile); err == nil {
+		enc := json.NewEncoder(meta)
+		enc.SetEscapeHTML(false)
+		enc.SetIndent("", "  ")
+		enc.Encode(requestParams)
+		meta.Close()
 	}
 	// Return the id and media_url to whomever is interested
 	response := mediaResponse{
