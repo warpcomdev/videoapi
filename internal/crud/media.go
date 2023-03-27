@@ -140,7 +140,8 @@ func (h MediaFrontend) Post(r *http.Request) (io.ReadCloser, error) {
 	mediaURL, err := h.commitTmpFile(r.Context(), id, idFolder, escapeId, fileExt, tmpPath)
 	if err != nil {
 		// Best effort: write a "meta" file for each upload, with the request parameters
-		metaFile := filepath.Join(idFolder, fmt.Sprintf("%s.meta", escapeId))
+		requestParams["media_url"] = mediaURL
+		metaFile := h.metaFile(idFolder, escapeId)
 		if meta, err := os.Create(metaFile); err == nil {
 			enc := json.NewEncoder(meta)
 			enc.SetEscapeHTML(false)
@@ -177,12 +178,19 @@ func (h MediaFrontend) Delete(r *http.Request) error {
 	idFolder := idFolder(id)
 	if r.URL.Query().Get("mediaOnly") == "true" {
 		// delete only media files
-		return h.removePrevFiles(idFolder, escapeId)
+		err := h.removePrevFiles(idFolder, escapeId)
+		if err != nil {
+			os.Remove(h.metaFile(idFolder, escapeId))
+		}
+		return err
 	}
 	err := h.unpoliced.Delete(r.Context(), id)
 	if err == nil {
 		// Remove prev files only if we deleted the resource
-		h.removePrevFiles(idFolder, escapeId)
+		err = h.removePrevFiles(idFolder, escapeId)
+		if err != nil {
+			os.Remove(h.metaFile(idFolder, escapeId))
+		}
 	}
 	return err
 }
@@ -297,6 +305,10 @@ func saveTmpFile(tmpFolder, escapeId string, p io.ReadCloser) (tmpPath string, e
 		return "", err
 	}
 	return tmpPath, nil
+}
+
+func (h MediaFrontend) metaFile(idFolder, escapeId string) string {
+	return filepath.Join(h.finalFolder, idFolder, fmt.Sprintf("%s.meta", escapeId))
 }
 
 // remove files associated to this id
