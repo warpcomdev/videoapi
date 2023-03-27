@@ -1,13 +1,25 @@
-# Compilation
+# VideoAPI
 
-To re-build image:
+## Actualización del swagger
+
+La descripción swagger de la API se genera a partir del fichero [swagger.cue](internal/swagger/swagger.cue). Si se modifican los endpoints, parámetros o tipos de datos de la API, se debe actualizar el fichero `cue` y regenerar la documentación con los comandos:
 
 ```
 cue fmt internal/swagger/swagger.cue
 go generate ./...
-docker-compose build
 ```
 
-Swagger URL: http://localhost:8080/swagger
+## Ejecución con docker-compose
 
-Look inside [docker-compose.yaml](docker-compose.yaml) for an example of the connection string to use to connect to the local oracle db.
+Este repositorio incluye un fichero [docker-compose.yaml](docker-compose.yaml) con la especificación adecuada para poder levantar localmente una instancia de esta API, escuchando en el puerto **8080**.
+
+Paran lanzar la instancia, se deben ejecutar estos pasos desde el directorio donde se haya clonado el repositorio:
+
+```
+# reconstruir las imágenes docker del servicio
+docker-compose build
+# Levantar la imagen
+docker-compose up
+```
+
+Dentro del fichero [docker-compose.yaml](docker-compose.yaml), hay un ejemplo de la cadena de conexión que puede usarse para conectar al servidor oracle con `sqlplus`, si fuese necesario.

@@ -2208,7 +2208,7 @@ components:
           readOnly: false
         local_path:
           type: string
-          readOnly: true
+          readOnly: false
       required:
         - id
         - name
@@ -2338,11 +2338,11 @@ components:
         acknowledged_at:
           type: string
           format: date-time
-          readOnly: true
+          readOnly: false
         resolved_at:
           type: string
           format: date-time
-          readOnly: true
+          readOnly: false
       required:
         - id
         - timestamp

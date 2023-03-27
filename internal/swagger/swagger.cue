@@ -91,7 +91,7 @@
 			local_path: {
 				type:     "string"
 				required: false
-				readOnly: true
+				readOnly: false
 				filter: []
 			}
 		}
@@ -254,14 +254,14 @@
 				type:     "string"
 				format:   "date-time"
 				required: false
-				readOnly: true
+				readOnly: false
 				filter: ["lt", "le", "gt", "ge", "eq", "ne"]
 			}
 			resolved_at: {
 				type:     "string"
 				format:   "date-time"
 				required: false
-				readOnly: true
+				readOnly: false
 				filter: ["lt", "le", "gt", "ge", "eq", "ne"]
 			}
 		}
