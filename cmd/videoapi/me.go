@@ -21,7 +21,7 @@ type meResponse struct {
 func handleMe(w http.ResponseWriter, r *http.Request) {
 	claims, err := auth.ClaimsFrom(r.Context())
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusUnauthorized)
+		auth.WriteError(w, err, http.StatusUnauthorized)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
