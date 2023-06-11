@@ -30,7 +30,7 @@ func (up AlertPolicy) Post(ctx context.Context, data models.Alert) (string, erro
 	if err != nil {
 		return "", err
 	}
-	if claims.Role != models.ROLE_ADMIN && claims.Role != models.ROLE_READ_WRITE {
+	if claims.Role != models.ROLE_ADMIN && claims.Role != models.ROLE_READ_WRITE && claims.Role != models.ROLE_SERVICE {
 		return "", crud.ErrUnauthorized
 	}
 	return up.AlertStore.Post(ctx, data)
@@ -42,11 +42,11 @@ func (up AlertPolicy) Put(ctx context.Context, id string, data models.Alert) err
 	if err != nil {
 		return err
 	}
-	if claims.Role != models.ROLE_ADMIN && claims.Role != models.ROLE_READ_WRITE {
+	if claims.Role != models.ROLE_ADMIN && claims.Role != models.ROLE_READ_WRITE && claims.Role != models.ROLE_SERVICE {
 		return crud.ErrUnauthorized
 	}
-	if claims.Role != models.ROLE_ADMIN {
-		// Read-write users can only change the store path
+	if claims.Role != models.ROLE_ADMIN && claims.Role != models.ROLE_SERVICE {
+		// Read-write users can only change the ack status
 		allowed := models.Alert{
 			AcknowledgedAt: data.AcknowledgedAt,
 			ResolvedAt:     data.ResolvedAt,

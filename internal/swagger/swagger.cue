@@ -35,7 +35,7 @@
 				required: true
 				readOnly: false
 				filter: []
-				enum: ["ADMIN", "READ_ONLY", "READ_WRITE"]
+				enum: ["ADMIN", "READ_ONLY", "READ_WRITE", "SERVICE"]
 			}
 			password: {
 				type:     "string"
@@ -225,6 +225,12 @@
 				readOnly: true
 				filter: ["lt", "le", "gt", "ge"]
 			}
+			name: {
+				type:     "string"
+				required: false
+				readOnly: false
+				filter: ["eq", "ne", "like"]
+			}
 			timestamp: {
 				type:     "string"
 				format:   "date-time"
@@ -366,6 +372,12 @@ components: securitySchemes: cookieAuth: {
 	name: "VIDEOAPI_SESSION"
 }
 
+components: securitySchemes: apiKey: {
+	type: "apiKey"
+	"in": "query"
+	name: "apiKey"
+}
+
 // Abbreviations
 // -------------
 #queryErrorReference: {
@@ -427,6 +439,33 @@ components: securitySchemes: cookieAuth: {
 	"500": {
 		description: "Internal error"
 		content:     #queryErrorReference
+	}
+	...
+}
+
+#webhookResponses: {
+	"200": {
+		description: "Webhook processed successfully"
+	}
+	"400": {
+		description: "Invalid request"
+		content: {
+			"text/plain": {
+				schema: {
+					type: "string"
+				}
+			}
+		}
+	}
+	"500": {
+		description: "Internal error"
+		content: {
+			"text/plain": {
+				schema: {
+					type: "string"
+				}
+			}
+		}
 	}
 	...
 }
@@ -518,6 +557,7 @@ paths: "/api/me": get: {
 							}
 							role: {
 								type: "string"
+								enum: ["ADMIN", "READ_ONLY", "READ_WRITE", "SERVICE"]
 							}
 						}
 					}
@@ -791,3 +831,57 @@ paths: {for resource, data in #crud {
 		}
 	}
 }}
+
+// Alertmanager webhook
+// --------------------
+paths: "/api/hook": {
+post: {
+	summary: "webhook receiver for alertmanager"
+	security: [{apiKey: []}]
+	tags: ["AlertManager"]
+	requestBody: {
+		required:    true
+		description: "alert body"
+		content: {
+			"application/json": {
+				schema: "$ref": "#/components/schemas/alertmanager_webhook"
+			}
+		}
+	}
+	responses: #webhookResponses
+}
+}
+
+components: schemas: alertmanager_webhook: {
+type: "object"
+properties: {
+	version: type:           "string"
+	groupKey: type:          "string"
+	status: type:            "string"
+	receiver: type:          "string"
+	groupLabels: type:       "object"
+	commonLabels: type:      "object"
+	commonAnnotations: type: "object"
+	externalURL: type:       "string"
+	alerts: {
+		type: "array"
+		items: {
+			type: "object"
+			properties: {
+				status: type:      "string"
+				labels: type:      "object"
+				annotations: type: "object"
+				startsAt: {
+					type:   "string"
+					format: "date-time"
+				}
+				endsAt: {
+					type:   "string"
+					format: "date-time"
+				}
+				generatorURL: type: "string"
+			}
+		}
+	}
+}
+}

@@ -70,6 +70,8 @@ func auth(r *http.Request, jwtKey []byte) (Claims, error) {
 		return currClaims, nil
 	case models.ROLE_READ_ONLY:
 		return currClaims, nil
+	case models.ROLE_SERVICE:
+		return currClaims, nil
 	}
 	return Claims{}, nil
 }

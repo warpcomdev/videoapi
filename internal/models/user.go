@@ -15,6 +15,7 @@ const (
 	ROLE_UNSET      Role = ""
 	ROLE_READ_ONLY  Role = "READ_ONLY"
 	ROLE_READ_WRITE Role = "READ_WRITE"
+	ROLE_SERVICE    Role = "SERVICE"
 	ROLE_ADMIN      Role = "ADMIN"
 )
 
@@ -38,6 +39,8 @@ func (r *Role) Scan(value any) error {
 		*r = ROLE_READ_WRITE
 	case string(ROLE_ADMIN):
 		*r = ROLE_ADMIN
+	case string(ROLE_SERVICE):
+		*r = ROLE_SERVICE
 	default:
 		return errors.New("invalid value for Role")
 	}
@@ -71,6 +74,7 @@ func (v *User) PrepareCreate() ([]string, error) {
 	case ROLE_READ_ONLY:
 	case ROLE_READ_WRITE:
 	case ROLE_ADMIN:
+	case ROLE_SERVICE:
 	default:
 		v.Role = ROLE_READ_ONLY
 	}
@@ -78,7 +82,7 @@ func (v *User) PrepareCreate() ([]string, error) {
 	return cols, nil
 }
 
-// PrepareUpdate prepares a Video object for update
+// PrepareUpdate prepares an User object for update
 // Returns list of fields to update
 func (v *User) PrepareUpdate(id string) ([]string, error) {
 	cols, err := v.Model.PrepareUpdate(id)
@@ -96,7 +100,7 @@ func (v *User) PrepareUpdate(id string) ([]string, error) {
 	if v.Name != "" {
 		cols = append(cols, "NAME")
 	}
-	if v.Role == ROLE_READ_ONLY || v.Role == ROLE_READ_WRITE || v.Role == ROLE_ADMIN {
+	if v.Role == ROLE_READ_ONLY || v.Role == ROLE_READ_WRITE || v.Role == ROLE_ADMIN || v.Role == ROLE_SERVICE {
 		cols = append(cols, "ROLE")
 	}
 	return cols, nil

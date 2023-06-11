@@ -18,6 +18,44 @@ components:
       properties:
         id:
           type: string
+    alertmanager_webhook:
+      type: object
+      properties:
+        version:
+          type: string
+        groupKey:
+          type: string
+        status:
+          type: string
+        receiver:
+          type: string
+        groupLabels:
+          type: object
+        commonLabels:
+          type: object
+        commonAnnotations:
+          type: object
+        externalURL:
+          type: string
+        alerts:
+          type: array
+          items:
+            type: object
+            properties:
+              status:
+                type: string
+              labels:
+                type: object
+              annotations:
+                type: object
+              startsAt:
+                type: string
+                format: date-time
+              endsAt:
+                type: string
+                format: date-time
+              generatorURL:
+                type: string
     ListOfUser:
       type: object
       properties:
@@ -51,6 +89,7 @@ components:
             - ADMIN
             - READ_ONLY
             - READ_WRITE
+            - SERVICE
           readOnly: false
         password:
           type: string
@@ -72,6 +111,7 @@ components:
             - ADMIN
             - READ_ONLY
             - READ_WRITE
+            - SERVICE
           readOnly: false
         password:
           type: string
@@ -276,6 +316,9 @@ components:
           type: string
           format: date-time
           readOnly: true
+        name:
+          type: string
+          readOnly: false
         timestamp:
           type: string
           format: date-time
@@ -306,6 +349,9 @@ components:
     put_Alert:
       type: object
       properties:
+        name:
+          type: string
+          readOnly: false
         timestamp:
           type: string
           format: date-time
@@ -337,6 +383,10 @@ components:
       type: apiKey
       in: cookie
       name: VIDEOAPI_SESSION
+    apiKey:
+      type: apiKey
+      in: query
+      name: apiKey
 paths:
   /api/login:
     post:
@@ -484,12 +534,46 @@ paths:
                     type: string
                   role:
                     type: string
+                    enum:
+                      - ADMIN
+                      - READ_ONLY
+                      - READ_WRITE
+                      - SERVICE
         "500":
           description: Internal error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/queryError'
+  /api/hook:
+    post:
+      summary: webhook receiver for alertmanager
+      security:
+        - apiKey: []
+      tags:
+        - AlertManager
+      requestBody:
+        required: true
+        description: alert body
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/alertmanager_webhook'
+      responses:
+        "200":
+          description: Webhook processed successfully
+        "400":
+          description: Invalid request
+          content:
+            text/plain:
+              schema:
+                type: string
+        "500":
+          description: Internal error
+          content:
+            text/plain:
+              schema:
+                type: string
   /api/user:
     get:
       summary: Queries a list of User
@@ -2119,6 +2203,24 @@ paths:
           description: Find items where field `modified_at` is `greater or equal` than this value
           schema:
             format: date-time
+            type: string
+        - name: q:name:eq
+          in: query
+          required: false
+          description: Find items where field `name` is `equal` to this value (use `NULL` to match null values)
+          schema:
+            type: string
+        - name: q:name:ne
+          in: query
+          required: false
+          description: Find items where field `name` is `not equal` to this value (use `NULL` to match null values)
+          schema:
+            type: string
+        - name: q:name:like
+          in: query
+          required: false
+          description: Find items where field `name` is `like` to this value
+          schema:
             type: string
         - name: q:timestamp:lt
           in: query

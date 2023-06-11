@@ -16,6 +16,7 @@ import (
 	"github.com/warpcomdev/videoapi/internal/auth"
 	"github.com/warpcomdev/videoapi/internal/cors"
 	"github.com/warpcomdev/videoapi/internal/crud"
+	"github.com/warpcomdev/videoapi/internal/hook"
 	"github.com/warpcomdev/videoapi/internal/models"
 	"github.com/warpcomdev/videoapi/internal/policy"
 	"github.com/warpcomdev/videoapi/internal/store"
@@ -40,7 +41,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Readi directory folders
+	// Read directory folders
 	tmpFolder := os.Getenv("TMPDIR")
 	if tmpFolder == "" {
 		tmpFolder = "/tmp"
@@ -59,12 +60,15 @@ func main() {
 	}
 
 	// JWT_KEY can be specified for debugging purposes,
-	// but it is recommended tolet it generate a random one.
+	// but it is recommended to let it generate a random one.
 	jwtKey := []byte(os.Getenv("JWT_KEY"))
 	if len(jwtKey) == 0 {
 		jwtKey = make([]byte, 32)
 		rand.Read(jwtKey)
 	}
+
+	// API_KEY is for the alertmanager hook
+	apiKey := os.Getenv("API_KEY")
 
 	// Couple of debugging aids:
 	// - superAdmin password
@@ -207,6 +211,9 @@ func main() {
 	mux.Handle("/api/login", cors.Allow(auth.Login(userStore, jwtKey, authOptions...)))
 	mux.Handle("/api/logout", cors.Allow(auth.Logout(authOptions...)))
 	mux.Handle("/api/me", cors.Allow(auth.WithClaims(jwtKey, http.HandlerFunc(handleMe))))
+	if apiKey != "" {
+		mux.Handle("/api/hook", hook.Handler(apiKey, alertStore))
+	}
 
 	// Stack all the cors, auth and crud middleware on top of the resources
 	stackHandlers := func(prefix string, frontend crud.Frontend) {

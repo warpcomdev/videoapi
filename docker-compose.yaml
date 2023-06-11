@@ -20,6 +20,7 @@ services:
     build: .
     environment:
       JWT_KEY: "secretJwtKey"
+      API_KEY: "ApiKeyForAlertManagerWebhook"
       # Remove for production
       SUPER_PASSWORD: "superPassword"
       DEBUG: "true"

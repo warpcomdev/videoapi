@@ -30,7 +30,7 @@ func (up MediaPolicy) Post(ctx context.Context, data models.Media) (string, erro
 	if err != nil {
 		return "", err
 	}
-	if claims.Role != models.ROLE_ADMIN && claims.Role != models.ROLE_READ_WRITE {
+	if claims.Role != models.ROLE_ADMIN && claims.Role != models.ROLE_READ_WRITE && claims.Role != models.ROLE_SERVICE {
 		return "", crud.ErrUnauthorized
 	}
 	// People cannot change the media URL, it will be automatically set by the system
@@ -44,7 +44,7 @@ func (up MediaPolicy) Put(ctx context.Context, id string, data models.Media) err
 	if err != nil {
 		return err
 	}
-	if claims.Role != models.ROLE_ADMIN && claims.Role != models.ROLE_READ_WRITE {
+	if claims.Role != models.ROLE_ADMIN && claims.Role != models.ROLE_READ_WRITE && claims.Role != models.ROLE_SERVICE {
 		return crud.ErrUnauthorized
 	}
 	// People cannot change the media URL, it will be automatically set by the system
