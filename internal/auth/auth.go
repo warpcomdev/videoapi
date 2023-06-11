@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 	"strings"
 
@@ -90,11 +91,23 @@ func WithClaims(jwtKey []byte, handler http.Handler) http.Handler {
 	wrapper := func(w http.ResponseWriter, r *http.Request) {
 		role, err := auth(r, jwtKey)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusUnauthorized)
+			WriteError(w, err, http.StatusUnauthorized)
 			return
 		}
 		ctx := context.WithValue(r.Context(), claimsID, role)
 		handler.ServeHTTP(w, r.WithContext(ctx))
 	}
 	return http.HandlerFunc(wrapper)
+}
+
+type errResult struct {
+	Error string `json:"error"`
+}
+
+func WriteError(w http.ResponseWriter, err error, code int) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(code)
+	enc := json.NewEncoder(w)
+	enc.SetIndent("", "  ")
+	enc.Encode(errResult{Error: err.Error()})
 }
