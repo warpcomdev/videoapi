@@ -22,7 +22,10 @@ type Alert struct {
 // Returns list of fields to save
 func (v *Alert) PrepareCreate() ([]string, error) {
 	if v.Name == "" {
-		v.Name = v.GetID()[:128]
+		v.Name = v.GetID()
+		if len(v.Name) > 128 {
+			v.Name = v.Name[:128]
+		}
 	}
 	if v.Camera == "" {
 		return nil, errors.New("missing mandatory attribute camera")
@@ -36,7 +39,9 @@ func (v *Alert) PrepareCreate() ([]string, error) {
 	if v.Message == "" {
 		return nil, errors.New("missing mandatory attribute message")
 	}
-	v.Message = v.Message[:512]
+	if len(v.Message) > 512 {
+		v.Message = v.Message[:512]
+	}
 	cols, err := v.Model.PrepareCreate()
 	if err != nil {
 		return nil, err
