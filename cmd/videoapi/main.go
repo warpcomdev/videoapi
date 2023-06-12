@@ -241,6 +241,7 @@ func main() {
 			"video/ogg":       ".ogg",
 			"video/quicktime": ".quicktime",
 			"video/webm":      ".webm",
+			"video/x-msvideo": ".avi",
 		},
 	))
 	// Picture administration endpoints
@@ -252,6 +253,7 @@ func main() {
 		map[string]string{
 			"image/jpeg": ".jpg",
 			"image/png":  ".png",
+			"image/gif":  ".gif",
 		},
 	))
 	// Alert administration endpoints
