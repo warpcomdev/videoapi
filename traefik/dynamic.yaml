@@ -1,0 +1,32 @@
+http:
+  # Add the router
+  routers:
+    router0:
+      entryPoints:
+      - websecure
+      service: service-videogui
+      rule: PathPrefix(`/`)
+      priority: 10
+      tls:
+        certResolver: myresolver
+    router1:
+      entryPoints:
+      - websecure
+      service: service-videoapi
+      priority: 100
+      rule: PathPrefix(`/api`, `/swagger`, `/media`)"
+      tls:
+        certResolver: myresolver
+
+  # Add the service
+  services:
+    service-videogui:
+      loadBalancer:
+        servers:
+          - url: http://videogui:3000
+        passHostHeader: true
+    service-videoapi:
+      loadBalancer:
+        servers:
+          - url: http://videoapi:8080
+        passHostHeader: true

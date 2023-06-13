@@ -11,8 +11,8 @@ services:
       ORACLE_PASSWORD: password
       APP_USER: videoapi
       APP_USER_PASSWORD: videoapi
-    ports:
-    - "1521:1521"
+    #ports:
+    #- "1521:1521"
     volumes:
     - oracle:/opt/oracle/oradata
 
@@ -33,6 +33,52 @@ services:
     volumes:
     - files:/opt/storage
 
+  traefik:
+    image: "traefik:v2.10"
+    container_name: traefik
+    restart: always
+    hostname: traefik
+    user: "1000:1000"
+    ports:
+      - "80:80"
+      - "443:443"
+    cap_add:
+      - NET_BIND_SERVICE
+    volumes:
+      - traefik:/etc/traefik
+    command:
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      - --entrypoints.web.http.redirections.entrypoint.to=websecure
+      - --entrypoints.web.http.redirections.entrypoint.scheme=https
+      - --entrypoints.websecure.http.tls.certResolver=myresolver
+      - --entrypoints.websecure.http.tls.domains[0].main=sample.url.es
+      - --entrypoints.websecure.http.tls.domains[0].sans=www.sample.url.es
+      - --providers.file.filename=/etc/traefik/dynamic.yaml
+      - --certificatesResolvers.myresolver.acme.email=soporte@warpcom.com
+      - --certificatesResolvers.myresolver.acme.keyType=RSA4096
+      - --certificatesresolvers.myresolver.acme.tlschallenge=true
+      - --certificatesResolvers.myresolver.acme.httpChallenge=true
+      - --certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web
+      - --certificatesresolvers.myresolver.acme.caserver=https://acme-v02.api.letsencrypt.org/directory
+      - --certificatesresolvers.myresolver.acme.storage=/etc/traefik/acme.json
+
 volumes:
   oracle:
+    driver: local
+    driver_opts:
+      type: none
+      device: /datos/oracle
+      o: bind
   files:
+    driver: local
+    driver_opts:
+      type: none
+      device: /datos/media
+      o: bind
+  traefik:
+    driver: local
+    driver_opts:
+      type: none
+      device: /datos/traefik
+      o: bind
