@@ -190,8 +190,8 @@ func main() {
 	server := http.Server{
 		Addr:              ":8080",
 		Handler:           mux,
-		ReadTimeout:       30 * time.Second,
-		WriteTimeout:      30 * time.Second,
+		ReadTimeout:       30 * time.Minute,
+		WriteTimeout:      30 * time.Minute,
 		ReadHeaderTimeout: 30 * time.Second,
 		IdleTimeout:       30 * time.Second,
 		MaxHeaderBytes:    65535,
