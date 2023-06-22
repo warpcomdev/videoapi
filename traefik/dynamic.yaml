@@ -5,7 +5,7 @@ http:
       entryPoints:
       - websecure
       service: service-videogui
-      rule: PathPrefix(`/`)
+      rule: "PathPrefix(`/`)"
       priority: 10
       tls:
         certResolver: myresolver
@@ -14,7 +14,7 @@ http:
       - websecure
       service: service-videoapi
       priority: 100
-      rule: PathPrefix(`/api`, `/swagger`, `/media`)"
+      rule: "PathPrefix(`/api`, `/swagger`, `/media`)"
       tls:
         certResolver: myresolver
 

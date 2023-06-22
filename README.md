@@ -13,7 +13,7 @@ go generate ./...
 
 Este repositorio incluye un fichero [docker-compose.yaml](docker-compose.yaml) con la especificación adecuada para poder levantar localmente una instancia de esta API, escuchando en el puerto **8080**.
 
-Paran lanzar la instancia, se deben ejecutar estos pasos desde el directorio donde se haya clonado el repositorio:
+Para lanzar la instancia, se deben ejecutar estos pasos desde el directorio donde se haya clonado el repositorio:
 
 ```
 # reconstruir las imágenes docker del servicio

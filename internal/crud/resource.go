@@ -58,7 +58,7 @@ func (h ResourceFrontend) Get(r *http.Request) (io.ReadCloser, error) {
 		err       error
 	)
 	params := r.URL.Query()
-	if asc := params.Get("asc"); asc != "" {
+	if asc := params.Get("ascending"); asc != "" {
 		switch strings.ToLower(asc) {
 		case "t":
 			ascending = true
