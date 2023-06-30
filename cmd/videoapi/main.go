@@ -208,16 +208,16 @@ func main() {
 			auth.WithSameSiteCookie(false),
 		)
 	}
-	mux.Handle("/api/login", cors.Allow(auth.Login(userStore, jwtKey, authOptions...)))
-	mux.Handle("/api/logout", cors.Allow(auth.Logout(authOptions...)))
-	mux.Handle("/api/me", cors.Allow(auth.WithClaims(jwtKey, http.HandlerFunc(handleMe))))
+	mux.Handle("/api/login", logHandler(cors.Allow(auth.Login(userStore, jwtKey, authOptions...))))
+	mux.Handle("/api/logout", logHandler(cors.Allow(auth.Logout(authOptions...))))
+	mux.Handle("/api/me", logHandler(cors.Allow(auth.WithClaims(jwtKey, http.HandlerFunc(handleMe)))))
 	if apiKey != "" {
-		mux.Handle("/api/hook", hook.Handler(apiKey, alertStore))
+		mux.Handle("/api/hook", logHandler(hook.Handler(apiKey, alertStore)))
 	}
 
 	// Stack all the cors, auth and crud middleware on top of the resources
 	stackHandlers := func(prefix string, frontend crud.Frontend) {
-		handler := http.StripPrefix(prefix, cors.Allow(auth.WithClaims(jwtKey, crud.NewHandler(frontend))))
+		handler := logHandler(http.StripPrefix(prefix, cors.Allow(auth.WithClaims(jwtKey, crud.NewHandler(frontend)))))
 		mux.Handle(prefix+"/", handler)
 		mux.Handle(prefix, handler)
 	}
@@ -261,7 +261,7 @@ func main() {
 
 	// Add swagger and media UI servers
 	mux.Handle("/swagger/", http.StripPrefix("/swagger/", http.HandlerFunc(swagger.ServeHTTP)))
-	mux.Handle("/media/", http.StripPrefix("/media/", http.FileServer(http.Dir(finalFolder))))
+	mux.Handle("/media/", logHandler(http.StripPrefix("/media/", http.FileServer(http.Dir(finalFolder)))))
 
 	log.Printf("Listening at %s\n", server.Addr)
 	log.Fatal(server.ListenAndServe())
