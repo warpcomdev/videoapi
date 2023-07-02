@@ -71,6 +71,7 @@ func AlertDescriptor() Descriptor {
 	return Descriptor{
 		TableName: "ALERTS",
 		FilterSet: store.FilterSet{
+			"id":              store.StringDbType{},
 			"name":            store.StringDbType{},
 			"created_at":      store.TimeDbType{},
 			"modified_at":     store.TimeDbType{},

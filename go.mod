@@ -7,7 +7,7 @@ require github.com/jmoiron/sqlx v1.3.5
 require (
 	github.com/golang-jwt/jwt/v5 v5.0.0
 	github.com/prometheus/alertmanager v0.25.0
-	github.com/sijms/go-ora/v2 v2.7.6
+	github.com/sijms/go-ora/v2 v2.7.7
 	golang.org/x/crypto v0.9.0
 )
 

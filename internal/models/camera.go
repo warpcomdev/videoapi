@@ -64,6 +64,7 @@ func CameraDescriptor() Descriptor {
 	return Descriptor{
 		TableName: "CAMERAS",
 		FilterSet: store.FilterSet{
+			"id":          store.StringDbType{},
 			"created_at":  store.TimeDbType{},
 			"modified_at": store.TimeDbType{},
 			"name":        store.StringDbType{},

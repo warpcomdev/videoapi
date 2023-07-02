@@ -111,6 +111,7 @@ func UserDescriptor() Descriptor {
 	return Descriptor{
 		TableName: "USERS",
 		FilterSet: store.FilterSet{
+			"id":   store.StringDbType{},
 			"name": store.StringDbType{},
 		},
 		Create: `

@@ -62,6 +62,7 @@ func VideoDescriptor() Descriptor {
 	return Descriptor{
 		TableName: "VIDEOS",
 		FilterSet: store.FilterSet{
+			"id":          store.StringDbType{},
 			"created_at":  store.TimeDbType{},
 			"modified_at": store.TimeDbType{},
 			"timestamp":   store.TimeDbType{},
@@ -89,6 +90,7 @@ func PictureDescriptor() Descriptor {
 	return Descriptor{
 		TableName: "PICTURES",
 		FilterSet: store.FilterSet{
+			"id":          store.StringDbType{},
 			"created_at":  store.TimeDbType{},
 			"modified_at": store.TimeDbType{},
 			"timestamp":   store.TimeDbType{},
