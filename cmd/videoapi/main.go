@@ -261,7 +261,7 @@ func main() {
 
 	// Add swagger and media UI servers
 	mux.Handle("/swagger/", http.StripPrefix("/swagger/", http.HandlerFunc(swagger.ServeHTTP)))
-	mux.Handle("/media/", logHandler(http.StripPrefix("/media/", http.FileServer(http.Dir(finalFolder)))))
+	mux.Handle("/v1/media/", logHandler(http.StripPrefix("/v1/media/", http.FileServer(http.Dir(finalFolder)))))
 
 	log.Printf("Listening at %s\n", server.Addr)
 	log.Fatal(server.ListenAndServe())

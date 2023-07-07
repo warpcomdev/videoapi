@@ -14,7 +14,7 @@ http:
       - websecure
       service: service-videoapi
       priority: 100
-      rule: "PathPrefix(`/v1/api`, `/swagger`, `/media`)"
+      rule: "PathPrefix(`/v1/api`, `/swagger`, `/v1/media`)"
       tls:
         certResolver: myresolver
 
