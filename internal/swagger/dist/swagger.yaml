@@ -388,7 +388,7 @@ components:
       in: query
       name: apiKey
 paths:
-  /api/login:
+  /v1/api/login:
     post:
       summary: Logs in and returns the authentication token
       security: []
@@ -481,7 +481,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/queryError'
-  /api/logout:
+  /v1/api/logout:
     get:
       summary: Removes session cookie
       tags:
@@ -504,7 +504,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/queryError'
-  /api/me:
+  /v1/api/me:
     get:
       summary: Returns information about the logged-in user
       tags:
@@ -545,7 +545,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/queryError'
-  /api/hook:
+  /v1/api/hook:
     post:
       summary: webhook receiver for alertmanager
       security:
@@ -574,7 +574,7 @@ paths:
             text/plain:
               schema:
                 type: string
-  /api/user:
+  /v1/api/user:
     get:
       summary: Queries a list of User
       tags:
@@ -770,7 +770,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/queryError'
-  /api/user/{id}:
+  /v1/api/user/{id}:
     get:
       summary: Queries a User by id
       tags:
@@ -872,7 +872,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/queryError'
-  /api/camera:
+  /v1/api/camera:
     get:
       summary: Queries a list of Camera
       tags:
@@ -1116,7 +1116,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/queryError'
-  /api/camera/{id}:
+  /v1/api/camera/{id}:
     get:
       summary: Queries a Camera by id
       tags:
@@ -1218,7 +1218,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/queryError'
-  /api/video:
+  /v1/api/video:
     get:
       summary: Queries a list of Video
       tags:
@@ -1472,7 +1472,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/queryError'
-  /api/video/{id}:
+  /v1/api/video/{id}:
     get:
       summary: Queries a Video by id
       tags:
@@ -1650,7 +1650,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/queryError'
-  /api/picture:
+  /v1/api/picture:
     get:
       summary: Queries a list of Picture
       tags:
@@ -1904,7 +1904,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/queryError'
-  /api/picture/{id}:
+  /v1/api/picture/{id}:
     get:
       summary: Queries a Picture by id
       tags:
@@ -2082,7 +2082,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/queryError'
-  /api/alert:
+  /v1/api/alert:
     get:
       summary: Queries a list of Alert
       tags:
@@ -2444,7 +2444,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/queryError'
-  /api/alert/{id}:
+  /v1/api/alert/{id}:
     get:
       summary: Queries a Alert by id
       tags:
