@@ -480,7 +480,7 @@ components: securitySchemes: apiKey: {
 
 // Authentication endpoints
 // ------------------------
-paths: "/api/login": {
+paths: "/v1/api/login": {
 	post: {
 		summary: "Logs in and returns the authentication token"
 		security: []
@@ -517,7 +517,7 @@ paths: "/api/login": {
 	}
 }
 
-paths: "/api/logout": get: {
+paths: "/v1/api/logout": get: {
 	summary: "Removes session cookie"
 	#secured
 	tags: ["Auth"]
@@ -536,7 +536,7 @@ paths: "/api/logout": get: {
 	}
 }
 
-paths: "/api/me": get: {
+paths: "/v1/api/me": get: {
 	summary: "Returns information about the logged-in user"
 	#secured
 	tags: ["Auth"]
@@ -569,7 +569,7 @@ paths: "/api/me": get: {
 
 // CRUD endpoints
 paths: {for resource, data in #crud {
-	"/api/\(data.path)": {
+	"/v1/api/\(data.path)": {
 		get: {
 			summary: "Queries a list of \(resource)"
 			tags: [resource]
@@ -706,7 +706,7 @@ paths: {for resource, data in #crud {
 			}
 		}
 	}
-	"/api/\(data.path)/{id}": {
+	"/v1/api/\(data.path)/{id}": {
 		#param_id: [{
 			name:     "id"
 			"in":     "path"
@@ -834,7 +834,7 @@ paths: {for resource, data in #crud {
 
 // Alertmanager webhook
 // --------------------
-paths: "/api/hook": {
+paths: "/v1/api/hook": {
 post: {
 	summary: "webhook receiver for alertmanager"
 	security: [{apiKey: []}]

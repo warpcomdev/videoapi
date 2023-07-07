@@ -208,11 +208,11 @@ func main() {
 			auth.WithSameSiteCookie(false),
 		)
 	}
-	mux.Handle("/api/login", logHandler(cors.Allow(auth.Login(userStore, jwtKey, authOptions...))))
-	mux.Handle("/api/logout", logHandler(cors.Allow(auth.Logout(authOptions...))))
-	mux.Handle("/api/me", logHandler(cors.Allow(auth.WithClaims(jwtKey, http.HandlerFunc(handleMe)))))
+	mux.Handle("/v1/api/login", logHandler(cors.Allow(auth.Login(userStore, jwtKey, authOptions...))))
+	mux.Handle("/v1/api/logout", logHandler(cors.Allow(auth.Logout(authOptions...))))
+	mux.Handle("/v1/api/me", logHandler(cors.Allow(auth.WithClaims(jwtKey, http.HandlerFunc(handleMe)))))
 	if apiKey != "" {
-		mux.Handle("/api/hook", logHandler(hook.Handler(apiKey, alertStore)))
+		mux.Handle("/v1/api/hook", logHandler(hook.Handler(apiKey, alertStore)))
 	}
 
 	// Stack all the cors, auth and crud middleware on top of the resources
@@ -223,11 +223,11 @@ func main() {
 	}
 
 	// User administration endpoints
-	stackHandlers("/api/user", crud.FromResource(store.Adapt[models.User](policedUserStore)))
+	stackHandlers("/v1/api/user", crud.FromResource(store.Adapt[models.User](policedUserStore)))
 	// Camera administration endpoints
-	stackHandlers("/api/camera", crud.FromResource(store.Adapt[models.Camera](policedCameraStore)))
+	stackHandlers("/v1/api/camera", crud.FromResource(store.Adapt[models.Camera](policedCameraStore)))
 	// Video administration endpoints
-	stackHandlers("/api/video", crud.FromMedia(
+	stackHandlers("/v1/api/video", crud.FromMedia(
 		store.Adapt[models.Media](policedVideoStore),
 		store.Adapt[models.Media](videoStore),
 		tmpFolder,
@@ -245,7 +245,7 @@ func main() {
 		},
 	))
 	// Picture administration endpoints
-	stackHandlers("/api/picture", crud.FromMedia(
+	stackHandlers("/v1/api/picture", crud.FromMedia(
 		store.Adapt[models.Media](policedPictureStore),
 		store.Adapt[models.Media](pictureStore),
 		tmpFolder,
@@ -257,7 +257,7 @@ func main() {
 		},
 	))
 	// Alert administration endpoints
-	stackHandlers("/api/alert", crud.FromResource(store.Adapt[models.Alert](policedAlertStore)))
+	stackHandlers("/v1/api/alert", crud.FromResource(store.Adapt[models.Alert](policedAlertStore)))
 
 	// Add swagger and media UI servers
 	mux.Handle("/swagger/", http.StripPrefix("/swagger/", http.HandlerFunc(swagger.ServeHTTP)))
