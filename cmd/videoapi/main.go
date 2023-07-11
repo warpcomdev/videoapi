@@ -242,6 +242,7 @@ func main() {
 			"video/quicktime": ".quicktime",
 			"video/webm":      ".webm",
 			"video/x-msvideo": ".avi",
+			"video/avi":       ".avi",
 		},
 	))
 	// Picture administration endpoints
