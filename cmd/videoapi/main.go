@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/exec"
 	"strings"
 	"time"
 
@@ -222,6 +223,20 @@ func main() {
 		mux.Handle(prefix, handler)
 	}
 
+	// Try to convert avi to mp4
+	var ffmpegPath string
+	useffmpeg := os.Getenv("USEFFMPEG")
+	if useffmpeg == "" || useffmpeg == "true" {
+		ffmpegPath, err = exec.LookPath("ffmpeg")
+		if err != nil {
+			log.Printf("ffmpeg not found: %v", err)
+			ffmpegPath = ""
+		}
+	}
+	if ffmpegPath != "" {
+		log.Printf("using ffmpeg at %s", ffmpegPath)
+	}
+
 	// User administration endpoints
 	stackHandlers("/v1/api/user", crud.FromResource(store.Adapt[models.User](policedUserStore)))
 	// Camera administration endpoints
@@ -244,6 +259,7 @@ func main() {
 			"video/x-msvideo": ".avi",
 			"video/avi":       ".avi",
 		},
+		ffmpegPath,
 	))
 	// Picture administration endpoints
 	stackHandlers("/v1/api/picture", crud.FromMedia(
@@ -256,6 +272,7 @@ func main() {
 			"image/png":  ".png",
 			"image/gif":  ".gif",
 		},
+		"", // no ffmpeg for pictures
 	))
 	// Alert administration endpoints
 	stackHandlers("/v1/api/alert", crud.FromResource(store.Adapt[models.Alert](policedAlertStore)))

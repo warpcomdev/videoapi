@@ -9,10 +9,12 @@ import (
 	"fmt"
 	"hash/fnv"
 	"io"
+	"log"
 	"mime/multipart"
 	"net/http"
 	"net/url"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 )
@@ -23,10 +25,11 @@ type MediaFrontend struct {
 	tmpFolder   string
 	finalFolder string
 	mimeTypes   map[string]string
+	ffmpegPath  string
 }
 
 // FromMedia creates a new MediaFrontend
-func FromMedia(r Resource, unpoliced Resource, tmpFolder, finalFolder string, mimeTypes map[string]string) MediaFrontend {
+func FromMedia(r Resource, unpoliced Resource, tmpFolder, finalFolder string, mimeTypes map[string]string, ffmpegPath string) MediaFrontend {
 	for _, ext := range mimeTypes {
 		if !strings.HasPrefix(ext, ".") {
 			panic("mimetype extensions must begin with `.`")
@@ -136,6 +139,26 @@ func (h MediaFrontend) Post(r *http.Request) (io.ReadCloser, error) {
 	}
 	if tmpPath == "" {
 		return nil, ErrMultipartNoFile
+	}
+	// Try to transcode AVI files, so that they can be played in the browser
+	if h.ffmpegPath != "" && strings.HasSuffix(strings.ToLower(fileExt), ".avi") {
+		transcode := func() {
+			// try to convert to mp4 using ffmpeg
+			// this is a best effort, so we ignore errors
+			// and just keep the original file
+			outPath := strings.TrimSuffix(tmpPath, fileExt) + ".mp4"
+			cmd := exec.CommandContext(r.Context(), h.ffmpegPath, "-i", tmpPath, "-c:v", "copy", "-c:a", "copy", "-y", outPath)
+			if err := cmd.Run(); err != nil {
+				log.Printf("ffmpeg failed: %v", err)
+				return
+			}
+			// ffmpeg succeeded, so we can delete the original file
+			os.Remove(tmpPath)
+			// and update tmpPath and fileExt
+			tmpPath = outPath
+			fileExt = ".mp4"
+		}
+		transcode()
 	}
 	mediaURL, err := h.commitTmpFile(r.Context(), id, idFolder, escapeId, fileExt, tmpPath)
 	if err != nil {
