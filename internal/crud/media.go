@@ -41,6 +41,7 @@ func FromMedia(r Resource, unpoliced Resource, tmpFolder, finalFolder string, mi
 		tmpFolder:   tmpFolder,
 		finalFolder: finalFolder,
 		mimeTypes:   mimeTypes,
+		ffmpegPath:  ffmpegPath,
 	}
 }
 
@@ -141,7 +142,6 @@ func (h MediaFrontend) Post(r *http.Request) (io.ReadCloser, error) {
 		return nil, ErrMultipartNoFile
 	}
 	// Try to transcode AVI files, so that they can be played in the browser
-	log.Printf("processing upload of %s, extension %s", tmpPath, fileExt)
 	if h.ffmpegPath != "" && strings.HasSuffix(strings.ToLower(fileExt), ".avi") {
 		transcode := func() {
 			// try to convert to mp4 using ffmpeg
