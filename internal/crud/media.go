@@ -148,7 +148,9 @@ func (h MediaFrontend) Post(r *http.Request) (io.ReadCloser, error) {
 			// this is a best effort, so we ignore errors
 			// and just keep the original file
 			outPath := strings.TrimSuffix(tmpPath, fileExt) + ".mp4"
-			cmd := exec.CommandContext(r.Context(), h.ffmpegPath, "-i", tmpPath, "-c:v", "copy", "-c:a", "copy", "-y", outPath)
+			// See https://superuser.com/questions/710008/how-to-get-rid-of-ffmpeg-pts-has-no-value-error
+			// for an explanation of -fflags
+			cmd := exec.CommandContext(r.Context(), h.ffmpegPath, "-fflags", "+genpts", "-i", tmpPath, "-c:v", "copy", "-c:a", "copy", "-y", outPath)
 			if err := cmd.Run(); err != nil {
 				log.Printf("ffmpeg failed: %v", err)
 				return
