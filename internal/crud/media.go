@@ -150,7 +150,9 @@ func (h MediaFrontend) Post(r *http.Request) (io.ReadCloser, error) {
 			outPath := strings.TrimSuffix(tmpPath, fileExt) + ".mp4"
 			// See https://superuser.com/questions/710008/how-to-get-rid-of-ffmpeg-pts-has-no-value-error
 			// for an explanation of -fflags
-			cmd := exec.CommandContext(r.Context(), h.ffmpegPath, "-fflags", "+genpts", "-i", tmpPath, "-c:v", "copy", "-c:a", "copy", "-y", outPath)
+			// See also https://stackoverflow.com/questions/39426006/after-video-codec-copy-to-mp4-format-with-ffmpeg-new-video-has-no-screen-and-has
+			// for an explanation of transcoding
+			cmd := exec.CommandContext(r.Context(), h.ffmpegPath, "-fflags", "+genpts", "-i", tmpPath, "-c:v", "libx264", "-pix_fmt", "yuv420p", "-preset", "medium", "-movflags", "+faststart", "-y", outPath)
 			if err := cmd.Run(); err != nil {
 				log.Printf("ffmpeg failed: %v", err)
 				return
