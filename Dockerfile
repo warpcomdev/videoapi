@@ -15,7 +15,11 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
     go build -o /go/bin/videoapi
 
 # Use something we can at least shell in, for debugging
-FROM busybox:latest
+FROM alpine:latest
+
+# Add ffmpeg for video processing
+RUN apk update
+RUN apk add --no-cache ffmpeg
 
 COPY  --from=build /go/bin/videoapi /go/bin/videoapi
 ENTRYPOINT ["/go/bin/videoapi"]
