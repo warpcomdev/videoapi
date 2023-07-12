@@ -141,6 +141,7 @@ func (h MediaFrontend) Post(r *http.Request) (io.ReadCloser, error) {
 		return nil, ErrMultipartNoFile
 	}
 	// Try to transcode AVI files, so that they can be played in the browser
+	log.Printf("processing upload of %s, extension %s", tmpPath, fileExt)
 	if h.ffmpegPath != "" && strings.HasSuffix(strings.ToLower(fileExt), ".avi") {
 		transcode := func() {
 			// try to convert to mp4 using ffmpeg
@@ -152,6 +153,7 @@ func (h MediaFrontend) Post(r *http.Request) (io.ReadCloser, error) {
 				log.Printf("ffmpeg failed: %v", err)
 				return
 			}
+			log.Printf("ffmpeg transcoded %s to %s", tmpPath, outPath)
 			// ffmpeg succeeded, so we can delete the original file
 			os.Remove(tmpPath)
 			// and update tmpPath and fileExt
