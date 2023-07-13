@@ -14,9 +14,9 @@ type Resource[T any] interface {
 	// Get resource by id
 	GetById(context.Context, string) (T, error)
 	// Get resource by filter
-	Get(ctx context.Context, filter []crud.Filter, sort []string, ascending bool, offset, limit int) ([]T, error)
+	Get(ctx context.Context, filter []crud.Filter, outerOp crud.OuterOperation, innerOp crud.InnerOperation, sort []string, ascending bool, offset, limit int) ([]T, error)
 	// Count resource by filter
-	Count(ctx context.Context, filter []crud.Filter) (uint64, error)
+	Count(ctx context.Context, filter []crud.Filter, outerOp crud.OuterOperation, innerOp crud.InnerOperation) (uint64, error)
 	// Post (create) new resource, return id
 	Post(ctx context.Context, data T) (string, error)
 	// Put (update) resource
@@ -51,18 +51,18 @@ type getResult[T any] struct {
 }
 
 // Get resource list
-func (vr Adaptor[T]) Get(ctx context.Context, filter []crud.Filter, sort []string, ascending bool, offset, limit int, count bool) (io.ReadCloser, error) {
+func (vr Adaptor[T]) Get(ctx context.Context, filter []crud.Filter, outerOp crud.OuterOperation, innerOp crud.InnerOperation, sort []string, ascending bool, offset, limit int, count bool) (io.ReadCloser, error) {
 	var (
 		resultCount uint64
 		err         error
 	)
 	if count {
-		resultCount, err = vr.Resource.Count(ctx, filter)
+		resultCount, err = vr.Resource.Count(ctx, filter, outerOp, innerOp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	vs, err := vr.Resource.Get(ctx, filter, sort, ascending, offset, limit)
+	vs, err := vr.Resource.Get(ctx, filter, outerOp, innerOp, sort, ascending, offset, limit)
 	if err != nil {
 		return nil, err
 	}
@@ -76,10 +76,10 @@ func (vr Adaptor[T]) Get(ctx context.Context, filter []crud.Filter, sort []strin
 		Count: resultCount,
 	}
 	if len(vs) >= limit {
-		result.Next = crud.Next(filter, sort, ascending, offset, limit)
+		result.Next = crud.Next(filter, outerOp, innerOp, sort, ascending, offset, limit)
 	}
 	if offset > 0 {
-		result.Prev = crud.Prev(filter, sort, ascending, offset, limit)
+		result.Prev = crud.Prev(filter, outerOp, innerOp, sort, ascending, offset, limit)
 	}
 	data, err := json.Marshal(result)
 	if err != nil {

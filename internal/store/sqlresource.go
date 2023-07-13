@@ -68,7 +68,7 @@ func (r SQLResource[T, P]) GetById(ctx context.Context, id string) (t T, err err
 }
 
 // Get filtered (and possibly paginated) resources
-func (r SQLResource[T, P]) Get(ctx context.Context, filter []crud.Filter, sort []string, ascending bool, offset, limit int) ([]T, error) {
+func (r SQLResource[T, P]) Get(ctx context.Context, filter []crud.Filter, outerOp crud.OuterOperation, innerOp crud.InnerOperation, sort []string, ascending bool, offset, limit int) ([]T, error) {
 	var (
 		sb  strings.Builder
 		pp  []interface{} = make([]interface{}, 0, 16)
@@ -77,7 +77,7 @@ func (r SQLResource[T, P]) Get(ctx context.Context, filter []crud.Filter, sort [
 	sb.WriteString("SELECT * FROM ")
 	sb.WriteString(r.tableName)
 	if filter != nil && len(filter) > 0 {
-		pp, err = r.where(&sb, pp, filter)
+		pp, err = r.where(&sb, pp, filter, outerOp, innerOp)
 		if err != nil {
 			return nil, err
 		}
@@ -107,7 +107,7 @@ func (r SQLResource[T, P]) Get(ctx context.Context, filter []crud.Filter, sort [
 }
 
 // Count filtered resources
-func (r SQLResource[T, P]) Count(ctx context.Context, filter []crud.Filter) (uint64, error) {
+func (r SQLResource[T, P]) Count(ctx context.Context, filter []crud.Filter, outerOp crud.OuterOperation, innerOp crud.InnerOperation) (uint64, error) {
 	var (
 		sb  strings.Builder
 		pp  []interface{} = make([]interface{}, 0, 16)
@@ -116,7 +116,7 @@ func (r SQLResource[T, P]) Count(ctx context.Context, filter []crud.Filter) (uin
 	sb.WriteString("SELECT COUNT(*) FROM ")
 	sb.WriteString(r.tableName)
 	if filter != nil && len(filter) > 0 {
-		pp, err = r.where(&sb, pp, filter)
+		pp, err = r.where(&sb, pp, filter, outerOp, innerOp)
 		if err != nil {
 			return 0, err
 		}
@@ -137,16 +137,18 @@ func (r SQLResource[T, P]) Count(ctx context.Context, filter []crud.Filter) (uin
 }
 
 // Where builds the where clause of a select or count query
-func (r SQLResource[T, P]) where(sb *strings.Builder, pp []interface{}, filter []crud.Filter) ([]interface{}, error) {
+func (r SQLResource[T, P]) where(sb *strings.Builder, pp []interface{}, filter []crud.Filter, outerOp crud.OuterOperation, innerOp crud.InnerOperation) ([]interface{}, error) {
 	sb.WriteString(" WHERE (")
 	sep := ""
+	formatedOuterSep := fmt.Sprintf(") %s (", outerOp)
+	formatedInnerSep := fmt.Sprintf(" %s ", innerOp)
 	for _, f := range filter {
 		dbtype, ok := r.columns[f.Field]
 		if !ok {
 			return nil, fmt.Errorf("column %s does not exist", f.Field)
 		}
 		sb.WriteString(sep)
-		sep = ") AND ("
+		sep = formatedOuterSep
 		innerSep := ""
 		for _, v := range f.Values {
 			var (
@@ -170,7 +172,7 @@ func (r SQLResource[T, P]) where(sb *strings.Builder, pp []interface{}, filter [
 				return nil, err
 			}
 			sb.WriteString(innerSep)
-			innerSep = " OR "
+			innerSep = formatedInnerSep
 			sb.WriteString(cond)
 			if val != nil {
 				pp = append(pp, val)

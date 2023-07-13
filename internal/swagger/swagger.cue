@@ -689,6 +689,24 @@ paths: {for resource, data in #crud {
 					type: "integer"
 				}
 			}
+			#parameters: outerOp: {
+				"in":        "query"
+				required:    false
+				description: "How to combine separate filters: AND or OR"
+				schema: {
+					type: "choice"
+					choices: ["AND", "OR"]
+				}
+			}
+			#parameters: innerOp: {
+				"in":        "query"
+				required:    false
+				description: "How to combine separate values for the same filter: AND or OR (default AND)"
+				schema: {
+					type: "choice"
+					choices: ["AND", "OR"]
+				}
+			}
 			// I don't want to hide the complexity of a moving count
 			// under a single api call. This parameter will be undocumented.
 			//#parameters: count: {

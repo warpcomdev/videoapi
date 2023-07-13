@@ -9,12 +9,29 @@ import (
 	"strings"
 )
 
+type InnerOperation string
+type OuterOperation string
+
+// Operations to merge several separate filters
+const (
+	OUTER_AND     OuterOperation = "AND"
+	OUTER_OR      OuterOperation = "OR"
+	OUTER_DEFAULT OuterOperation = OUTER_AND
+)
+
+// Operations to merge several values within a single filter
+const (
+	INNER_AND     InnerOperation = "AND"
+	INNER_OR      InnerOperation = "OR"
+	INNER_DEFAULT InnerOperation = INNER_AND
+)
+
 // Resource implements the CRUD operations
 type Resource interface {
 	// Get resource by id
 	GetById(context.Context, string) (io.ReadCloser, error)
 	// Get resource by filter
-	Get(ctx context.Context, filter []Filter, sort []string, ascending bool, offset, limit int, count bool) (io.ReadCloser, error)
+	Get(ctx context.Context, filter []Filter, outerOp OuterOperation, innerOp InnerOperation, sort []string, ascending bool, offset, limit int, count bool) (io.ReadCloser, error)
 	// Post (create) new resource
 	Post(context.Context, io.Reader) (io.ReadCloser, error)
 	// Put (update) resource
@@ -56,6 +73,8 @@ func (h ResourceFrontend) Get(r *http.Request) (io.ReadCloser, error) {
 		offset    int
 		limit     int
 		count     bool
+		innerOp   InnerOperation
+		outerOp   OuterOperation
 		err       error
 	)
 	params := r.URL.Query()
@@ -88,6 +107,24 @@ func (h ResourceFrontend) Get(r *http.Request) (io.ReadCloser, error) {
 	if cnt := params.Get("count"); cnt == "true" {
 		count = true
 	}
+	io := strings.ToUpper(params.Get("innerOp"))
+	switch InnerOperation(io) {
+	case INNER_AND:
+		innerOp = INNER_AND
+	case INNER_OR:
+		innerOp = INNER_OR
+	default:
+		innerOp = INNER_DEFAULT
+	}
+	oo := strings.ToUpper(params.Get("outerOp"))
+	switch OuterOperation(oo) {
+	case OUTER_AND:
+		outerOp = OUTER_AND
+	case OUTER_OR:
+		outerOp = OUTER_OR
+	default:
+		outerOp = OUTER_DEFAULT
+	}
 	if limit <= 0 || limit > 100 {
 		limit = 100
 	}
@@ -109,7 +146,7 @@ func (h ResourceFrontend) Get(r *http.Request) (io.ReadCloser, error) {
 	if err != nil {
 		return nil, err
 	}
-	return h.resource.Get(r.Context(), filter, sort, ascending, offset, limit, count)
+	return h.resource.Get(r.Context(), filter, outerOp, innerOp, sort, ascending, offset, limit, count)
 }
 
 // Post handler

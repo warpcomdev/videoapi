@@ -637,6 +637,24 @@ paths:
           description: Limit for pagination
           schema:
             type: integer
+        - name: outerOp
+          in: query
+          required: false
+          description: 'How to combine separate filters: AND or OR'
+          schema:
+            type: choice
+            choices:
+              - AND
+              - OR
+        - name: innerOp
+          in: query
+          required: false
+          description: 'How to combine separate values for the same filter: AND or OR (default AND)'
+          schema:
+            type: choice
+            choices:
+              - AND
+              - OR
         - name: q:id:eq
           in: query
           required: false
@@ -935,6 +953,24 @@ paths:
           description: Limit for pagination
           schema:
             type: integer
+        - name: outerOp
+          in: query
+          required: false
+          description: 'How to combine separate filters: AND or OR'
+          schema:
+            type: choice
+            choices:
+              - AND
+              - OR
+        - name: innerOp
+          in: query
+          required: false
+          description: 'How to combine separate values for the same filter: AND or OR (default AND)'
+          schema:
+            type: choice
+            choices:
+              - AND
+              - OR
         - name: q:id:eq
           in: query
           required: false
@@ -1281,6 +1317,24 @@ paths:
           description: Limit for pagination
           schema:
             type: integer
+        - name: outerOp
+          in: query
+          required: false
+          description: 'How to combine separate filters: AND or OR'
+          schema:
+            type: choice
+            choices:
+              - AND
+              - OR
+        - name: innerOp
+          in: query
+          required: false
+          description: 'How to combine separate values for the same filter: AND or OR (default AND)'
+          schema:
+            type: choice
+            choices:
+              - AND
+              - OR
         - name: q:id:eq
           in: query
           required: false
@@ -1713,6 +1767,24 @@ paths:
           description: Limit for pagination
           schema:
             type: integer
+        - name: outerOp
+          in: query
+          required: false
+          description: 'How to combine separate filters: AND or OR'
+          schema:
+            type: choice
+            choices:
+              - AND
+              - OR
+        - name: innerOp
+          in: query
+          required: false
+          description: 'How to combine separate values for the same filter: AND or OR (default AND)'
+          schema:
+            type: choice
+            choices:
+              - AND
+              - OR
         - name: q:id:eq
           in: query
           required: false
@@ -2151,6 +2223,24 @@ paths:
           description: Limit for pagination
           schema:
             type: integer
+        - name: outerOp
+          in: query
+          required: false
+          description: 'How to combine separate filters: AND or OR'
+          schema:
+            type: choice
+            choices:
+              - AND
+              - OR
+        - name: innerOp
+          in: query
+          required: false
+          description: 'How to combine separate values for the same filter: AND or OR (default AND)'
+          schema:
+            type: choice
+            choices:
+              - AND
+              - OR
         - name: q:id:eq
           in: query
           required: false
