@@ -139,6 +139,7 @@
 				required: false
 				readOnly: false
 				filter: ["eq", "ne", "like"]
+				repetable: true
 			}
 			media_url: {
 				type:     "string"
@@ -191,6 +192,7 @@
 				required: false
 				readOnly: false
 				filter: ["eq", "ne", "like"]
+				repeatable: true
 			}
 			media_url: {
 				type:     "string"
@@ -273,6 +275,7 @@
 		}
 	}
 }
+#crud: [string]: properties: [string]: repeatable: bool | *false
 
 openapi: "3.0.0"
 info: {
@@ -600,31 +603,27 @@ paths: {for resource, data in #crud {
 						_repeatable: bool | *false
 						if op == "eq" {
 							description: "Find items where field `\(propname)` is `equal` to this value (use `NULL` to match null values)"
-							_repeatable: true
+							_repeatable: propdata.repeatable
 						}
 						if op == "ne" {
 							description: "Find items where field `\(propname)` is `not equal` to this value (use `NULL` to match null values)"
-							_repeatable: true
+							_repeatable: propdata.repeatable
 						}
 						if op == "gt" {
 							description: "Find items where field `\(propname)` is `greater than` this value"
-							_repeatable: false
 						}
 						if op == "ge" {
 							description: "Find items where field `\(propname)` is `greater or equal` than this value"
-							_repeatable: false
 						}
 						if op == "lt" {
 							description: "Find items where field `\(propname)` is `less than` this value"
-							_repeatable: false
 						}
 						if op == "le" {
 							description: "Find items where field `\(propname)` is `less or equal` than this value"
-							_repeatable: false
 						}
 						if op == "like" {
 							description: "Find items where field `\(propname)` is `like` to this value"
-							_repeatable: true
+							_repeatable: propdata.repeatable
 						}
 						schema: {
 							if _repeatable {
