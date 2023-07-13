@@ -14,7 +14,7 @@ type Resource interface {
 	// Get resource by id
 	GetById(context.Context, string) (io.ReadCloser, error)
 	// Get resource by filter
-	Get(ctx context.Context, filter []Filter, sort []string, ascending bool, offset, limit int) (io.ReadCloser, error)
+	Get(ctx context.Context, filter []Filter, sort []string, ascending bool, offset, limit int, count bool) (io.ReadCloser, error)
 	// Post (create) new resource
 	Post(context.Context, io.Reader) (io.ReadCloser, error)
 	// Put (update) resource
@@ -55,6 +55,7 @@ func (h ResourceFrontend) Get(r *http.Request) (io.ReadCloser, error) {
 		ascending bool
 		offset    int
 		limit     int
+		count     bool
 		err       error
 	)
 	params := r.URL.Query()
@@ -84,6 +85,9 @@ func (h ResourceFrontend) Get(r *http.Request) (io.ReadCloser, error) {
 		}
 		limit = intLim
 	}
+	if cnt := params.Get("count"); cnt == "true" {
+		count = true
+	}
 	if limit <= 0 || limit > 100 {
 		limit = 100
 	}
@@ -105,7 +109,7 @@ func (h ResourceFrontend) Get(r *http.Request) (io.ReadCloser, error) {
 	if err != nil {
 		return nil, err
 	}
-	return h.resource.Get(r.Context(), filter, sort, ascending, offset, limit)
+	return h.resource.Get(r.Context(), filter, sort, ascending, offset, limit, count)
 }
 
 // Post handler

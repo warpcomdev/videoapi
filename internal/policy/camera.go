@@ -24,6 +24,11 @@ func (up CameraPolicy) Get(ctx context.Context, filter []crud.Filter, sort []str
 	return up.CameraStore.Get(ctx, filter, sort, ascending, offset, limit)
 }
 
+// Count allowed to anyone
+func (up CameraPolicy) Count(ctx context.Context, filter []crud.Filter) (uint64, error) {
+	return up.CameraStore.Count(ctx, filter)
+}
+
 // Post allowed only to ROLE_ADMIN
 func (up CameraPolicy) Post(ctx context.Context, data models.Camera) (string, error) {
 	claims, err := auth.ClaimsFrom(ctx)

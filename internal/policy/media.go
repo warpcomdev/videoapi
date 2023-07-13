@@ -24,6 +24,11 @@ func (up MediaPolicy) Get(ctx context.Context, filter []crud.Filter, sort []stri
 	return up.MediaStore.Get(ctx, filter, sort, ascending, offset, limit)
 }
 
+// Get allowed to anyone
+func (up MediaPolicy) Count(ctx context.Context, filter []crud.Filter) (uint64, error) {
+	return up.MediaStore.Count(ctx, filter)
+}
+
 // Post denied to READ_OMLY role
 func (up MediaPolicy) Post(ctx context.Context, data models.Media) (string, error) {
 	claims, err := auth.ClaimsFrom(ctx)

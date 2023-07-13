@@ -15,6 +15,8 @@ type Resource[T any] interface {
 	GetById(context.Context, string) (T, error)
 	// Get resource by filter
 	Get(ctx context.Context, filter []crud.Filter, sort []string, ascending bool, offset, limit int) ([]T, error)
+	// Count resource by filter
+	Count(ctx context.Context, filter []crud.Filter) (uint64, error)
 	// Post (create) new resource, return id
 	Post(ctx context.Context, data T) (string, error)
 	// Put (update) resource
@@ -42,12 +44,24 @@ func (vr Adaptor[T]) GetById(ctx context.Context, id string) (io.ReadCloser, err
 }
 
 type getResult[T any] struct {
-	Data []T    `json:"data"`
-	Next string `json:"next"`
+	Data  []T    `json:"data"`
+	Next  string `json:"next"`
+	Prev  string `json:"prev"`
+	Count uint64 `json:"count,omitempty"`
 }
 
 // Get resource list
-func (vr Adaptor[T]) Get(ctx context.Context, filter []crud.Filter, sort []string, ascending bool, offset, limit int) (io.ReadCloser, error) {
+func (vr Adaptor[T]) Get(ctx context.Context, filter []crud.Filter, sort []string, ascending bool, offset, limit int, count bool) (io.ReadCloser, error) {
+	var (
+		resultCount uint64
+		err         error
+	)
+	if count {
+		resultCount, err = vr.Resource.Count(ctx, filter)
+		if err != nil {
+			return nil, err
+		}
+	}
 	vs, err := vr.Resource.Get(ctx, filter, sort, ascending, offset, limit)
 	if err != nil {
 		return nil, err
@@ -56,11 +70,16 @@ func (vr Adaptor[T]) Get(ctx context.Context, filter []crud.Filter, sort []strin
 		vs = make([]T, 0)
 	}
 	result := getResult[T]{
-		Data: vs,
-		Next: "",
+		Data:  vs,
+		Next:  "",
+		Prev:  "",
+		Count: resultCount,
 	}
 	if len(vs) >= limit {
 		result.Next = crud.Next(filter, sort, ascending, offset, limit)
+	}
+	if offset > 0 {
+		result.Prev = crud.Prev(filter, sort, ascending, offset, limit)
 	}
 	data, err := json.Marshal(result)
 	if err != nil {

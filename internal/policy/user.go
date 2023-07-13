@@ -55,6 +55,23 @@ func (up UserPolicy) Get(ctx context.Context, filter []crud.Filter, sort []strin
 	return users, nil
 }
 
+// Count denied except to ROLE_ADMIN
+func (up UserPolicy) Count(ctx context.Context, filter []crud.Filter) (uint64, error) {
+	claims, err := auth.ClaimsFrom(ctx)
+	if err != nil {
+		return 0, err
+	}
+	if claims.Role != models.ROLE_ADMIN {
+		return 0, crud.ErrUnauthorized
+	}
+	// Hide hash from returned values
+	users, err := up.UserStore.Count(ctx, filter)
+	if err != nil {
+		return 0, err
+	}
+	return users, nil
+}
+
 // Post only allowed to admin role
 func (up UserPolicy) Post(ctx context.Context, data models.User) (string, error) {
 	claims, err := auth.ClaimsFrom(ctx)

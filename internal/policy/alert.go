@@ -24,6 +24,11 @@ func (up AlertPolicy) Get(ctx context.Context, filter []crud.Filter, sort []stri
 	return up.AlertStore.Get(ctx, filter, sort, ascending, offset, limit)
 }
 
+// Get allowed to anyone
+func (up AlertPolicy) Count(ctx context.Context, filter []crud.Filter) (uint64, error) {
+	return up.AlertStore.Count(ctx, filter)
+}
+
 // Post allowed to anyone with write permissions
 func (up AlertPolicy) Post(ctx context.Context, data models.Alert) (string, error) {
 	claims, err := auth.ClaimsFrom(ctx)

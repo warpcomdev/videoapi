@@ -62,6 +62,9 @@ components:
         next:
           type: string
           example: sort=asc&offset=10&limit=10
+        prev:
+          type: string
+          example: sort=asc&offset=0&limit=10
         data:
           type: array
           items:
@@ -123,6 +126,9 @@ components:
         next:
           type: string
           example: sort=asc&offset=10&limit=10
+        prev:
+          type: string
+          example: sort=asc&offset=0&limit=10
         data:
           type: array
           items:
@@ -180,6 +186,9 @@ components:
         next:
           type: string
           example: sort=asc&offset=10&limit=10
+        prev:
+          type: string
+          example: sort=asc&offset=0&limit=10
         data:
           type: array
           items:
@@ -239,6 +248,9 @@ components:
         next:
           type: string
           example: sort=asc&offset=10&limit=10
+        prev:
+          type: string
+          example: sort=asc&offset=0&limit=10
         data:
           type: array
           items:
@@ -298,6 +310,9 @@ components:
         next:
           type: string
           example: sort=asc&offset=10&limit=10
+        prev:
+          type: string
+          example: sort=asc&offset=0&limit=10
         data:
           type: array
           items:

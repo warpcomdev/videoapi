@@ -305,6 +305,10 @@ components: schemas: {for resource, data in #crud {
 				type:    "string"
 				example: "sort=asc&offset=10&limit=10"
 			}
+			prev: {
+				type:    "string"
+				example: "sort=asc&offset=0&limit=10"
+			}
 			data: {
 				type: "array"
 				items: {
@@ -662,6 +666,16 @@ paths: {for resource, data in #crud {
 					type: "integer"
 				}
 			}
+			// I don't want to hide the complexity of a moving count
+			// under a single api call. This parameter will be undocumented.
+			//#parameters: count: {
+			//	"in":        "query"
+			//	required:    false
+			//	description: "Include total item count in result"
+			//	schema: {
+			//		type: "boolean"
+			//	}
+			//}
 			parameters: [ for paramname, paramdata in #parameters {
 				name: paramname
 				paramdata
