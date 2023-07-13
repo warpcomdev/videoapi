@@ -597,36 +597,60 @@ paths: {for resource, data in #crud {
 					("q:\(propname):\(op)"): {
 						"in":     "query"
 						required: false
+						_repeatable: bool | *false
 						if op == "eq" {
 							description: "Find items where field `\(propname)` is `equal` to this value (use `NULL` to match null values)"
+							_repeatable: true
 						}
 						if op == "ne" {
 							description: "Find items where field `\(propname)` is `not equal` to this value (use `NULL` to match null values)"
+							_repeatable: true
 						}
 						if op == "gt" {
 							description: "Find items where field `\(propname)` is `greater than` this value"
+							_repeatable: false
 						}
 						if op == "ge" {
 							description: "Find items where field `\(propname)` is `greater or equal` than this value"
+							_repeatable: false
 						}
 						if op == "lt" {
 							description: "Find items where field `\(propname)` is `less than` this value"
+							_repeatable: false
 						}
 						if op == "le" {
 							description: "Find items where field `\(propname)` is `less or equal` than this value"
+							_repeatable: false
 						}
 						if op == "like" {
 							description: "Find items where field `\(propname)` is `like` to this value"
+							_repeatable: true
 						}
 						schema: {
-							if propdata.format != _|_ {
-								format: propdata.format
+							if _repeatable {
+								type: "array"
+								items: {
+									if propdata.format != _|_ {
+										format: propdata.format
+									}
+									if propdata.type == "array" {
+										type: "string"
+									}
+									if propdata.type != "array" {
+										type: propdata.type
+									}
+								}
 							}
-							if propdata.type == "array" {
-								type: "string"
-							}
-							if propdata.type != "array" {
-								type: propdata.type
+							if !_repeatable {
+								if propdata.format != _|_ {
+									format: propdata.format
+								}
+								if propdata.type == "array" {
+									type: "string"
+								}
+								if propdata.type != "array" {
+									type: propdata.type
+								}
 							}
 						}
 					}}
