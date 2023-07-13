@@ -694,8 +694,9 @@ paths: {for resource, data in #crud {
 				required:    false
 				description: "How to combine separate filters: AND or OR"
 				schema: {
-					type: "choice"
-					choices: ["AND", "OR"]
+					type: "string"
+					enum: ["AND", "OR"]
+					default: "AND"
 				}
 			}
 			#parameters: innerOp: {
@@ -703,8 +704,9 @@ paths: {for resource, data in #crud {
 				required:    false
 				description: "How to combine separate values for the same filter: AND or OR (default AND)"
 				schema: {
-					type: "choice"
-					choices: ["AND", "OR"]
+					type: "string"
+					enum: ["AND", "OR"]
+					default: "AND"
 				}
 			}
 			// I don't want to hide the complexity of a moving count

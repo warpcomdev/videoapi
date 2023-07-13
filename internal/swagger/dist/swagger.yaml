@@ -642,19 +642,21 @@ paths:
           required: false
           description: 'How to combine separate filters: AND or OR'
           schema:
-            type: choice
-            choices:
+            type: string
+            enum:
               - AND
               - OR
+            default: AND
         - name: innerOp
           in: query
           required: false
           description: 'How to combine separate values for the same filter: AND or OR (default AND)'
           schema:
-            type: choice
-            choices:
+            type: string
+            enum:
               - AND
               - OR
+            default: AND
         - name: q-id-eq
           in: query
           required: false
@@ -958,19 +960,21 @@ paths:
           required: false
           description: 'How to combine separate filters: AND or OR'
           schema:
-            type: choice
-            choices:
+            type: string
+            enum:
               - AND
               - OR
+            default: AND
         - name: innerOp
           in: query
           required: false
           description: 'How to combine separate values for the same filter: AND or OR (default AND)'
           schema:
-            type: choice
-            choices:
+            type: string
+            enum:
               - AND
               - OR
+            default: AND
         - name: q-id-eq
           in: query
           required: false
@@ -1322,19 +1326,21 @@ paths:
           required: false
           description: 'How to combine separate filters: AND or OR'
           schema:
-            type: choice
-            choices:
+            type: string
+            enum:
               - AND
               - OR
+            default: AND
         - name: innerOp
           in: query
           required: false
           description: 'How to combine separate values for the same filter: AND or OR (default AND)'
           schema:
-            type: choice
-            choices:
+            type: string
+            enum:
               - AND
               - OR
+            default: AND
         - name: q-id-eq
           in: query
           required: false
@@ -1772,19 +1778,21 @@ paths:
           required: false
           description: 'How to combine separate filters: AND or OR'
           schema:
-            type: choice
-            choices:
+            type: string
+            enum:
               - AND
               - OR
+            default: AND
         - name: innerOp
           in: query
           required: false
           description: 'How to combine separate values for the same filter: AND or OR (default AND)'
           schema:
-            type: choice
-            choices:
+            type: string
+            enum:
               - AND
               - OR
+            default: AND
         - name: q-id-eq
           in: query
           required: false
@@ -2228,19 +2236,21 @@ paths:
           required: false
           description: 'How to combine separate filters: AND or OR'
           schema:
-            type: choice
-            choices:
+            type: string
+            enum:
               - AND
               - OR
+            default: AND
         - name: innerOp
           in: query
           required: false
           description: 'How to combine separate values for the same filter: AND or OR (default AND)'
           schema:
-            type: choice
-            choices:
+            type: string
+            enum:
               - AND
               - OR
+            default: AND
         - name: q-id-eq
           in: query
           required: false
