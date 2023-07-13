@@ -138,7 +138,8 @@
 				type:     "array"
 				required: false
 				readOnly: false
-				filter: ["eq", "ne", "like"]
+				filter: ["eq", "ne"]
+				repeatable: true
 			}
 			media_url: {
 				type:     "string"
@@ -190,7 +191,8 @@
 				type:     "array"
 				required: false
 				readOnly: false
-				filter: ["eq", "ne", "like"]
+				filter: ["eq", "ne"]
+				repeatable: true
 			}
 			media_url: {
 				type:     "string"
@@ -273,6 +275,7 @@
 		}
 	}
 }
+#crud: [string]: properties: [string]: repeatable: bool | *false
 
 openapi: "3.0.0"
 info: {
@@ -304,6 +307,10 @@ components: schemas: {for resource, data in #crud {
 			next: {
 				type:    "string"
 				example: "sort=asc&offset=10&limit=10"
+			}
+			prev: {
+				type:    "string"
+				example: "sort=asc&offset=0&limit=10"
 			}
 			data: {
 				type: "array"
@@ -590,14 +597,27 @@ paths: {for resource, data in #crud {
 			#secured
 			#parameters: {for propname, propdata in data.properties if propdata.filter != _|_ {
 				for op in propdata.filter {
-					("q:\(propname):\(op)"): {
+					("q-\(propname)-\(op)"): {
 						"in":     "query"
 						required: false
+						_repeatable: bool | *false
 						if op == "eq" {
-							description: "Find items where field `\(propname)` is `equal` to this value (use `NULL` to match null values)"
+							if !propdata.repeatable {
+								description: "Find items where field `\(propname)` is `equal` to this value (use `NULL` to match null values)"
+							}
+							if propdata.repeatable {
+								description: "Find items where field `\(propname)` contains all (if inner-op is AND) or some (if inner-op is OR) of these values. Use `NULL` to match null values"
+							}
+							_repeatable: propdata.repeatable
 						}
 						if op == "ne" {
-							description: "Find items where field `\(propname)` is `not equal` to this value (use `NULL` to match null values)"
+							if !propdata.repeatable {
+								description: "Find items where field `\(propname)` is `not equal` to this value (use `NULL` to match null values)"
+							}
+							if propdata.repeatable {
+								description: "Find items where field `\(propname)` does not contains any of these values. Only makes sense with inner-op == `AND`"
+							}
+							_repeatable: propdata.repeatable
 						}
 						if op == "gt" {
 							description: "Find items where field `\(propname)` is `greater than` this value"
@@ -613,16 +633,33 @@ paths: {for resource, data in #crud {
 						}
 						if op == "like" {
 							description: "Find items where field `\(propname)` is `like` to this value"
+							_repeatable: propdata.repeatable
 						}
 						schema: {
-							if propdata.format != _|_ {
-								format: propdata.format
+							if _repeatable {
+								type: "array"
+								items: {
+									if propdata.format != _|_ {
+										format: propdata.format
+									}
+									if propdata.type == "array" {
+										type: "string"
+									}
+									if propdata.type != "array" {
+										type: propdata.type
+									}
+								}
 							}
-							if propdata.type == "array" {
-								type: "string"
-							}
-							if propdata.type != "array" {
-								type: propdata.type
+							if !_repeatable {
+								if propdata.format != _|_ {
+									format: propdata.format
+								}
+								if propdata.type == "array" {
+									type: "string"
+								}
+								if propdata.type != "array" {
+									type: propdata.type
+								}
 							}
 						}
 					}}
@@ -662,6 +699,36 @@ paths: {for resource, data in #crud {
 					type: "integer"
 				}
 			}
+			#parameters: "outer-op": {
+				"in":        "query"
+				required:    false
+				description: "How to combine separate filters: AND / OR"
+				schema: {
+					type: "string"
+					enum: ["AND", "OR"]
+					default: "AND"
+				}
+			}
+			#parameters: "inner-op": {
+				"in":        "query"
+				required:    false
+				description: "How to combine separate values for the same filter: AND / OR"
+				schema: {
+					type: "string"
+					enum: ["AND", "OR"]
+					default: "AND"
+				}
+			}
+			// I don't want to hide the complexity of a moving count
+			// under a single api call. This parameter will be undocumented.
+			//#parameters: count: {
+			//	"in":        "query"
+			//	required:    false
+			//	description: "Include total item count in result"
+			//	schema: {
+			//		type: "boolean"
+			//	}
+			//}
 			parameters: [ for paramname, paramdata in #parameters {
 				name: paramname
 				paramdata

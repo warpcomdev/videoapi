@@ -68,52 +68,19 @@ func (r SQLResource[T, P]) GetById(ctx context.Context, id string) (t T, err err
 }
 
 // Get filtered (and possibly paginated) resources
-func (r SQLResource[T, P]) Get(ctx context.Context, filter []crud.Filter, sort []string, ascending bool, offset, limit int) ([]T, error) {
-	var sb strings.Builder
-	pp := make([]interface{}, 0, 16)
+func (r SQLResource[T, P]) Get(ctx context.Context, filter []crud.Filter, outerOp crud.OuterOperation, innerOp crud.InnerOperation, sort []string, ascending bool, offset, limit int) ([]T, error) {
+	var (
+		sb  strings.Builder
+		pp  []interface{} = make([]interface{}, 0, 16)
+		err error
+	)
 	sb.WriteString("SELECT * FROM ")
 	sb.WriteString(r.tableName)
 	if filter != nil && len(filter) > 0 {
-		sb.WriteString(" WHERE (")
-		sep := ""
-		for _, f := range filter {
-			dbtype, ok := r.columns[f.Field]
-			if !ok {
-				return nil, fmt.Errorf("column %s does not exist", f.Field)
-			}
-			sb.WriteString(sep)
-			sep = ") AND ("
-			innerSep := ""
-			for _, v := range f.Values {
-				var (
-					cond string
-					val  interface{}
-					err  error
-				)
-				if v == "NULL" {
-					switch f.Operator {
-					case crud.OP_EQ:
-						cond = f.Field + " IS NULL"
-					case crud.OP_NE:
-						cond = f.Field + " IS NOT NULL"
-					default:
-						return nil, fmt.Errorf("unsupported operador %s for value NULL", f.Operator)
-					}
-				} else {
-					cond, val, err = dbtype.Where(f.Field, f.Operator, v)
-				}
-				if err != nil {
-					return nil, err
-				}
-				sb.WriteString(innerSep)
-				innerSep = " OR "
-				sb.WriteString(cond)
-				if val != nil {
-					pp = append(pp, val)
-				}
-			}
+		pp, err = r.where(&sb, pp, filter, outerOp, innerOp)
+		if err != nil {
+			return nil, err
 		}
-		sb.WriteString(")")
 	}
 	if sort != nil && len(sort) > 0 {
 		sb.WriteString(" ORDER BY ")
@@ -137,6 +104,83 @@ func (r SQLResource[T, P]) Get(ctx context.Context, filter []crud.Filter, sort [
 		}
 	}
 	return result, nil
+}
+
+// Count filtered resources
+func (r SQLResource[T, P]) Count(ctx context.Context, filter []crud.Filter, outerOp crud.OuterOperation, innerOp crud.InnerOperation) (uint64, error) {
+	var (
+		sb  strings.Builder
+		pp  []interface{} = make([]interface{}, 0, 16)
+		err error
+	)
+	sb.WriteString("SELECT COUNT(*) FROM ")
+	sb.WriteString(r.tableName)
+	if filter != nil && len(filter) > 0 {
+		pp, err = r.where(&sb, pp, filter, outerOp, innerOp)
+		if err != nil {
+			return 0, err
+		}
+	}
+	var result []uint64
+	if err := r.querier.SelectContext(ctx, &result, sb.String(), pp...); err != nil {
+		return 0, QueryError{
+			Message: "failed to filter resource",
+			Query:   sb.String(),
+			Params:  pp,
+			Cause:   err,
+		}
+	}
+	if len(result) != 1 {
+		return 0, fmt.Errorf("unexpected result length %d", len(result))
+	}
+	return result[0], nil
+}
+
+// Where builds the where clause of a select or count query
+func (r SQLResource[T, P]) where(sb *strings.Builder, pp []interface{}, filter []crud.Filter, outerOp crud.OuterOperation, innerOp crud.InnerOperation) ([]interface{}, error) {
+	sb.WriteString(" WHERE (")
+	sep := ""
+	formatedOuterSep := fmt.Sprintf(") %s (", outerOp)
+	formatedInnerSep := fmt.Sprintf(" %s ", innerOp)
+	for _, f := range filter {
+		dbtype, ok := r.columns[f.Field]
+		if !ok {
+			return nil, fmt.Errorf("column %s does not exist", f.Field)
+		}
+		sb.WriteString(sep)
+		sep = formatedOuterSep
+		innerSep := ""
+		for _, v := range f.Values {
+			var (
+				cond string
+				val  interface{}
+				err  error
+			)
+			if v == "NULL" {
+				switch f.Operator {
+				case crud.OP_EQ:
+					cond = f.Field + " IS NULL"
+				case crud.OP_NE:
+					cond = f.Field + " IS NOT NULL"
+				default:
+					return nil, fmt.Errorf("unsupported operador %s for value NULL", f.Operator)
+				}
+			} else {
+				cond, val, err = dbtype.Where(f.Field, f.Operator, v)
+			}
+			if err != nil {
+				return nil, err
+			}
+			sb.WriteString(innerSep)
+			innerSep = formatedInnerSep
+			sb.WriteString(cond)
+			if val != nil {
+				pp = append(pp, val)
+			}
+		}
+	}
+	sb.WriteString(")")
+	return pp, nil
 }
 
 // Post creates a resource in the database

@@ -20,8 +20,13 @@ func (up AlertPolicy) GetById(ctx context.Context, id string) (models.Alert, err
 }
 
 // Get allowed to anyone
-func (up AlertPolicy) Get(ctx context.Context, filter []crud.Filter, sort []string, ascending bool, offset, limit int) ([]models.Alert, error) {
-	return up.AlertStore.Get(ctx, filter, sort, ascending, offset, limit)
+func (up AlertPolicy) Get(ctx context.Context, filter []crud.Filter, outerOp crud.OuterOperation, innerOp crud.InnerOperation, sort []string, ascending bool, offset, limit int) ([]models.Alert, error) {
+	return up.AlertStore.Get(ctx, filter, outerOp, innerOp, sort, ascending, offset, limit)
+}
+
+// Get allowed to anyone
+func (up AlertPolicy) Count(ctx context.Context, filter []crud.Filter, outerOp crud.OuterOperation, innerOp crud.InnerOperation) (uint64, error) {
+	return up.AlertStore.Count(ctx, filter, outerOp, innerOp)
 }
 
 // Post allowed to anyone with write permissions

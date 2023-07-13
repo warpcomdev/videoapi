@@ -35,7 +35,7 @@ func (up UserPolicy) GetById(ctx context.Context, id string) (zero models.User, 
 }
 
 // Get denied except to ROLE_ADMIN
-func (up UserPolicy) Get(ctx context.Context, filter []crud.Filter, sort []string, ascending bool, offset, limit int) ([]models.User, error) {
+func (up UserPolicy) Get(ctx context.Context, filter []crud.Filter, outerOp crud.OuterOperation, innerOp crud.InnerOperation, sort []string, ascending bool, offset, limit int) ([]models.User, error) {
 	claims, err := auth.ClaimsFrom(ctx)
 	if err != nil {
 		return nil, err
@@ -44,13 +44,30 @@ func (up UserPolicy) Get(ctx context.Context, filter []crud.Filter, sort []strin
 		return nil, crud.ErrUnauthorized
 	}
 	// Hide hash from returned values
-	users, err := up.UserStore.Get(ctx, filter, sort, ascending, offset, limit)
+	users, err := up.UserStore.Get(ctx, filter, outerOp, innerOp, sort, ascending, offset, limit)
 	if err != nil {
 		return nil, err
 	}
 	for idx, user := range users {
 		user.Password = ""
 		users[idx] = user
+	}
+	return users, nil
+}
+
+// Count denied except to ROLE_ADMIN
+func (up UserPolicy) Count(ctx context.Context, filter []crud.Filter, outerOp crud.OuterOperation, innerOp crud.InnerOperation) (uint64, error) {
+	claims, err := auth.ClaimsFrom(ctx)
+	if err != nil {
+		return 0, err
+	}
+	if claims.Role != models.ROLE_ADMIN {
+		return 0, crud.ErrUnauthorized
+	}
+	// Hide hash from returned values
+	users, err := up.UserStore.Count(ctx, filter, outerOp, innerOp)
+	if err != nil {
+		return 0, err
 	}
 	return users, nil
 }

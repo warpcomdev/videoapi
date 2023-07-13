@@ -20,8 +20,13 @@ func (up MediaPolicy) GetById(ctx context.Context, id string) (models.Media, err
 }
 
 // Get allowed to anyone
-func (up MediaPolicy) Get(ctx context.Context, filter []crud.Filter, sort []string, ascending bool, offset, limit int) ([]models.Media, error) {
-	return up.MediaStore.Get(ctx, filter, sort, ascending, offset, limit)
+func (up MediaPolicy) Get(ctx context.Context, filter []crud.Filter, outerOp crud.OuterOperation, innerOp crud.InnerOperation, sort []string, ascending bool, offset, limit int) ([]models.Media, error) {
+	return up.MediaStore.Get(ctx, filter, outerOp, innerOp, sort, ascending, offset, limit)
+}
+
+// Get allowed to anyone
+func (up MediaPolicy) Count(ctx context.Context, filter []crud.Filter, outerOp crud.OuterOperation, innerOp crud.InnerOperation) (uint64, error) {
+	return up.MediaStore.Count(ctx, filter, outerOp, innerOp)
 }
 
 // Post denied to READ_OMLY role

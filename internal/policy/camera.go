@@ -20,8 +20,13 @@ func (up CameraPolicy) GetById(ctx context.Context, id string) (models.Camera, e
 }
 
 // Get allowed to anyone
-func (up CameraPolicy) Get(ctx context.Context, filter []crud.Filter, sort []string, ascending bool, offset, limit int) ([]models.Camera, error) {
-	return up.CameraStore.Get(ctx, filter, sort, ascending, offset, limit)
+func (up CameraPolicy) Get(ctx context.Context, filter []crud.Filter, outerOp crud.OuterOperation, innerOp crud.InnerOperation, sort []string, ascending bool, offset, limit int) ([]models.Camera, error) {
+	return up.CameraStore.Get(ctx, filter, outerOp, innerOp, sort, ascending, offset, limit)
+}
+
+// Count allowed to anyone
+func (up CameraPolicy) Count(ctx context.Context, filter []crud.Filter, outerOp crud.OuterOperation, innerOp crud.InnerOperation) (uint64, error) {
+	return up.CameraStore.Count(ctx, filter, outerOp, innerOp)
 }
 
 // Post allowed only to ROLE_ADMIN
