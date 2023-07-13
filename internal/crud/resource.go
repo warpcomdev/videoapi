@@ -107,7 +107,7 @@ func (h ResourceFrontend) Get(r *http.Request) (io.ReadCloser, error) {
 	if cnt := params.Get("count"); cnt == "true" {
 		count = true
 	}
-	io := strings.ToUpper(params.Get("innerOp"))
+	io := strings.ToUpper(params.Get("inner-op"))
 	switch InnerOperation(io) {
 	case INNER_AND:
 		innerOp = INNER_AND
@@ -116,7 +116,7 @@ func (h ResourceFrontend) Get(r *http.Request) (io.ReadCloser, error) {
 	default:
 		innerOp = INNER_DEFAULT
 	}
-	oo := strings.ToUpper(params.Get("outerOp"))
+	oo := strings.ToUpper(params.Get("outer-op"))
 	switch OuterOperation(oo) {
 	case OUTER_AND:
 		outerOp = OUTER_AND

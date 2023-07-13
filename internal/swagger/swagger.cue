@@ -689,20 +689,20 @@ paths: {for resource, data in #crud {
 					type: "integer"
 				}
 			}
-			#parameters: outerOp: {
+			#parameters: "outer-op": {
 				"in":        "query"
 				required:    false
-				description: "How to combine separate filters: AND or OR"
+				description: "How to combine separate filters: AND / OR"
 				schema: {
 					type: "string"
 					enum: ["AND", "OR"]
 					default: "AND"
 				}
 			}
-			#parameters: innerOp: {
+			#parameters: "inner-op": {
 				"in":        "query"
 				required:    false
-				description: "How to combine separate values for the same filter: AND or OR (default AND)"
+				description: "How to combine separate values for the same filter: AND / OR"
 				schema: {
 					type: "string"
 					enum: ["AND", "OR"]

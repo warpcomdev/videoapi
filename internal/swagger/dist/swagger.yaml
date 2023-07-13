@@ -637,20 +637,20 @@ paths:
           description: Limit for pagination
           schema:
             type: integer
-        - name: outerOp
+        - name: outer-op
           in: query
           required: false
-          description: 'How to combine separate filters: AND or OR'
+          description: 'How to combine separate filters: AND / OR'
           schema:
             type: string
             enum:
               - AND
               - OR
             default: AND
-        - name: innerOp
+        - name: inner-op
           in: query
           required: false
-          description: 'How to combine separate values for the same filter: AND or OR (default AND)'
+          description: 'How to combine separate values for the same filter: AND / OR'
           schema:
             type: string
             enum:
@@ -955,20 +955,20 @@ paths:
           description: Limit for pagination
           schema:
             type: integer
-        - name: outerOp
+        - name: outer-op
           in: query
           required: false
-          description: 'How to combine separate filters: AND or OR'
+          description: 'How to combine separate filters: AND / OR'
           schema:
             type: string
             enum:
               - AND
               - OR
             default: AND
-        - name: innerOp
+        - name: inner-op
           in: query
           required: false
-          description: 'How to combine separate values for the same filter: AND or OR (default AND)'
+          description: 'How to combine separate values for the same filter: AND / OR'
           schema:
             type: string
             enum:
@@ -1321,20 +1321,20 @@ paths:
           description: Limit for pagination
           schema:
             type: integer
-        - name: outerOp
+        - name: outer-op
           in: query
           required: false
-          description: 'How to combine separate filters: AND or OR'
+          description: 'How to combine separate filters: AND / OR'
           schema:
             type: string
             enum:
               - AND
               - OR
             default: AND
-        - name: innerOp
+        - name: inner-op
           in: query
           required: false
-          description: 'How to combine separate values for the same filter: AND or OR (default AND)'
+          description: 'How to combine separate values for the same filter: AND / OR'
           schema:
             type: string
             enum:
@@ -1773,20 +1773,20 @@ paths:
           description: Limit for pagination
           schema:
             type: integer
-        - name: outerOp
+        - name: outer-op
           in: query
           required: false
-          description: 'How to combine separate filters: AND or OR'
+          description: 'How to combine separate filters: AND / OR'
           schema:
             type: string
             enum:
               - AND
               - OR
             default: AND
-        - name: innerOp
+        - name: inner-op
           in: query
           required: false
-          description: 'How to combine separate values for the same filter: AND or OR (default AND)'
+          description: 'How to combine separate values for the same filter: AND / OR'
           schema:
             type: string
             enum:
@@ -2231,20 +2231,20 @@ paths:
           description: Limit for pagination
           schema:
             type: integer
-        - name: outerOp
+        - name: outer-op
           in: query
           required: false
-          description: 'How to combine separate filters: AND or OR'
+          description: 'How to combine separate filters: AND / OR'
           schema:
             type: string
             enum:
               - AND
               - OR
             default: AND
-        - name: innerOp
+        - name: inner-op
           in: query
           required: false
-          description: 'How to combine separate values for the same filter: AND or OR (default AND)'
+          description: 'How to combine separate values for the same filter: AND / OR'
           schema:
             type: string
             enum:

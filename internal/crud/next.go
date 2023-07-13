@@ -26,10 +26,10 @@ func navigate(filters []Filter, outerOp OuterOperation, innerOp InnerOperation, 
 	query.Set("offset", strconv.Itoa(offset))
 	query.Set("limit", strconv.Itoa(limit))
 	if outerOp != OUTER_DEFAULT {
-		query.Set("outerOp", string(outerOp))
+		query.Set("outer-op", string(outerOp))
 	}
 	if innerOp != INNER_DEFAULT {
-		query.Set("innerOp", string(innerOp))
+		query.Set("inner-op", string(innerOp))
 	}
 	if ascending {
 		query.Set("asc", "true")
