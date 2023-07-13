@@ -38,7 +38,7 @@ func navigate(filters []Filter, outerOp OuterOperation, innerOp InnerOperation, 
 		query.Add("sort", col)
 	}
 	for _, filter := range filters {
-		key := fmt.Sprintf("q:%s:%s", filter.Field, filter.Operator)
+		key := fmt.Sprintf("q-%s-%s", filter.Field, filter.Operator)
 		for _, val := range filter.Values {
 			query.Add(key, val)
 		}

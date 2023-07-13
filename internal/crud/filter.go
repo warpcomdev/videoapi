@@ -42,7 +42,13 @@ func isColumnName(name string) bool {
 func filtersFrom(params map[string][]string) ([]Filter, error) {
 	filters := make(map[string]Filter, len(params))
 	for k, v := range params {
-		parts := strings.SplitN(k, ":", 3)
+		var parts []string
+		// support legacy ":" separator for backward compatibility
+		if strings.HasPrefix(k, "q:") {
+			parts = strings.SplitN(k, ":", 3)
+		} else {
+			parts = strings.SplitN(k, "-", 3)
+		}
 		if len(parts) < 3 {
 			return nil, ErrInvalidFilter
 		}
@@ -66,7 +72,7 @@ func filtersFrom(params map[string][]string) ([]Filter, error) {
 		if !f.Operator.Valid() {
 			return nil, ErrInvalidOperator
 		}
-		normalized := strings.Join([]string{parts[1], parts[2]}, ":")
+		normalized := strings.Join([]string{parts[1], parts[2]}, "-")
 		existing, ok := filters[normalized]
 		if ok {
 			existing.Values = append(existing.Values, v...)

@@ -138,7 +138,11 @@ func (h ResourceFrontend) Get(r *http.Request) (io.ReadCloser, error) {
 				}
 			}
 		}
+		// Support legacy query parameters format "q:"
 		if strings.HasPrefix(k, "q:") {
+			other[k] = v
+		}
+		if strings.HasPrefix(k, "q-") {
 			other[k] = v
 		}
 	}

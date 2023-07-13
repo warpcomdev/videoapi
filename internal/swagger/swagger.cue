@@ -597,7 +597,7 @@ paths: {for resource, data in #crud {
 			#secured
 			#parameters: {for propname, propdata in data.properties if propdata.filter != _|_ {
 				for op in propdata.filter {
-					("q:\(propname):\(op)"): {
+					("q-\(propname)-\(op)"): {
 						"in":     "query"
 						required: false
 						_repeatable: bool | *false

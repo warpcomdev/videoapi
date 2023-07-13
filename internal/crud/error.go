@@ -12,7 +12,7 @@ type Error int
 func (err Error) HttpError() (int, string) {
 	switch err {
 	case ErrInvalidFilter:
-		return http.StatusBadRequest, "filter must have the format q:<field>:<op>:value"
+		return http.StatusBadRequest, "filter must have the format q-<field>-<op>:value"
 	case ErrInvalidColumn:
 		return http.StatusBadRequest, "sort or filter by invalid column name"
 	case ErrInvalidOperator:
