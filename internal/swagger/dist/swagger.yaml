@@ -1364,85 +1364,85 @@ paths:
           required: false
           description: Find items where field `created_at` is `less than` this value
           schema:
-            format: date-time
             type: string
+            format: date-time
         - name: q-created_at-le
           in: query
           required: false
           description: Find items where field `created_at` is `less or equal` than this value
           schema:
-            format: date-time
             type: string
+            format: date-time
         - name: q-created_at-gt
           in: query
           required: false
           description: Find items where field `created_at` is `greater than` this value
           schema:
-            format: date-time
             type: string
+            format: date-time
         - name: q-created_at-ge
           in: query
           required: false
           description: Find items where field `created_at` is `greater or equal` than this value
           schema:
-            format: date-time
             type: string
+            format: date-time
         - name: q-modified_at-lt
           in: query
           required: false
           description: Find items where field `modified_at` is `less than` this value
           schema:
-            format: date-time
             type: string
+            format: date-time
         - name: q-modified_at-le
           in: query
           required: false
           description: Find items where field `modified_at` is `less or equal` than this value
           schema:
-            format: date-time
             type: string
+            format: date-time
         - name: q-modified_at-gt
           in: query
           required: false
           description: Find items where field `modified_at` is `greater than` this value
           schema:
-            format: date-time
             type: string
+            format: date-time
         - name: q-modified_at-ge
           in: query
           required: false
           description: Find items where field `modified_at` is `greater or equal` than this value
           schema:
-            format: date-time
             type: string
+            format: date-time
         - name: q-timestamp-lt
           in: query
           required: false
           description: Find items where field `timestamp` is `less than` this value
           schema:
-            format: date-time
             type: string
+            format: date-time
         - name: q-timestamp-le
           in: query
           required: false
           description: Find items where field `timestamp` is `less or equal` than this value
           schema:
-            format: date-time
             type: string
+            format: date-time
         - name: q-timestamp-gt
           in: query
           required: false
           description: Find items where field `timestamp` is `greater than` this value
           schema:
-            format: date-time
             type: string
+            format: date-time
         - name: q-timestamp-ge
           in: query
           required: false
           description: Find items where field `timestamp` is `greater or equal` than this value
           schema:
-            format: date-time
             type: string
+            format: date-time
         - name: q-camera-eq
           in: query
           required: false
@@ -1464,21 +1464,19 @@ paths:
         - name: q-tags-eq
           in: query
           required: false
-          description: Find items where field `tags` is `equal` to this value (use `NULL` to match null values)
+          description: Find items where field `tags` contains all (if inner-op is AND) or some (if inner-op is OR) of these values. Use `NULL` to match null values
           schema:
-            type: string
+            type: array
+            items:
+              type: string
         - name: q-tags-ne
           in: query
           required: false
-          description: Find items where field `tags` is `not equal` to this value (use `NULL` to match null values)
+          description: Find items where field `tags` does not contains any of these values. Only makes sense with inner-op == `AND`
           schema:
-            type: string
-        - name: q-tags-like
-          in: query
-          required: false
-          description: Find items where field `tags` is `like` to this value
-          schema:
-            type: string
+            type: array
+            items:
+              type: string
         - name: q-media_url-eq
           in: query
           required: false
@@ -1916,7 +1914,7 @@ paths:
         - name: q-tags-eq
           in: query
           required: false
-          description: Find items where field `tags` is `equal` to this value (use `NULL` to match null values)
+          description: Find items where field `tags` contains all (if inner-op is AND) or some (if inner-op is OR) of these values. Use `NULL` to match null values
           schema:
             type: array
             items:
@@ -1924,15 +1922,7 @@ paths:
         - name: q-tags-ne
           in: query
           required: false
-          description: Find items where field `tags` is `not equal` to this value (use `NULL` to match null values)
-          schema:
-            type: array
-            items:
-              type: string
-        - name: q-tags-like
-          in: query
-          required: false
-          description: Find items where field `tags` is `like` to this value
+          description: Find items where field `tags` does not contains any of these values. Only makes sense with inner-op == `AND`
           schema:
             type: array
             items:

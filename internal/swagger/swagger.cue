@@ -138,8 +138,8 @@
 				type:     "array"
 				required: false
 				readOnly: false
-				filter: ["eq", "ne", "like"]
-				repetable: true
+				filter: ["eq", "ne"]
+				repeatable: true
 			}
 			media_url: {
 				type:     "string"
@@ -191,7 +191,7 @@
 				type:     "array"
 				required: false
 				readOnly: false
-				filter: ["eq", "ne", "like"]
+				filter: ["eq", "ne"]
 				repeatable: true
 			}
 			media_url: {
@@ -602,11 +602,21 @@ paths: {for resource, data in #crud {
 						required: false
 						_repeatable: bool | *false
 						if op == "eq" {
-							description: "Find items where field `\(propname)` is `equal` to this value (use `NULL` to match null values)"
+							if !propdata.repeatable {
+								description: "Find items where field `\(propname)` is `equal` to this value (use `NULL` to match null values)"
+							}
+							if propdata.repeatable {
+								description: "Find items where field `\(propname)` contains all (if inner-op is AND) or some (if inner-op is OR) of these values. Use `NULL` to match null values"
+							}
 							_repeatable: propdata.repeatable
 						}
 						if op == "ne" {
-							description: "Find items where field `\(propname)` is `not equal` to this value (use `NULL` to match null values)"
+							if !propdata.repeatable {
+								description: "Find items where field `\(propname)` is `not equal` to this value (use `NULL` to match null values)"
+							}
+							if propdata.repeatable {
+								description: "Find items where field `\(propname)` does not contains any of these values. Only makes sense with inner-op == `AND`"
+							}
 							_repeatable: propdata.repeatable
 						}
 						if op == "gt" {
