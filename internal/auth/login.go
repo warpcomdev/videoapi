@@ -86,7 +86,7 @@ func applyOptions(options ...AuthOption) loginConfig {
 		Secure:     true,
 		HttpOnly:   true,
 		SameSite:   http.SameSiteStrictMode,
-		Expiration: 1 * time.Hour,
+		Expiration: 8 * time.Hour,
 		Path:       "/v1/api",
 	}
 	for _, opt := range options {
