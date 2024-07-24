@@ -33,11 +33,12 @@ services:
     - "oracle://videoapi:videoapi@oracle:1521/XEPDB1?TRACE FILE=trace.log"
     volumes:
     - files:/opt/storage
+    restart: unless-stopped
 
   traefik:
     image: "traefik:v2.10"
     container_name: traefik
-    restart: always
+    restart: unless-stopped
     hostname: traefik
     user: "1000:1000"
     ports:
